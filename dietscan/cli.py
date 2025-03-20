@@ -7,7 +7,7 @@ import re
 import json
 import requests
 import pandas as pd
-import pathlib
+from pathlib import Path
 import shutil
 from datetime import datetime
 from collections import defaultdict

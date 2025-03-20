@@ -165,7 +165,7 @@ def main():
     parser.add_argument("-x", "--bold_retain", type=str, required=False, default="k__Animalia", help="Comma-separated list of taxa to consider in the BOLD database (e.g. 'o__Coleoptera,o__Lepidoptera')")
     parser.add_argument("-y", "--unite_retain", type=str, required=False, default="k__Viridiplantae,p__Basidiomycota", help="Comma-separated list of taxa to consider in the UNITE database (e.g. 'k__Fungi,k__Viridioplantae')")
     parser.add_argument("-t", "--tmpdir", type=str, required=False, help="Directory where the temporary files are stored")
-    parser.add_argument("-s", "--slurm", required=False, help="Whether to use slurm")
+    parser.add_argument("-s", "--slurm", action="store_true", required=False, help="Whether to use slurm")
 
     args = parser.parse_args()
 

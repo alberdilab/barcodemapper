@@ -68,10 +68,10 @@ rule fastp:
         r1=lambda wildcards: SAMPLE_TO_READS1[wildcards.sample],
         r2=lambda wildcards: SAMPLE_TO_READS2[wildcards.sample]
     output:
-        r1 = temp(f"{TMP_DIR}/fastp/{sample}_1.fq.gz"),
-        r2 = temp(f"{TMP_DIR}/fastp/{sample}_2.fq.gz"),
-        fastp_html = temp(f"{TMP_DIR}/fastp/{sample}.html"),
-        fastp_json = temp(f"{TMP_DIR}/fastp/{sample}.json")
+        r1 = f"{TMP_DIR}/fastp/{{sample}}_1.fq.gz",
+        r2 = f"{TMP_DIR}/fastp/{{sample}}_2.fq.gz",
+        fastp_html = f"{TMP_DIR}/fastp/{{sample}}.html",
+        fastp_json = f"{TMP_DIR}/fastp/{{sample}}.json"
     threads:
         4
     conda:
@@ -130,8 +130,8 @@ rule index_db:
 rule bowtie2_mapping:
     input:
         idx = f"{TMP_DIR}/database/index.done",
-        r1 = f"{TMP_DIR}/fastp/{sample}_1.fq.gz",
-        r2 = f"{TMP_DIR}/fastp/{sample}_2.fq.gz",
+        r1 = f"{TMP_DIR}/fastp/{{sample}}_1.fq.gz",
+        r2 = f"{TMP_DIR}/fastp/{{sample}}_2.fq.gz",
     output:
         bam = f"{TMP_DIR}/bowtie/{sample}.bam"
     params:
@@ -163,9 +163,9 @@ rule bowtie2_mapping:
 ### Extract only reads with two or less mismatches + MAPQ>30 (no mismatches)
 rule bowtie2_filtering:
     input:
-        f"{TMP_DIR}/bowtie/{sample}.bam"
+        f"{TMP_DIR}/bowtie/{{sample}}.bam"
     output:
-        f"{TMP_DIR}/filter/{sample}.bam"
+        f"{TMP_DIR}/filter/{{sample}}.bam"
     threads:
         1
     conda:
@@ -184,9 +184,9 @@ rule bowtie2_filtering:
 ### Extract the taxonomy of mapped reads
 rule bowtie2_extracting:
     input:
-        f"{TMP_DIR}/filter/{sample}.bam"
+        f"{TMP_DIR}/filter/{{sample}}.bam"
     output:
-        f"{TMP_DIR}/extract/{sample}.tsv"
+        f"{TMP_DIR}/extract/{{sample}}.tsv"
     threads:
         1
     conda:
@@ -205,9 +205,9 @@ rule bowtie2_extracting:
 ### Calculate the number of reads assigned to each taxonomic assignment
 rule assign_taxonomy:
     input:
-        f"{TMP_DIR}/extract/{sample}.tsv"
+        f"{TMP_DIR}/extract/{{sample}}.tsv"
     output:
-        f"{TMP_DIR}/taxonomy/{sample}.tsv"
+        f"{TMP_DIR}/taxonomy/{{sample}}.tsv"
     params:
         package_dir={PACKAGE_DIR}
     threads:
@@ -224,9 +224,9 @@ rule assign_taxonomy:
 ### Aggregate values to obtain an additive quantiative taxonomic hierarchy
 rule aggregate_taxonomy:
     input:
-        f"{TMP_DIR}/taxonomy/{sample}.tsv"
+        f"{TMP_DIR}/taxonomy/{{sample}}.tsv"
     output:
-        f"{TMP_DIR}/aggregate/{sample}.tsv"
+        f"{TMP_DIR}/aggregate/{{sample}}.tsv"
     params:
         package_dir={PACKAGE_DIR}
     threads:
@@ -243,7 +243,7 @@ rule aggregate_taxonomy:
 ### Merge data from different samples in a final overall dataset
 rule merge_taxonomy:
     input:
-        expand(f"{TMP_DIR}/aggregate/{sample}.tsv",sample=samples)
+        expand(f"{TMP_DIR}/aggregate/{{sample}}.tsv",sample=samples)
     output:
         OUTPUT_FILE
     params:

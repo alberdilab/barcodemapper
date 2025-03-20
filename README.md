@@ -104,3 +104,23 @@ EOF
 
 sbatch merge_databases.sh
 ```
+
+### Combined
+With the option of retaining only desired taxa
+
+```sh
+cat <<EOF > prepare_database.sh
+#!/bin/bash
+#SBATCH --job-name=merge_databases
+#SBATCH --nodes=1
+#SBATCH --partition=cpuqueue
+#SBATCH --qos=normal
+#SBATCH --ntasks=1
+#SBATCH --mem=64gb
+#SBATCH --time=2:00:00
+
+python prepare_database.py -b bold.fa -u unite.fa -o dietscan.fa --retain_bold k__Animalia --retain_unite k__Viridiplantae,k__Fungi
+EOF
+
+sbatch prepare_database.sh
+```

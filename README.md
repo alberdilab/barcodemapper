@@ -101,4 +101,6 @@ cat <<EOF > merge_databases.sh
 
 python merge_databases.py bold_rename.fa unite_rename.fa dietscan.fa --retain_bold k__Animalia --retain_unite k__Viridiplantae,k__Fungi
 EOF
+
+sbatch merge_databases.sh
 ```

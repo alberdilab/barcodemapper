@@ -133,7 +133,7 @@ rule bowtie2_mapping:
         r1 = f"{TMP_DIR}/fastp/{{sample}}_1.fq.gz",
         r2 = f"{TMP_DIR}/fastp/{{sample}}_2.fq.gz",
     output:
-        bam = f"{TMP_DIR}/bowtie/{sample}.bam"
+        bam = f"{TMP_DIR}/bowtie/{{sample}}.bam"
     params:
         database = "resources/database/sh_general_release_dynamic_s_all_19.02.2025"
     threads:

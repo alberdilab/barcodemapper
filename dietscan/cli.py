@@ -182,7 +182,7 @@ def main():
     unite_db = args.unite
     bold_retain = args.bold_retain
     unite_retain = args.unite_retain
-    if args.profile:
+    if args.slurm:
         profile = 'slurm'
     else:
         profile = 'local'

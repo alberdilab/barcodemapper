@@ -157,11 +157,11 @@ def main():
         print(f"    Please, provide either an input directory or a list of input files.")
         return
 
-    if args.read1 and not args.read2):
+    if args.read1 and not args.read2:
         print(f"    Please, provide both forward and reverse sequencing read files.")
         return
 
-    if args.read2 and not args.read1):
+    if args.read2 and not args.read1:
         print(f"    Please, provide both forward and reverse sequencing read files.")
         return
 

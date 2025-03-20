@@ -103,13 +103,51 @@ def inputdir_to_samples(input_dir, output_dir):
 
     os.makedirs(f"{output}/data", exist_ok=True)
     with open(f"{output}/data/sample_to_reads1.json", "w") as f:
-        json.dump(SAMPLE_TO_READS1, f)
+        json.dump(SAMPLE_TO_READS1, f, indent=4)
 
     with open(f"{output}/data/sample_to_reads2.json", "w") as f:
-        json.dump(SAMPLE_TO_READS2, f)
+        json.dump(SAMPLE_TO_READS2, f, indent=4)
 
 def inputlist_to_samples(read1, read2, output_dir):
-    XXXXXXXXXX - GENERATE DICTIONARIES
+    forward_files = read1.split(",")
+    reverse_files = read2.split(",")
+
+    # Initialize dictionaries
+    SAMPLE_TO_READS1 = defaultdict(list)
+    SAMPLE_TO_READS2 = defaultdict(list)
+
+    # Regular expression to capture sample names
+    pattern = re.compile(r"^(.*)_\d\.fq\.gz$")  # Captures everything before "_1.fq.gz" or "_2.fq.gz"
+
+    # Process forward reads
+    for file in forward_files:
+        filename = os.path.basename(file)
+        match = pattern.match(filename)
+        if match:
+            sample_name = match.group(1)
+            SAMPLE_TO_READS1[sample_name].append(file)
+
+    # Process reverse reads
+    for file in reverse_files:
+        filename = os.path.basename(file)
+        match = pattern.match(filename)
+        if match:
+            sample_name = match.group(1)
+            SAMPLE_TO_READS2[sample_name].append(file)
+
+    # Convert defaultdict to standard dict
+    SAMPLE_TO_READS1 = dict(SAMPLE_TO_READS1)
+    SAMPLE_TO_READS2 = dict(SAMPLE_TO_READS2)
+
+    # Ensure output directory exists
+    os.makedirs(f"{output_dir}/data", exist_ok=True)
+
+    # Save JSON files
+    with open(f"{output_dir}/data/sample_to_reads1.json", "w") as f:
+        json.dump(SAMPLE_TO_READS1, f, indent=4)
+
+    with open(f"{output_dir}/data/sample_to_reads2.json", "w") as f:
+        json.dump(SAMPLE_TO_READS2, f, indent=4)
 
 #####
 # dietscan execution

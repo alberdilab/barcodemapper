@@ -101,11 +101,11 @@ def inputdir_to_samples(input_dir, output_dir):
     SAMPLE_TO_READS1 = dict(SAMPLE_TO_READS1)
     SAMPLE_TO_READS2 = dict(SAMPLE_TO_READS2)
 
-    os.makedirs(f"{output}/data", exist_ok=True)
-    with open(f"{output}/data/sample_to_reads1.json", "w") as f:
+    os.makedirs(f"{output_dir}/data", exist_ok=True)
+    with open(f"{output_dir}/data/sample_to_reads1.json", "w") as f:
         json.dump(SAMPLE_TO_READS1, f, indent=4)
 
-    with open(f"{output}/data/sample_to_reads2.json", "w") as f:
+    with open(f"{output_dir}/data/sample_to_reads2.json", "w") as f:
         json.dump(SAMPLE_TO_READS2, f, indent=4)
 
 def inputlist_to_samples(read1, read2, output_dir):

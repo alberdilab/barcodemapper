@@ -46,7 +46,7 @@ def unlock_snakemake(tmpdir, profile):
     subprocess.run(unlock_command, shell=False, check=True)
     print(f"The output directory {output_dir} has been succesfully unlocked.")
 
-def run_snakemake_origin(tmp_dir, outputfile, bold_db, unite_db, bold_retain, unite_retain, outputfile, profile):
+def run_snakemake_origin(tmp_dir, outputfile, bold_db, unite_db, bold_retain, unite_retain, profile):
     snakemake_command = [
         "/bin/bash", "-c",
         "snakemake "

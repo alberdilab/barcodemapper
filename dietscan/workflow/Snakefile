@@ -9,6 +9,7 @@ from glob import glob
 ### Config data
 
 configfile: "workflow/config.yaml"
+PACKAGE_DIR = config.get("package_dir", None)
 BOLD_DB = config.get("bold_db", None)
 UNITE_DB = config.get("unite_db", None)
 BOLD_RETAIN = config.get("bold_retain", None)

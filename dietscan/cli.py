@@ -222,10 +222,10 @@ def main():
     #####
 
     if args.read1 and args.read2:
-        inputlist_to_samples(read1, read2, tmp_dir):
+        inputlist_to_samples(read1, read2, tmp_dir)
 
     if args.input:
-        inputdir_to_samples(inputdir, tmp_dir):
+        inputdir_to_samples(inputdir, tmp_dir)
 
     if args.database:
         dest_file = os.path.join(tmp_dir, "database/dietscan_db.fa")

@@ -217,6 +217,8 @@ def main():
     else:
         tmp_dir = os.path.join(tmpdir, dir_name)
 
+    os.makedirs(tmp_dir, exist_ok=True)
+
     #####
     # run
     #####
@@ -229,6 +231,7 @@ def main():
 
     if args.database:
         dest_file = os.path.join(tmp_dir, "database/dietscan_db.fa")
+        os.makedirs(os.path.join(tmp_dir, "database"), exist_ok=True)
         shutil.copy(database, dest_file)
         run_snakemake_database(tmp_dir, outputfile, profile)
     else:

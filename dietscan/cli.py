@@ -8,8 +8,9 @@ import json
 import requests
 import pandas as pd
 import pathlib
+import shutil
+from datetime import datetime
 from collections import defaultdict
-from arch3d.utils import *
 
 #####
 # dietscan installation path
@@ -143,7 +144,6 @@ def main():
     unite_db = args.unite
     bold_retain = args.bold_retain
     unite_retain = args.unite_retain
-    tmp_dir = args.tmpdir
     if args.profile:
         profile = 'slurm'
     else:
@@ -169,8 +169,19 @@ def main():
         print(f"    Please, provide either the combined database or the original bold and unite databases.")
         return
 
+    #####
+    # tmp directory
+    #####
+
+    tmp_folder= "dietscan" + datetime.now().strftime("%Y%m%d%H%M")
     if not args.tmpdir:
-        XXXXXXXX create a unique timestamped directory
+        tmp_dir = tmp_folder
+    else:
+        tmp_dir = os.path.join(tmpdir, dir_name)
+
+    #####
+    # run
+    #####
 
     if args.read1 and args.read2:
         inputlist_to_samples(read1, read2, tmp_dir):
@@ -179,7 +190,8 @@ def main():
         inputdir_to_samples(inputdir, tmp_dir):
 
     if args.database:
-        XXXXXXXXcopy database to f"{TMPDIR}/database/dietscan_db.fa")
+        dest_file = os.path.join(tmp_dir, "database/dietscan_db.fa")
+        shutil.copy(database, dest_file)
         run_snakemake_database(tmp_dir, outputfile, profile)
     else:
         run_snakemake_origin(tmp_dir, outputfile, bold_db, unite_db, bold_retain, unite_retain, profile)

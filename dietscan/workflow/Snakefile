@@ -32,7 +32,7 @@ samples = list(SAMPLE_TO_READS1.keys())
 ### Setup the desired outputs
 rule all:
     input:
-        OUTPUTFILE
+        OUTPUT_FILE
 
 ################################################################################
 ### Prepare database
@@ -45,6 +45,7 @@ rule prepare_database:
     threads:
         1
     params:
+        package_dir={PACKAGE_DIR},
         bold=BOLD_RETAIN,
         unite=UNITE_RETINE
     resources:
@@ -195,7 +196,7 @@ rule bowtie2_extracting:
         "Filtering bam file of {wildcards.sample}"
     shell:
         """
-        samtools view {input} | awk '($3 != "*") && ($0 ~ /NM:i:/ && match($0, /NM:i:([0-9]+)/, arr) && arr[1] <= 2) {{ split($3, taxon, "|"); print $1, taxon[5], arr[1]; }}' > {output}
+        samtools view {input} | awk '($3 != "*") && ($0 ~ /NM:i:/ && match($0, /NM:i:([0-9]+)/, arr) && arr[1] <= 2) {{ split($3, taxon, "|"); print $1, taxon[2], arr[1]; }}' > {output}
         """
 
 ################################################################################
@@ -242,7 +243,7 @@ rule merge_taxonomy:
     input:
         expand(f"{TMP_DIR}/aggregate/{sample}.tsv",sample=samples)
     output:
-        OUTPUTFILE
+        OUTPUT_FILE
     params:
         package_dir={PACKAGE_DIR}
     threads:

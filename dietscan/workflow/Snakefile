@@ -75,7 +75,7 @@ rule fastp:
     threads:
         4
     conda:
-        "{params.package_dir}/workflow/environments/environment.yml"
+        "environments/environment.yml"
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 10) * 2 ** (attempt - 1))
@@ -111,7 +111,7 @@ rule index_db:
     threads:
         24
     conda:
-        "{params.package_dir}/workflow/environments/environment.yml"
+        "environments/environment.yml"
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
@@ -139,7 +139,7 @@ rule bowtie2_mapping:
     threads:
         20
     conda:
-        "{params.package_dir}/workflow/environments/environment.yml"
+        "environments/environment.yml"
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
@@ -169,7 +169,7 @@ rule bowtie2_filtering:
     threads:
         1
     conda:
-        "{params.package_dir}/workflow/environments/environment.yml"
+        "environments/environment.yml"
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
@@ -190,7 +190,7 @@ rule bowtie2_extracting:
     threads:
         1
     conda:
-        "{params.package_dir}/workflow/environments/environment.yml"
+        "environments/environment.yml"
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))

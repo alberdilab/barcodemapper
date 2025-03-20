@@ -1,0 +1,253 @@
+import os
+import re
+import pandas as pd
+from glob import glob
+
+################################################################################
+### Input data
+
+with open(f"{OUTPUT_DIR}/data/sample_to_reads1.json", "r") as f:
+    SAMPLE_TO_READS1 = json.load(f)
+
+with open(f"{OUTPUT_DIR}/data/sample_to_reads2.json", "r") as f:
+    SAMPLE_TO_READS2 = json.load(f)`
+
+samples = list(SAMPLE_TO_READS1.keys())
+
+################################################################################
+### Config data
+
+configfile: "workflow/config.yaml"
+BOLD_DB = config.get("bold_db", None)
+UNITE_DB = config.get("unite_db", None)
+BOLD_RETAIN = config.get("bold_retain", None)
+UNITE_RETINE = config.get("unite_retain", None)
+OUTPUT_FILE = config.get("output_file", None)
+TMP_DIR = config.get("tmp_dir", None)
+
+################################################################################
+### Setup the desired outputs
+rule all:
+    input:
+        OUTPUTFILE
+
+################################################################################
+### Prepare database
+rule prepare_database:
+    input:
+        bold=BOLD_DB,
+        unite=UNITE_DB
+    output:
+        f"{TMP_DIR}/database/dietscan_db.fa")
+    threads:
+        1
+    params:
+        bold=BOLD_RETAIN,
+        unite=UNITE_RETINE
+    resources:
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 10) * 2 ** (attempt - 1))
+    message:
+        "Preparing database"
+    shell:
+        """
+        "{params.package_dir}/workflow/scripts/prepare_database.py -b {input.bold} -u {input.unite} -x {params.bold} -y {params.unite} -o {output}"
+        """
+
+
+################################################################################
+### Filter reads with fastp
+rule fastp:
+    input:
+        r1=lambda wildcards: SAMPLE_TO_READS1[wildcards.sample],
+        r2=lambda wildcards: SAMPLE_TO_READS2[wildcards.sample]
+    output:
+        r1 = temp(f"{TMP_DIR}/fastp/{sample}_1.fq.gz"),
+        r2 = temp(f"{TMP_DIR}/fastp/{sample}_2.fq.gz"),
+        fastp_html = temp(f"{TMP_DIR}/fastp/{sample}.html"),
+        fastp_json = temp(f"{TMP_DIR}/fastp/{sample}.json")
+    threads:
+        4
+    conda:
+        "{params.package_dir}/workflow/environments/environment.yml"
+    resources:
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 10) * 2 ** (attempt - 1))
+    message:
+        "Using FASTP to trim adapters and low quality sequences for {wildcards.sample}"
+    shell:
+        """
+        module load fastp/0.23.4
+        fastp \
+            --in1 {input.r1} --in2 {input.r2} \
+            --out1 {output.r1} --out2 {output.r2} \
+            --trim_poly_g \
+            --trim_poly_x \
+            --n_base_limit 5 \
+            --qualified_quality_phred 20 \
+            --length_required 60 \
+            --thread {threads} \
+            --html {output.fastp_html} \
+            --json {output.fastp_json} \
+            --adapter_sequence CTGTCTCTTATACACATCT \
+            --adapter_sequence_r2 CTGTCTCTTATACACATCT
+        """
+
+################################################################################
+## Index Unite database:
+rule index_db:
+    input:
+        f"{TMP_DIR}/database/dietscan_db.fa"
+    output:
+        touch(f"{TMP_DIR}/database/index.done")
+    params:
+        database = f"{TMP_DIR}/database/dietscan_db"
+    threads:
+        24
+    conda:
+        "{params.package_dir}/workflow/environments/environment.yml"
+    resources:
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
+    message:
+        "Indexing unite database with Bowtie2"
+    shell:
+        """
+        bowtie2-build \
+            --large-index \
+            --threads {threads} \
+            {input} {params.database}
+        """
+
+################################################################################
+### Map non-host reads to DRAM genes files using Bowtie2
+rule bowtie2_mapping:
+    input:
+        idx = f"{TMP_DIR}/database/index.done",
+        r1 = f"{TMP_DIR}/fastp/{sample}_1.fq.gz",
+        r2 = f"{TMP_DIR}/fastp/{sample}_2.fq.gz",
+    output:
+        bam = f"{TMP_DIR}/bowtie/{sample}.bam"
+    params:
+        database = "resources/database/sh_general_release_dynamic_s_all_19.02.2025"
+    threads:
+        20
+    conda:
+        "{params.package_dir}/workflow/environments/environment.yml"
+    resources:
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
+    message:
+        "Mapping {wildcards.sample} to unite using Bowtie2"
+    shell:
+        """
+        # Map reads to MAGs using Bowtie2
+        bowtie2 \
+            --time \
+            --threads {threads} \
+            -x {params.database} \
+            -1 {input.r1} \
+            -2 {input.r2} \
+            -k 10 \
+            --seed 1337 \
+        | samtools sort -@ {threads} -o {output.bam}
+        """
+
+################################################################################
+### Extract only reads with two or less mismatches + MAPQ>30 (no mismatches)
+rule bowtie2_filtering:
+    input:
+        f"{TMP_DIR}/bowtie/{sample}.bam"
+    output:
+        f"{TMP_DIR}/filter/{sample}.bam"
+    threads:
+        1
+    conda:
+        "{params.package_dir}/workflow/environments/environment.yml"
+    resources:
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
+    message:
+        "Filtering bam file of {wildcards.sample}"
+    shell:
+        """
+        samtools view -h {input} | awk 'substr($0,1,1)=="@" || ($3 != "*" && $0 ~ /NM:i:/ && match($0, /NM:i:([0-9]+)/, arr) && arr[1] <= 2)' | samtools view -b -o {output}
+        """
+
+################################################################################
+### Extract the taxonomy of mapped reads
+rule bowtie2_extracting:
+    input:
+        f"{TMP_DIR}/filter/{sample}.bam"
+    output:
+        f"{TMP_DIR}/extract/{sample}.tsv"
+    threads:
+        1
+    conda:
+        "{params.package_dir}/workflow/environments/environment.yml"
+    resources:
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
+    message:
+        "Filtering bam file of {wildcards.sample}"
+    shell:
+        """
+        samtools view {input} | awk '($3 != "*") && ($0 ~ /NM:i:/ && match($0, /NM:i:([0-9]+)/, arr) && arr[1] <= 2) {{ split($3, taxon, "|"); print $1, taxon[5], arr[1]; }}' > {output}
+        """
+
+################################################################################
+### Calculate the number of reads assigned to each taxonomic assignment
+rule assign_taxonomy:
+    input:
+        f"{TMP_DIR}/extract/{sample}.tsv"
+    output:
+        f"{TMP_DIR}/taxonomy/{sample}.tsv"
+    params:
+        package_dir={PACKAGE_DIR}
+    threads:
+        1
+    resources:
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 10) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 2) * 2 ** (attempt - 1))
+    message:
+        "Assigning taxonomy"
+    script:
+        "{params.package_dir}/workflow/scripts/assign_taxonomy.py"
+
+################################################################################
+### Aggregate values to obtain an additive quantiative taxonomic hierarchy
+rule aggregate_taxonomy:
+    input:
+        f"{TMP_DIR}/taxonomy/{sample}.tsv"
+    output:
+        f"{TMP_DIR}/aggregate/{sample}.tsv"
+    params:
+        package_dir={PACKAGE_DIR}
+    threads:
+        1
+    resources:
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 10) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 2) * 2 ** (attempt - 1))
+    message:
+        "Assigning taxonomy"
+    script:
+        "{params.package_dir}/workflow/scripts/aggregate_taxonomy.py"
+
+################################################################################
+### Merge data from different samples in a final overall dataset
+rule merge_taxonomy:
+    input:
+        expand(f"{TMP_DIR}/aggregate/{sample}.tsv",sample=samples)
+    output:
+        OUTPUTFILE
+    params:
+        package_dir={PACKAGE_DIR}
+    threads:
+        1
+    resources:
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 10) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 2) * 2 ** (attempt - 1))
+    message:
+        "Assigning taxonomy"
+    script:
+        "{params.package_dir}/workflow/scripts/merge_taxonomy.py"

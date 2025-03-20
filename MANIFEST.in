@@ -1,0 +1,5 @@
+include dietscan/profile/*
+include dietscan/profile/slurm/*
+include dietscan/profile/local/*
+include dietscan/workflow/*
+include dietscan/workflow/scripts/*

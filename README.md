@@ -1,16 +1,36 @@
-# dietscan
-Quantification of dietary items from animal-derived metagenomes 
+# DietScan
 
-Current database built:
+Quantification of dietary items from animal-derived metagenomes.
 
-BOLD database version: 2025-03-14 (https://bench.boldsystems.org/index.php/datapackages/Latest)
+## 1. Installation
 
-UNITE (*All eukaryotes) database version: 2025-02-19 (https://unite.ut.ee/repository.php#general)
+DietScan can be installed directly from this repository using **pip**.
 
+```sh
+pip install git+https://github.com/alberdilab/dietscan.git
 
-## Source databases
+#if you need to uninstall it:
+pip uninstall dietscan -y
+```
 
-### BOLD
+## 2. Source databases
+
+There are two main modes for running DietScan: using the default DietScan database or generating a custom database from raw BOLD and UNITE databases.
+
+### DietScan database
+
+This is the standard database containing ITS sequences of plants and basidiomycota fungi, and COI sequences of animals. It was generated in **March 2025** with the most updated versions of BOLD (2025-03-14) and UNITE (*All eukaryotes; 2025-02-19) databases at the time.
+
+```sh
+wget XXXXXXXXX
+gunzip dietscan_db_202503.fa.gz
+```
+
+### Custom database
+
+If you want to use other versions of the databases or a different taxonomic breadth, you can download the original databases and create a custom DietScan database.
+
+#### BOLD
 
 1. Login to BOLDSystems
 2. Go to: https://bench.boldsystems.org/index.php/datapackages/Latest
@@ -19,20 +39,42 @@ UNITE (*All eukaryotes) database version: 2025-02-19 (https://unite.ut.ee/reposi
 curl -L -o BOLD.tar.gz "https://bench.boldsystems.org/index.php/API_Datapackage/fasta?id=BOLD_Public.14-Mar-2025&uid=167dba260d5969"
 curl -L -o BOLD.fa.gz "https://bench.boldsystems.org/index.php/API_Datapackage/fasta?id=BOLD_Public.14-Mar-2025&uid=167dba260d5969"
 ```
-
-Metazooa COI
+#### UNITE
 
 ```sh
 wget https://s3.hpc.ut.ee/plutof-public/original/b02db549-5f04-43fc-afb6-02888b594d10.tgz
 ```
 
-### UNITE
+## 3. Analysis
+
+```sh
+dietscan -i path/to/readsdir -d dietscan_db_202305.fa -o final_file.txt
+```
+
+If using many samples in a computational cluster, it is better to use a screen session and slurm
+
+```sh
+screen -S dietscan
+dietscan -i path/to/readsdir -d dietscan_db_202503.fa -o final_file.txt --slurm
+```
+
+### Using custom databases
+
+```sh
+wget -c custom_bold.fa [BOLD/URL]
+wget -c custom_unite.fa [UNITE/URL]
+
+screen -S dietscan
+dietscan -i path/to/readsdir -b custom_bold.fa -u custom_unite.fa --bold_retain k__Animalia --unite_retain k__Viridiplantae,p__Basidiomycota -o final_file.txt --slurm
+```
+
+## Old scripts (to be removed when ready)
 
 Plant and fungal ITS
 
 ## Database preparation
 
-### Dereplicate BOLD database 
+### Dereplicate BOLD database
 Remove duplicated sequences
 
 ```sh
@@ -52,7 +94,7 @@ EOF
 sbatch dereplicate_bold.sh
 ```
 
-### Rename BOLD database 
+### Rename BOLD database
 Unify header format and taxonomy
 
 ```sh
@@ -72,7 +114,7 @@ EOF
 sbatch rename_bold.sh
 ```
 
-### Rename UNITE database 
+### Rename UNITE database
 Unify header format and taxonomy
 
 ```sh

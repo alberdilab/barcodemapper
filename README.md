@@ -1,6 +1,13 @@
 # dietscan
 Quantification of dietary items from animal-derived metagenomes 
 
+Current database built:
+
+BOLD database version: 2025-03-14 (https://bench.boldsystems.org/index.php/datapackages/Latest)
+
+UNITE (*All eukaryotes) database version: 2025-02-19 (https://unite.ut.ee/repository.php#general)
+
+
 ## Source databases
 
 ### BOLD

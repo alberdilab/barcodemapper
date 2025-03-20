@@ -233,6 +233,6 @@ def main():
         dest_file = os.path.join(tmp_dir, "database/dietscan_db.fa")
         os.makedirs(os.path.join(tmp_dir, "database"), exist_ok=True)
         shutil.copy(database, dest_file)
-        run_snakemake_database(tmp_dir, outputfile, profile)
+        run_snakemake_database(Path(tmp_dir).resolve(), outputfile, profile)
     else:
-        run_snakemake_origin(tmp_dir, outputfile, bold_db, unite_db, bold_retain, unite_retain, profile)
+        run_snakemake_origin(Path(tmp_dir).resolve(), outputfile, bold_db, unite_db, bold_retain, unite_retain, profile)

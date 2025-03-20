@@ -38,7 +38,7 @@ rule prepare_database:
         bold=BOLD_DB,
         unite=UNITE_DB
     output:
-        f"{TMP_DIR}/database/dietscan_db.fa")
+        f"{TMP_DIR}/database/dietscan_db.fa"
     threads:
         1
     params:

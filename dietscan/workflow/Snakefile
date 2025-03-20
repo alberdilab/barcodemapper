@@ -135,7 +135,7 @@ rule bowtie2_mapping:
     output:
         bam = f"{TMP_DIR}/bowtie/{{sample}}.bam"
     params:
-        database = "resources/database/sh_general_release_dynamic_s_all_19.02.2025"
+        database = f"{TMP_DIR}/database/dietscan_db"
     threads:
         20
     conda:

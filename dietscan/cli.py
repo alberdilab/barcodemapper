@@ -211,11 +211,10 @@ def main():
     # tmp directory
     #####
 
-    tmp_folder= "dietscan" + datetime.now().strftime("%Y%m%d%H%M")
     if not args.tmpdir:
-        tmp_dir = tmp_folder
+        tmp_dir = "dietscan_" + datetime.now().strftime("%Y%m%d%H%M")
     else:
-        tmp_dir = os.path.join(tmpdir, dir_name)
+        tmp_dir = args.tmpdir
 
     os.makedirs(tmp_dir, exist_ok=True)
 

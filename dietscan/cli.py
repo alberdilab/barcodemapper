@@ -197,7 +197,7 @@ def main():
     else:
         tmp_dir = args.tmpdir
 
-    os.makedirs(tmp_dir, exist_ok=True)
+    os.makedirs(Path(tmp_dir).resolve(), exist_ok=True)
 
     #####
     # config
@@ -211,7 +211,7 @@ def main():
         config_data = {
             "run": current_time,
             "dietscan_db": args.database,
-            "tmp_dir": tmp_dir,
+            "tmp_dir": Path(tmp_dir).resolve(),
             "output_file": args.output
         }
     else:
@@ -222,7 +222,7 @@ def main():
             "unite_db": args.unite,
             "bold_retain": args.bold_retain,
             "unite_retain": args.unite_retain,
-            "tmp_dir": tmp_dir,
+            "tmp_dir": Path(tmp_dir).resolve(),
             "output_file": args.output
         }
 

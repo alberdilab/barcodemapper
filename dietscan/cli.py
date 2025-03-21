@@ -216,7 +216,7 @@ def main():
             return False
         return True
 
-    tools = ["bowtie", "samtools", "fastp"]
+    tools = ["bowtie2-build", "samtools", "fastp"]
     missing = [tool for tool in tools if not check_tool_installed(tool)]
 
     if missing:

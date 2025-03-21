@@ -31,7 +31,7 @@ def dereplicate_bold(input_fasta):
 
 ### STEP 2: RENAME BOLD HEADERS ###
 def rename_bold(records):
-    """Renames BOLD FASTA headers with taxonomic prefixes."""
+    """Renames BOLD FASTA headers with taxonomic prefixes, filling empty levels with just the prefix."""
     renamed_records = []
 
     for record in records:
@@ -45,9 +45,15 @@ def rename_bold(records):
         taxon_prefixes = ['k__', 'p__', 'c__', 'o__', 'f__', '', 'g__', 's__']
         formatted_taxonomy = []
 
+        # Fill missing levels with empty strings
+        while len(taxon_levels) < len(taxon_prefixes):
+            taxon_levels.append('')
+
         for prefix, taxon in zip(taxon_prefixes, taxon_levels):
             if taxon and taxon != 'None':
                 formatted_taxonomy.append(f"{prefix}{taxon}" if prefix else taxon)
+            else:
+                formatted_taxonomy.append(prefix)  # prefix only, no taxon name
 
         # Construct new header
         new_header = f"{parts[0]}|{parts[1]}|{';'.join(formatted_taxonomy)}"
@@ -67,15 +73,17 @@ def rename_unite(input_fasta):
     for record in SeqIO.parse(input_fasta, "fasta"):
         parts = record.description.split('|')
 
-        if len(parts) >= 3:
-            accession = parts[1]  # Extract accession number
-            taxonomy = parts[-1]  # Extract taxonomy
+        if len(parts) >= 5:
+            accession = parts[1]  # UDB accession
+            taxonomy = parts[-1]  # Last field is taxonomy
             new_header = f"{accession}|ITS|{taxonomy}"
 
             # Modify the record with new header
             record.id = new_header
             record.description = ""
             renamed_records.append(record)
+        else:
+            print(f"Skipping malformed record: {record.description}")
 
     return renamed_records
 
@@ -85,20 +93,23 @@ def filter_fasta(records, retain_list):
     retained_records = []
 
     for record in records:
-        header_parts = record.id.split('|', 1)  # Split only at the first "|"
+        parts = record.id.split('|')
 
-        if len(header_parts) < 2:
-            continue  # Skip malformed entries
+        if len(parts) < 3:
+            continue  # Skip malformed headers
 
-        accession, taxonomy_string = header_parts
-        taxonomy_levels = taxonomy_string.split(';')  # Split taxonomy properly
+        accession = parts[0]
+        gene_region = parts[1]
+        taxonomy_string = parts[2]
+
+        taxonomy_levels = taxonomy_string.split(';')
 
         # Retain only if at least one specified taxon is found in the taxonomy part
         retain = any(taxon in taxonomy_levels for taxon in retain_list)
 
         if retain:
             # Reconstruct the header
-            record.id = f"{accession}|{taxonomy_string}"
+            record.id = f"{accession}|{gene_region}|{taxonomy_string}"
             record.description = ""
             retained_records.append(record)
 

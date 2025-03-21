@@ -5,30 +5,44 @@ import random
 
 ### STEP 1: DEREPLICATE BOLD ###
 def dereplicate_bold(input_fasta):
-    """Removes sequence redundancy in BOLD, keeping the most complete taxonomy for identical sequences."""
-    unique_sequences = {}
+    """Removes redundancy:
+    - For identical sequences: keeps the one with the most complete taxonomy.
+    - For identical headers: keeps the one with the longest sequence.
+    """
+    from collections import defaultdict
+    from Bio import SeqIO
+    from Bio.Seq import Seq
+    from Bio.SeqRecord import SeqRecord
 
+    # First pass: deduplicate by sequence (keep the best taxonomy)
+    seq_map = {}
     for record in SeqIO.parse(input_fasta, "fasta"):
-        seq = str(record.seq)  # Convert sequence to string
+        seq = str(record.seq)
         header = record.description
-        parts = header.split('|')
+        taxonomy = header.split('|')[3] if len(header.split('|')) > 3 else ''
 
-        # Extract taxonomy part
-        taxonomy = parts[3] if len(parts) > 3 else ''
-
-        # If sequence is already seen, choose the one with more complete taxonomy
-        if seq in unique_sequences:
-            existing_header = unique_sequences[seq]
-            existing_taxonomy = existing_header.split('|')[3] if len(existing_header.split('|')) > 3 else ''
-
-            # Prefer the one with the longest taxonomy string
+        if seq in seq_map:
+            existing_record = seq_map[seq]
+            existing_taxonomy = existing_record.description.split('|')[3] if len(existing_record.description.split('|')) > 3 else ''
             if len(taxonomy) > len(existing_taxonomy):
-                unique_sequences[seq] = header
+                seq_map[seq] = record
         else:
-            unique_sequences[seq] = header
+            seq_map[seq] = record
 
-    return [SeqIO.SeqRecord(Seq(seq), id=header, description="") for seq, header in unique_sequences.items()]
+    # Second pass: deduplicate by header (keep the longest sequence)
+    header_map = {}
+    for record in seq_map.values():
+        header = record.description
+        seq = str(record.seq)
+        if header in header_map:
+            existing_seq = str(header_map[header].seq)
+            if len(seq) > len(existing_seq):
+                header_map[header] = record
+        else:
+            header_map[header] = record
 
+    return list(header_map.values())
+    
 ### STEP 2: RENAME BOLD HEADERS ###
 def rename_bold(records):
     """Renames BOLD FASTA headers with taxonomic prefixes, filling empty levels with just the prefix."""

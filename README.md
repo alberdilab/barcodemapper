@@ -13,6 +13,19 @@ pip install git+https://github.com/alberdilab/dietscan.git
 pip uninstall dietscan -y
 ```
 
+### Dependencies
+
+- fastp=0.23.1
+- samtools=1.21
+- bowtie2=2.4.2
+
+If you don't have these dependencies installed, you can create a custom environment for DietScan using conda
+
+```sh
+wget 
+conda env create --name dietscan --file dietscan_env.yml
+```
+
 ## 2. Source databases
 
 There are two main modes for running DietScan: using the default DietScan database or generating a custom database from raw BOLD and UNITE databases.

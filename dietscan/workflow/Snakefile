@@ -124,8 +124,6 @@ rule index_db:
         database = DIETSCAN_BASE
     threads:
         24
-    conda:
-        "environments/environment.yml"
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 10) * 2 ** (attempt - 1))
@@ -157,8 +155,6 @@ rule bowtie2_mapping:
         database = DIETSCAN_BASE
     threads:
         20
-    conda:
-        "environments/environment.yml"
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
@@ -187,8 +183,6 @@ rule bowtie2_filtering:
         f"{TMP_DIR}/filter/{{sample}}.bam"
     threads:
         1
-    conda:
-        "environments/environment.yml"
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
@@ -208,8 +202,6 @@ rule bowtie2_extracting:
         f"{TMP_DIR}/extract/{{sample}}.tsv"
     threads:
         1
-    conda:
-        "environments/environment.yml"
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))

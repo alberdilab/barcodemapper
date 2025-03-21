@@ -67,7 +67,7 @@ if BOLD_DB or UNITE_DB:
             "Preparing database"
         shell:
             """
-            "python {params.package_dir}/workflow/scripts/prepare_database.py -b {input.bold} -u {input.unite} -x {params.bold} -y {params.unite} -o {output}"
+            python {params.package_dir}/workflow/scripts/prepare_database.py -b {input.bold} -u {input.unite} -x {params.bold} -y {params.unite} -o {output}
             """
 
 ################################################################################

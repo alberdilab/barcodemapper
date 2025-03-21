@@ -33,23 +33,44 @@ If you want to use other versions of the databases or a different taxonomic brea
 #### BOLD
 
 1. Login to BOLDSystems
-2. Go to: https://bench.boldsystems.org/index.php/datapackages/Latest
+2. Visit https://bench.boldsystems.org/index.php/datapackages/Latest
 3. Download data. Note that unique download codes will be generated, so this step cannot be reproduced directly.
+
 ```sh
-curl -L -o BOLD.tar.gz "https://bench.boldsystems.org/index.php/API_Datapackage/fasta?id=BOLD_Public.14-Mar-2025&uid=167dba260d5969"
-curl -L -o BOLD.fa.gz "https://bench.boldsystems.org/index.php/API_Datapackage/fasta?id=BOLD_Public.14-Mar-2025&uid=167dba260d5969"
+cd dietscan_db
+curl -L -o BOLD_Public.14-Mar-2025.fa.gz "https://bench.boldsystems.org/index.php/API_Datapackage/fasta?id=BOLD_Public.14-Mar-2025&uid=167dcd55552bc4"
+gunzip BOLD_Public.14-Mar-2025.fa.gz
 ```
 #### UNITE
 
+1. Visit: https://unite.ut.ee/repository.php
+2. Download the General FASTA release for All Eukaryotes
+
 ```sh
-wget https://s3.hpc.ut.ee/plutof-public/original/b02db549-5f04-43fc-afb6-02888b594d10.tgz
+cd dietscan_db
+wget -O sh_general_release_dynamic_s_all_19.02.2025.tgz https://s3.hpc.ut.ee/plutof-public/original/b02db549-5f04-43fc-afb6-02888b594d10.tgz
+tar xvf sh_general_release_dynamic_s_all_19.02.2025.tgz
 ```
 
 ## 3. Analysis
 
+### With existing DietScan database
+
+Just provide the input data (-i), the path to the DietScan database (-d) and the output (-o) file.
+
 ```sh
 dietscan -i path/to/readsdir -d dietscan_db_202305.fa -o final_file.txt
 ```
+
+### With original BOLD and UNITE databases
+
+Provide the paths to the original BOLD (-b) and UNITE (-u) databases, as well as the destination of the DietScan database (-d). Optionally, limit the taxa to be included in the DietScan database using -x for limiting BOLD taxa and -y for limiting UNITE taxa. Once the DietScan database has been generated, you will only need to use (-d)
+
+```sh
+dietscan -i path/to/readsdir -b dietscan_db/BOLD_Public.14-Mar-2025.fa -u dietscan_db/sh_general_release_dynamic_s_all_19.02.2025.fa -d dietscan_db/dietscan_db_202305.fa -x k__Animalia -y k__Viridiplantae,p__Basidiomycota -o DietScan_results.txt
+```
+
+### On a computational cluster
 
 If using many samples in a computational cluster, it is better to use a screen session and slurm
 

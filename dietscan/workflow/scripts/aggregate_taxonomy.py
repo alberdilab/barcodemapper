@@ -1,5 +1,4 @@
 import pandas as pd
-import sys
 from collections import defaultdict
 
 # Read input and output file paths from Snakemake
@@ -15,16 +14,25 @@ taxonomy_counts = df["Taxonomy"].value_counts().to_dict()
 # Initialize taxonomic hierarchy
 taxonomy_tree = defaultdict(int)
 
+# Function to check for empty taxonomy levels
+def has_empty_levels(taxon):
+    return any(level.endswith("__") for level in taxon.split(";"))
+
 # Process each taxon, ensuring parents accumulate child counts
 for taxon, count in taxonomy_counts.items():
+    if has_empty_levels(taxon):
+        continue  # Skip taxa with empty levels
+
     # Assign count to the specific taxon
     taxonomy_tree[taxon] += count
 
     # Propagate counts to all parent taxonomic levels
     tax_levels = taxon.split(";")
-    for i in range(1, len(tax_levels)):  # Iterate through hierarchy
+    for i in range(1, len(tax_levels)):
         parent_taxon = ";".join(tax_levels[:i])
-        taxonomy_tree[parent_taxon] += count  # Sum into parent taxon
+        if has_empty_levels(parent_taxon):
+            continue  # Skip partial paths with empty levels
+        taxonomy_tree[parent_taxon] += count
 
 # Convert to DataFrame
 agg_df = pd.DataFrame(list(taxonomy_tree.items()), columns=["Taxonomy", "Count"])

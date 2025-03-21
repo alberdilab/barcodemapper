@@ -244,6 +244,24 @@ def main():
 
     if args.build:
         buildonly="yes"
+
+        if not args.bold:
+            print(f"Error: You did not specify a BOLD database.")
+            sys.exit(1)
+        else:
+            bold_db_path = Path(args.bold)
+            if not bold_db_path.exists():
+                print(f"Error: BOLD database file {bold_db_path} does not exist.")
+                sys.exit(1)
+
+        if not args.unite:
+            print(f"Error: You did not specify a UNITE database.")
+        else:
+            unite_db_path = Path(args.unite)
+            if not unite_db_path.exists():
+                print(f"Error: UNITE database file {unite_db_path} does not exist.")
+                sys.exit(1)
+
     else:
         buildonly="no"
 

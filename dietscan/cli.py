@@ -209,21 +209,21 @@ def main():
         config_data = {
             "run": current_time,
             "package_dir": PACKAGE_DIR,
-            "dietscan_db": dietscan_db,
+            "dietscan_db": args.database,
             "tmp_dir": tmp_dir,
-            "output_file": output_file
+            "output_file": args.output
         }
     else:
         config_data = {
             "run": current_time,
             "package_dir": PACKAGE_DIR,
-            "dietscan_db": dietscan_db,
-            "bold_db": bold_db,
-            "unite_db": unite_db,
-            "bold_retain": bold_retain,
-            "unite_retain": unite_retain,
+            "dietscan_db": args.database,
+            "bold_db": args.bold,
+            "unite_db": args.unite,
+            "bold_retain": args.bold_retain,
+            "unite_retain": args.unite_retain,
             "tmp_dir": tmp_dir,
-            "output_file": output_file
+            "output_file": args.output
         }
 
     with open(config_path, "w") as f:

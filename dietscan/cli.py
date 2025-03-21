@@ -27,7 +27,7 @@ def unlock_snakemake(tmp_dir, config_path, profile):
         "/bin/bash", "-c",  # Ensures the module system works properly
         "snakemake "
         f"-s {PACKAGE_DIR / 'workflow' / 'Snakefile'} "
-        f"--directory {output_dir} "
+        f"--directory {tmp_dir} "
         f"--workflow-profile {PACKAGE_DIR / 'profile' / profile} "
         f"--configfile {config_path} "
         f"--config package_dir={PACKAGE_DIR}"

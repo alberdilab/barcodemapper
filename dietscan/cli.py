@@ -181,12 +181,24 @@ def main():
     if args.database and not (args.bold and args.unite):
         dietscan_db_path = Path(args.database)
         if not dietscan_db_path.exists():
-            print(f"Error: Database file {db_path} does not exist.")
+            print(f"Error: Database file {dietscan_db_path} does not exist.")
             sys.exit(1)
         else:
             if dietscan_db_path.suffix.lower() not in [".fa", ".fasta"]:
-                print(f"Error: Database file {db_path} does not have a correct (.fa or .fasta) extension.")
+                print(f"Error: Database file {dietscan_db_path} does not have a correct (.fa or .fasta) extension.")
                 sys.exit(1)
+
+    if args.bold:
+        bold_db_path = Path(args.bold)
+        if not bold_db_path.exists():
+            print(f"Error: BOLD database file {bold_db_path} does not exist.")
+            sys.exit(1)
+
+    if args.unite:
+        unite_db_path = Path(args.unite)
+        if not unite_db_path.exists():
+            print(f"Error: UNITE database file {unite_db_path} does not exist.")
+            sys.exit(1)
 
     #####
     # tmp directory

@@ -44,7 +44,7 @@ def run_snakemake(tmp_dir, config_path, profile):
         f"-s {PACKAGE_DIR / 'workflow' / 'Snakefile'} "
         f"--directory {tmp_dir} "
         f"--workflow-profile {PACKAGE_DIR / 'profile' / profile} "
-        f"--configfile {config_path}"
+        f"--configfile {config_path} "
         f"--config package_dir={PACKAGE_DIR}"
     ]
     subprocess.run(snakemake_command, shell=False, check=True)

@@ -199,18 +199,15 @@ def main():
         print(f"    Please, provide both forward and reverse sequencing read files.")
         return
 
-    if args.database and (args.bold or args.unite):
-        print(f"    Please, provide either the combined database or the original bold and unite databases.")
-        return
-
-    dietscan_db_path = Path(args.database)
-    if not dietscan_db_path.exists():
-        print(f"Error: Database file {db_path} does not exist.")
-        sys.exit(1)
-    else:
-        if dietscan_db_path.suffix.lower() not in [".fa", ".fasta"]:
-            print(f"Error: Database file {db_path} does not have a correct (.fa or .fasta) extension.")
+    if args.database and not (args.bold and args.unite):
+        dietscan_db_path = Path(args.database)
+        if not dietscan_db_path.exists():
+            print(f"Error: Database file {db_path} does not exist.")
             sys.exit(1)
+        else:
+            if dietscan_db_path.suffix.lower() not in [".fa", ".fasta"]:
+                print(f"Error: Database file {db_path} does not have a correct (.fa or .fasta) extension.")
+                sys.exit(1)
 
     #####
     # tmp directory

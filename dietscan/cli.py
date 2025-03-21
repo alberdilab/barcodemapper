@@ -207,6 +207,22 @@ def main():
             print(f"If you want to re-build the DietScan database first remove this one.")
 
     #####
+    # depenency check
+    #####
+
+    def check_tool_installed(tool_name):
+        if shutil.which(tool_name) is None:
+            print(f"Error: {tool_name} is not installed or not in your PATH.", file=sys.stderr)
+            return False
+        return True
+
+    tools = ["bowtie", "samtools", "fastp"]
+    missing = [tool for tool in tools if not check_tool_installed(tool)]
+
+    if missing:
+        sys.exit(f"Missing tools: {', '.join(missing)}")
+        
+    #####
     # tmp directory
     #####
 

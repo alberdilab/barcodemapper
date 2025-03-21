@@ -42,7 +42,7 @@ def dereplicate_bold(input_fasta):
             header_map[header] = record
 
     return list(header_map.values())
-    
+
 ### STEP 2: RENAME BOLD HEADERS ###
 def rename_bold(records):
     """Renames BOLD FASTA headers with taxonomic prefixes, filling empty levels with just the prefix."""
@@ -55,19 +55,23 @@ def rename_bold(records):
         taxonomy = parts[3] if len(parts) > 3 else ''
         taxon_levels = taxonomy.split(',') if taxonomy else []
 
-        # Define taxonomic prefixes
-        taxon_prefixes = ['k__', 'p__', 'c__', 'o__', 'f__', '', 'g__', 's__']
-        formatted_taxonomy = []
+        # Define taxonomic prefixes (excluding subfamily)
+        taxon_prefixes = ['k__', 'p__', 'c__', 'o__', 'f__', 'g__', 's__']
+
+        # Remove subfamily (6th element) if it exists
+        if len(taxon_levels) > 5:
+            del taxon_levels[5]
 
         # Fill missing levels with empty strings
         while len(taxon_levels) < len(taxon_prefixes):
             taxon_levels.append('')
 
+        # Format taxonomy
         for prefix, taxon in zip(taxon_prefixes, taxon_levels):
             if taxon and taxon != 'None':
-                formatted_taxonomy.append(f"{prefix}{taxon}" if prefix else taxon)
+                formatted_taxonomy.append(f"{prefix}{taxon}")
             else:
-                formatted_taxonomy.append(prefix)  # prefix only, no taxon name
+                formatted_taxonomy.append(f"{prefix}__" if prefix.endswith('__') else prefix)
 
         # Construct new header
         new_header = f"{parts[0]}|{parts[1]}|{';'.join(formatted_taxonomy)}"

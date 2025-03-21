@@ -216,11 +216,11 @@ def main():
             return False
         return True
 
-    tools = ["bowtie2-build", "samtools", "fastp"]
+    tools = ["bowtie2", "samtools", "fastp"]
     missing = [tool for tool in tools if not check_tool_installed(tool)]
 
     if missing:
-        sys.exit(f"Make sure you install {', '.join(missing)} before running DietScan. Alternatively, create the DietScan conda environment following the explanations in the documentation.")
+        sys.exit(f"Make sure {', '.join(missing)} are installed before running DietScan. Optionally, create the DietScan conda environment containing all dependencies following the explanations in the DietScan documentation.")
 
     #####
     # tmp directory

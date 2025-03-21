@@ -90,7 +90,6 @@ rule fastp:
         "Using FASTP to trim adapters and low quality sequences for {wildcards.sample}"
     shell:
         """
-        module load fastp/0.23.4
         fastp \
             --in1 {input.r1} --in2 {input.r2} \
             --out1 {output.r1} --out2 {output.r2} \

@@ -93,16 +93,34 @@ def rename_unite(input_fasta):
         parts = record.description.split('|')
 
         if len(parts) >= 5:
-            accession = parts[1]  # UDB accession
-            taxonomy = parts[-1]  # Last field is taxonomy
-            new_header = f"{accession}|ITS|{taxonomy}"
+            accession = parts[1]
+            taxonomy = parts[-1]  # full taxonomy string
+            levels = taxonomy.split(';')
 
-            # Modify the record with new header
+            cleaned_levels = []
+
+            for level in levels:
+                if level.startswith('s__') and level.endswith('_sp'):
+                    cleaned_levels.append('s__')
+                elif level.startswith('g__') and '_gen_Incertae_sedis' in level:
+                    cleaned_levels.append('g__')
+                elif level.startswith('f__') and '_fam_Incertae_sedis' in level:
+                    cleaned_levels.append('f__')
+                elif level.startswith('o__') and '_ord_Incertae_sedis' in level:
+                    cleaned_levels.append('o__')
+                elif level.startswith('c__') and '_cls_Incertae_sedis' in level:
+                    cleaned_levels.append('c__')
+                elif level.startswith('p__') and '_phy_Incertae_sedis' in level:
+                    cleaned_levels.append('p__')
+                else:
+                    cleaned_levels.append(level)
+
+            cleaned_taxonomy = ';'.join(cleaned_levels)
+
+            new_header = f"{accession}|ITS|{cleaned_taxonomy}"
             record.id = new_header
             record.description = ""
             renamed_records.append(record)
-        else:
-            print(f"Skipping malformed record: {record.description}")
 
     return renamed_records
 

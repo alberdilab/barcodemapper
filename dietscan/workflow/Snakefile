@@ -128,7 +128,7 @@ rule index_db:
         "environments/environment.yml"
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
-        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 10) * 2 ** (attempt - 1))
     message:
         "Indexing unite database with Bowtie2"
     shell:
@@ -217,7 +217,7 @@ rule bowtie2_extracting:
         "Filtering bam file of {wildcards.sample}"
     shell:
         """
-        samtools view {input} | awk '($3 != "*") && ($0 ~ /NM:i:/ && match($0, /NM:i:([0-9]+)/, arr) && arr[1] <= 2) {{ split($3, taxon, "|"); print $1, taxon[2], arr[1]; }}' > {output}
+        samtools view {input} | awk '($3 != "*") && ($0 ~ /NM:i:/ && match($0, /NM:i:([0-9]+)/, arr) && arr[1] <= 2) {{ split($3, taxon, "|"); print $1, taxon[3], arr[1]; }}' > {output}
         """
 
 ################################################################################

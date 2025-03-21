@@ -50,7 +50,7 @@ def rename_bold(records):
                 formatted_taxonomy.append(f"{prefix}{taxon}" if prefix else taxon)
 
         # Construct new header
-        new_header = f"{parts[0]}|{';'.join(formatted_taxonomy)}"
+        new_header = f"{parts[0]}|{parts[1]}|{';'.join(formatted_taxonomy)}"
 
         # Modify the record with the new header
         record.id = new_header
@@ -70,7 +70,7 @@ def rename_unite(input_fasta):
         if len(parts) >= 3:
             accession = parts[1]  # Extract accession number
             taxonomy = parts[-1]  # Extract taxonomy
-            new_header = f"{accession}|{taxonomy}"
+            new_header = f"{accession}|ITS|{taxonomy}"
 
             # Modify the record with new header
             record.id = new_header

@@ -28,8 +28,9 @@ def unlock_snakemake(tmp_dir, config_path, profile):
         "snakemake "
         f"-s {PACKAGE_DIR / 'workflow' / 'Snakefile'} "
         f"--directory {output_dir} "
-        f"--configfile {config_path} "
         f"--workflow-profile {PACKAGE_DIR / 'profile' / profile} "
+        f"--configfile {config_path} "
+        f"--config package_dir={PACKAGE_DIR}"
         f"--unlock"
     ]
 
@@ -44,6 +45,7 @@ def run_snakemake(tmp_dir, config_path, profile):
         f"--directory {tmp_dir} "
         f"--workflow-profile {PACKAGE_DIR / 'profile' / profile} "
         f"--configfile {config_path}"
+        f"--config package_dir={PACKAGE_DIR}"
     ]
     subprocess.run(snakemake_command, shell=False, check=True)
 
@@ -208,7 +210,6 @@ def main():
     if args.database and not (args.bold and args.unite):
         config_data = {
             "run": current_time,
-            "package_dir": PACKAGE_DIR,
             "dietscan_db": args.database,
             "tmp_dir": tmp_dir,
             "output_file": args.output
@@ -216,7 +217,6 @@ def main():
     else:
         config_data = {
             "run": current_time,
-            "package_dir": PACKAGE_DIR,
             "dietscan_db": args.database,
             "bold_db": args.bold,
             "unite_db": args.unite,

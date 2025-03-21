@@ -59,7 +59,7 @@ def rename_bold(records):
         taxon_prefixes = ['k__', 'p__', 'c__', 'o__', 'f__', 'g__', 's__']
 
         # Remove subfamily (6th element) if it exists
-        if len(taxon_levels) > 5:
+        if len(taxon_levels) > 7:
             del taxon_levels[5]
 
         # Fill missing levels with empty strings
@@ -67,6 +67,7 @@ def rename_bold(records):
             taxon_levels.append('')
 
         # Format taxonomy
+        formatted_taxonomy = []
         for prefix, taxon in zip(taxon_prefixes, taxon_levels):
             if taxon and taxon != 'None':
                 formatted_taxonomy.append(f"{prefix}{taxon}")

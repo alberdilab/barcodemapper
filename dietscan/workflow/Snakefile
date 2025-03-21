@@ -17,6 +17,7 @@ BOLD_RETAIN = config.get("bold_retain", None)
 UNITE_RETINE = config.get("unite_retain", None)
 OUTPUT_FILE = config.get("output_file", None)
 TMP_DIR = config.get("tmp_dir", None)
+BUILD_ONLY = config.get("build_only", None)
 
 ################################################################################
 ### Input data
@@ -39,9 +40,22 @@ DIETSCAN_rev2_BT2L = f"{DIETSCAN_BASE}.rev.2.bt2l"
 
 ################################################################################
 ### Setup the desired outputs
-rule all:
-    input:
-        OUTPUT_FILE
+
+if BUILD_ONLY == "yes":
+    rule all:
+        input:
+            DIETSCAN_DB,
+            DIETSCAN_1_BT2L,
+            DIETSCAN_2_BT2L,
+            DIETSCAN_3_BT2L,
+            DIETSCAN_4_BT2L,
+            DIETSCAN_rev1_BT2L,
+            DIETSCAN_rev2_BT2L
+
+if BUILD_ONLY == "no":
+    rule all:
+        input:
+            OUTPUT_FILE
 
 ################################################################################
 ### Prepare database

@@ -69,10 +69,10 @@ def rename_bold(records):
         # Format taxonomy
         formatted_taxonomy = []
         for prefix, taxon in zip(taxon_prefixes, taxon_levels):
-            if taxon and taxon != 'None':
+            if taxon and taxon.lower() != 'none':
                 formatted_taxonomy.append(f"{prefix}{taxon}")
             else:
-                formatted_taxonomy.append(f"{prefix}__" if prefix.endswith('__') else prefix)
+                formatted_taxonomy.append(prefix)
 
         # Construct new header
         new_header = f"{parts[0]}|{parts[1]}|{';'.join(formatted_taxonomy)}"

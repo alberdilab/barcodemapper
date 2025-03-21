@@ -146,6 +146,7 @@ def main():
     parser.add_argument("-t", "--tmpdir", type=str, required=False, help="Directory where the temporary files are stored")
     parser.add_argument("-s", "--slurm", action="store_true", required=False, help="Whether to use slurm")
     parser.add_argument("--unlock", action="store_true", required=False, help="Whether to unlock the directory")
+    parser.add_argument("--build", action="store_true", required=False, help="Only build the database")
 
     args = parser.parse_args()
 
@@ -176,6 +177,10 @@ def main():
 
     if args.read2 and not args.read1:
         print(f"    Please, provide both forward and reverse sequencing read files.")
+        return
+
+    if not args.build and not (args.input or (args.read1 and args.read2)):
+        print(f"    No input data was specified. Use either the -i, or the -1 and -2 arguments.")
         return
 
     if args.database and not (args.bold and args.unite):
@@ -234,6 +239,15 @@ def main():
     os.makedirs(Path(tmp_dir).resolve(), exist_ok=True)
 
     #####
+    # database build
+    #####
+
+    if not args.build:
+        buildonly="yes"
+    else:
+        buildonly="no"
+
+    #####
     # config
     #####
 
@@ -246,7 +260,8 @@ def main():
             "run": current_time,
             "dietscan_db": str(Path(args.database).resolve()),
             "tmp_dir": str(Path(tmp_dir).resolve()),
-            "output_file": str(Path(args.output).resolve())
+            "output_file": str(Path(args.output).resolve()),
+            "build_only": buildonly
         }
     else:
         config_data = {
@@ -257,7 +272,8 @@ def main():
             "bold_retain": args.bold_retain,
             "unite_retain": args.unite_retain,
             "tmp_dir": str(Path(tmp_dir).resolve()),
-            "output_file": str(Path(args.output).resolve())
+            "output_file": str(Path(args.output).resolve()),
+            "build_only": buildonly
         }
 
     with open(config_path, "w") as f:

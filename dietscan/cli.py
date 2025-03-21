@@ -242,7 +242,7 @@ def main():
     # database build
     #####
 
-    if not args.build:
+    if args.build:
         buildonly="yes"
     else:
         buildonly="no"

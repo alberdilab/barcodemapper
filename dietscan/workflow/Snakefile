@@ -266,7 +266,8 @@ rule merge_taxonomy:
     output:
         OUTPUT_FILE
     params:
-        package_dir={PACKAGE_DIR}
+        package_dir={PACKAGE_DIR},
+        samples=samples
     threads:
         1
     resources:

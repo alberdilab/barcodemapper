@@ -200,6 +200,12 @@ def main():
             print(f"Error: UNITE database file {unite_db_path} does not exist.")
             sys.exit(1)
 
+    if args.database and args.bold and args.unite:
+        dietscan_db_path = Path(args.database)
+        if dietscan_db_path.exists():
+            print(f"Warning: The DietScan database {dietscan_db_path} already exists.")
+            print(f"If you want to re-build the DietScan database first remove this one.")
+
     #####
     # tmp directory
     #####

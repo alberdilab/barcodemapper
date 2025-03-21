@@ -210,20 +210,20 @@ def main():
     if args.database and not (args.bold and args.unite):
         config_data = {
             "run": current_time,
-            "dietscan_db": args.database,
+            "dietscan_db": str(Path(args.database).resolve()),
             "tmp_dir": str(Path(tmp_dir).resolve()),
-            "output_file": args.output
+            "output_file": str(Path(args.output).resolve())
         }
     else:
         config_data = {
             "run": current_time,
-            "dietscan_db": args.database,
-            "bold_db": args.bold,
-            "unite_db": args.unite,
+            "dietscan_db": str(Path(args.database).resolve()),
+            "bold_db": str(Path(args.bold).resolve()),
+            "unite_db": str(Path(args.unite).resolve()),
             "bold_retain": args.bold_retain,
             "unite_retain": args.unite_retain,
             "tmp_dir": str(Path(tmp_dir).resolve()),
-            "output_file": args.output
+            "output_file": str(Path(args.output).resolve())
         }
 
     with open(config_path, "w") as f:
@@ -234,10 +234,10 @@ def main():
     #####
 
     if args.read1 and args.read2:
-        inputlist_to_samples(args.read1, args.read2, tmp_dir)
+        inputlist_to_samples(args.read1, args.read2, Path(tmp_dir).resolve())
 
     if args.input:
-        inputdir_to_samples(args.input, tmp_dir)
+        inputdir_to_samples(args.input, Path(tmp_dir).resolve())
 
     if args.unlock:
         unlock_snakemake(Path(tmp_dir).resolve(), config_path, profile)

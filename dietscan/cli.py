@@ -208,22 +208,22 @@ def main():
     if args.database and not (args.bold and args.unite):
         config_data = {
             "run": current_time,
-            "package_dir"=PACKAGE_DIR,
-            "dietscan_db"=dietscan_db,
-            "tmp_dir"=tmp_dir,
-            "output_file"=output_file
+            "package_dir": PACKAGE_DIR,
+            "dietscan_db": dietscan_db,
+            "tmp_dir": tmp_dir,
+            "output_file": output_file
         }
     else:
         config_data = {
             "run": current_time,
-            "package_dir"=PACKAGE_DIR,
-            "dietscan_db"=dietscan_db,
-            "bold_db"=bold_db,
-            "unite_db"=unite_db,
-            "bold_retain"=bold_retain,
-            "unite_retain"=unite_retain,
-            "tmp_dir"=tmp_dir,
-            "output_file"=output_file
+            "package_dir": PACKAGE_DIR,
+            "dietscan_db": dietscan_db,
+            "bold_db": bold_db,
+            "unite_db": unite_db,
+            "bold_retain": bold_retain,
+            "unite_retain": unite_retain,
+            "tmp_dir": tmp_dir,
+            "output_file": output_file
         }
 
     with open(config_path, "w") as f:

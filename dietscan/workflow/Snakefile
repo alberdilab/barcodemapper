@@ -10,6 +10,7 @@ from glob import glob
 
 configfile: "workflow/config.yaml"
 PACKAGE_DIR = config.get("package_dir", None)
+DIETSCAN_DB = config.get("dietscan_db", None)
 BOLD_DB = config.get("bold_db", None)
 UNITE_DB = config.get("unite_db", None)
 BOLD_RETAIN = config.get("bold_retain", None)
@@ -28,6 +29,14 @@ with open(f"{TMP_DIR}/data/sample_to_reads2.json", "r") as f:
 
 samples = list(SAMPLE_TO_READS1.keys())
 
+DIETSCAN_BASE = os.path.splitext(DIETSCAN_DB)[0]
+DIETSCAN_1_BT2L = f"{DIETSCAN_BASE}.1.bt2l"
+DIETSCAN_2_BT2L = f"{DIETSCAN_BASE}.2.bt2l"
+DIETSCAN_3_BT2L = f"{DIETSCAN_BASE}.3.bt2l"
+DIETSCAN_4_BT2L = f"{DIETSCAN_BASE}.4.bt2l"
+DIETSCAN_rev1_BT2L = f"{DIETSCAN_BASE}.rev.1.bt2l"
+DIETSCAN_rev2_BT2L = f"{DIETSCAN_BASE}.rev.2.bt2l"
+
 ################################################################################
 ### Setup the desired outputs
 rule all:
@@ -44,7 +53,7 @@ if BOLD_DB or UNITE_DB:
             bold=BOLD_DB,
             unite=UNITE_DB
         output:
-            f"{TMP_DIR}/database/dietscan_db.fa"
+            DIETSCAN_DB
         threads:
             1
         params:
@@ -103,11 +112,16 @@ rule fastp:
 ## Index Unite database:
 rule index_db:
     input:
-        f"{TMP_DIR}/database/dietscan_db.fa"
+        DIETSCAN_DB
     output:
-        touch(f"{TMP_DIR}/database/index.done")
+        bt2l1=DIETSCAN_1_BT2L,
+        bt2l2=DIETSCAN_2_BT2L,
+        bt2l3=DIETSCAN_3_BT2L,
+        bt2l4=DIETSCAN_4_BT2L,
+        bt2lrev1=DIETSCAN_rev1_BT2L,
+        bt2l1rev2=DIETSCAN_rev2_BT2L
     params:
-        database = f"{TMP_DIR}/database/dietscan_db"
+        database = DIETSCAN_BASE
     threads:
         24
     conda:
@@ -129,13 +143,18 @@ rule index_db:
 ### Map non-host reads to DRAM genes files using Bowtie2
 rule bowtie2_mapping:
     input:
-        idx = f"{TMP_DIR}/database/index.done",
+        bt2l1=DIETSCAN_1_BT2L,
+        bt2l2=DIETSCAN_2_BT2L,
+        bt2l3=DIETSCAN_3_BT2L,
+        bt2l4=DIETSCAN_4_BT2L,
+        bt2lrev1=DIETSCAN_rev1_BT2L,
+        bt2l1rev2=DIETSCAN_rev2_BT2L,
         r1 = f"{TMP_DIR}/fastp/{{sample}}_1.fq.gz",
         r2 = f"{TMP_DIR}/fastp/{{sample}}_2.fq.gz",
     output:
         bam = f"{TMP_DIR}/bowtie/{{sample}}.bam"
     params:
-        database = f"{TMP_DIR}/database/dietscan_db"
+        database = DIETSCAN_BASE
     threads:
         20
     conda:

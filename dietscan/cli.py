@@ -32,7 +32,7 @@ config_vars = load_config()
 # Function definitions
 #####
 
-def unlock_snakemake(tmpdir, profile):
+def unlock_snakemake(tmp_dir, profile):
     unlock_command = [
         "/bin/bash", "-c",  # Ensures the module system works properly
         "snakemake "
@@ -46,7 +46,7 @@ def unlock_snakemake(tmpdir, profile):
     subprocess.run(unlock_command, shell=False, check=True)
     print(f"The output directory {output_dir} has been succesfully unlocked.")
 
-def run_snakemake_origin(tmp_dir, outputfile, bold_db, unite_db, bold_retain, unite_retain, profile):
+def run_snakemake_origin(tmp_dir, outputfile, dietscan_db, bold_db, unite_db, bold_retain, unite_retain, profile):
     snakemake_command = [
         "/bin/bash", "-c",
         "snakemake "
@@ -54,11 +54,11 @@ def run_snakemake_origin(tmp_dir, outputfile, bold_db, unite_db, bold_retain, un
         f"--directory {tmp_dir} "
         f"--workflow-profile {PACKAGE_DIR / 'profile' / profile} "
         f"--configfile {CONFIG_PATH} "
-        f"--config package_dir={PACKAGE_DIR} bold_db={bold_db} unite_db={unite_db} bold_retain={bold_retain} unite_retain={unite_retain} tmp_dir={tmp_dir} output_file={output_file}"
+        f"--config package_dir={PACKAGE_DIR} dietscan_db={dietscan_db} bold_db={bold_db} unite_db={unite_db} bold_retain={bold_retain} unite_retain={unite_retain} tmp_dir={tmp_dir} output_file={output_file}"
     ]
     subprocess.run(snakemake_command, shell=False, check=True)
 
-def run_snakemake_database(tmp_dir, output_file, profile):
+def run_snakemake_database(tmp_dir, output_file, dietscan_db, profile):
     snakemake_command = [
         "/bin/bash", "-c",
         "snakemake "
@@ -66,7 +66,7 @@ def run_snakemake_database(tmp_dir, output_file, profile):
         f"--directory {tmp_dir} "
         f"--workflow-profile {PACKAGE_DIR / 'profile' / profile} "
         f"--configfile {CONFIG_PATH} "
-        f"--config package_dir={PACKAGE_DIR} tmp_dir={tmp_dir} output_file={output_file}"
+        f"--config package_dir={PACKAGE_DIR} dietscan_db={dietscan_db} tmp_dir={tmp_dir} output_file={output_file}"
     ]
     subprocess.run(snakemake_command, shell=False, check=True)
 
@@ -159,13 +159,14 @@ def main():
     parser.add_argument("-1", "--read1", type=str, required=False, help="Comma-separated list of forward reads.")
     parser.add_argument("-2", "--read2", type=str, required=False, help="Comma-separated list of reverse reads.")
     parser.add_argument("-o", "--output", type=str, required=False, help="Cryosection identifier (required).")
-    parser.add_argument("-d", "--database", type=str, required=False, help="Combined database (fasta).")
+    parser.add_argument("-d", "--database", type=str, required=True, help="Combined database (fasta).")
     parser.add_argument("-b", "--bold", type=str, required=False, help="Bold database (fasta).")
     parser.add_argument("-u", "--unite", type=str, required=False, help="Unite database (fasta).")
     parser.add_argument("-x", "--bold_retain", type=str, required=False, default="k__Animalia", help="Comma-separated list of taxa to consider in the BOLD database (e.g. 'o__Coleoptera,o__Lepidoptera')")
     parser.add_argument("-y", "--unite_retain", type=str, required=False, default="k__Viridiplantae,p__Basidiomycota", help="Comma-separated list of taxa to consider in the UNITE database (e.g. 'k__Fungi,k__Viridioplantae')")
     parser.add_argument("-t", "--tmpdir", type=str, required=False, help="Directory where the temporary files are stored")
     parser.add_argument("-s", "--slurm", action="store_true", required=False, help="Whether to use slurm")
+    parser.add_argument("-u", "--unlock", action="store_true", required=False, help="Whether to unlock the directory")
 
     args = parser.parse_args()
 
@@ -173,15 +174,10 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    inputdir = args.input
-    read1 = args.read1
-    read2 = args.read2
-    outputfile = args.output
-    database = args.database
-    bold_db = args.bold
-    unite_db = args.unite
-    bold_retain = args.bold_retain
-    unite_retain = args.unite_retain
+    #####
+    # select profile
+    #####
+
     if args.slurm:
         profile = 'slurm'
     else:
@@ -207,6 +203,15 @@ def main():
         print(f"    Please, provide either the combined database or the original bold and unite databases.")
         return
 
+    dietscan_db_path = Path(args.database)
+    if not dietscan_db_path.exists():
+        print(f"Error: Database file {db_path} does not exist.")
+        sys.exit(1)
+    else:
+        if dietscan_db_path.suffix.lower() not in [".fa", ".fasta"]:
+            print(f"Error: Database file {db_path} does not have a correct (.fa or .fasta) extension.")
+            sys.exit(1)
+
     #####
     # tmp directory
     #####
@@ -223,15 +228,18 @@ def main():
     #####
 
     if args.read1 and args.read2:
-        inputlist_to_samples(read1, read2, tmp_dir)
+        inputlist_to_samples(args.read1, args.read2, tmp_dir)
 
     if args.input:
-        inputdir_to_samples(inputdir, tmp_dir)
+        inputdir_to_samples(args.input, tmp_dir)
 
     if args.database:
-        dest_file = os.path.join(tmp_dir, "database/dietscan_db.fa")
-        os.makedirs(os.path.join(tmp_dir, "database"), exist_ok=True)
-        shutil.copy(database, dest_file)
-        run_snakemake_database(Path(tmp_dir).resolve(), outputfile, profile)
+        if args.unlock:
+            unlock_snakemake(Path(tmp_dir).resolve(), profile)
+        else:
+            run_snakemake_database(Path(tmp_dir).resolve(), args.output, args.database, profile)
     else:
-        run_snakemake_origin(Path(tmp_dir).resolve(), outputfile, bold_db, unite_db, bold_retain, unite_retain, profile)
+        if args.unlock:
+            unlock_snakemake(Path(tmp_dir).resolve(), profile)
+        else:
+            run_snakemake_origin(Path(tmp_dir).resolve(), args.output, args.database, args.bold, args.unite, args.bold_retain, args.unite_retain, profile)

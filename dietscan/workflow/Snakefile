@@ -123,7 +123,7 @@ rule index_db:
         24
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
-        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 10) * 2 ** (attempt - 1))
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 30) * 2 ** (attempt - 1))
     message:
         "Indexing unite database with Bowtie2"
     shell:

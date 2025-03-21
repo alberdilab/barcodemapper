@@ -119,7 +119,7 @@ def main():
     parser.add_argument("-u","--unite_fasta", required=True, help="Input UNITE FASTA file")
     parser.add_argument("-o","--output_fasta", required=True, help="Output merged FASTA file")
     parser.add_argument("-x","--retain_bold", required=False, default="", help="Comma-separated taxa to retain from BOLD (e.g. 'o__Coleoptera,o__Lepidoptera')")
-    parser.add_argument("-z","--retain_unite", required=False, default="", help="Comma-separated taxa to retain from UNITE (e.g. 'k__Fungi,k__Viridioplantae')")
+    parser.add_argument("-y","--retain_unite", required=False, default="", help="Comma-separated taxa to retain from UNITE (e.g. 'k__Fungi,k__Viridioplantae')")
 
     args = parser.parse_args()
 

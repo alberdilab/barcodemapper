@@ -212,7 +212,7 @@ def main():
 
     def check_tool_installed(tool_name):
         if shutil.which(tool_name) is None:
-            print(f"Error: {tool_name} is not installed or not in your PATH.", file=sys.stderr)
+            print(f"    Error: {tool_name} is not installed or not in your PATH.", file=sys.stderr)
             return False
         return True
 
@@ -220,8 +220,8 @@ def main():
     missing = [tool for tool in tools if not check_tool_installed(tool)]
 
     if missing:
-        sys.exit(f"Missing tools: {', '.join(missing)}")
-        
+        sys.exit(f"Make sure you install {', '.join(missing)} before running DietScan. Alternatively, create the DietScan conda environment following the explanations in the documentation.")
+
     #####
     # tmp directory
     #####

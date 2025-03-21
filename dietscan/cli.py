@@ -17,28 +17,18 @@ from collections import defaultdict
 #####
 
 PACKAGE_DIR = Path(__file__).parent
-CONFIG_PATH = PACKAGE_DIR / "workflow" / "config.yaml"
-
-def load_config():
-    """Load fixed variables from config.yaml."""
-    if CONFIG_PATH.exists():
-        with open(CONFIG_PATH, "r") as f:
-            return yaml.safe_load(f)
-    return {}
-
-config_vars = load_config()
 
 #####
 # Function definitions
 #####
 
-def unlock_snakemake(tmp_dir, profile):
+def unlock_snakemake(tmp_dir, config_path, profile):
     unlock_command = [
         "/bin/bash", "-c",  # Ensures the module system works properly
         "snakemake "
         f"-s {PACKAGE_DIR / 'workflow' / 'Snakefile'} "
         f"--directory {output_dir} "
-        f"--configfile {CONFIG_PATH} "
+        f"--configfile {config_path} "
         f"--workflow-profile {PACKAGE_DIR / 'profile' / profile} "
         f"--unlock"
     ]
@@ -46,26 +36,26 @@ def unlock_snakemake(tmp_dir, profile):
     subprocess.run(unlock_command, shell=False, check=True)
     print(f"The output directory {output_dir} has been succesfully unlocked.")
 
-def run_snakemake_origin(tmp_dir, outputfile, dietscan_db, bold_db, unite_db, bold_retain, unite_retain, profile):
+def run_snakemake_origin(tmp_dir, config_path, outputfile, dietscan_db, bold_db, unite_db, bold_retain, unite_retain, profile):
     snakemake_command = [
         "/bin/bash", "-c",
         "snakemake "
         f"-s {PACKAGE_DIR / 'workflow' / 'Snakefile'} "
         f"--directory {tmp_dir} "
         f"--workflow-profile {PACKAGE_DIR / 'profile' / profile} "
-        f"--configfile {CONFIG_PATH} "
+        f"--configfile {config_path} "
         f"--config package_dir={PACKAGE_DIR} dietscan_db={dietscan_db} bold_db={bold_db} unite_db={unite_db} bold_retain={bold_retain} unite_retain={unite_retain} tmp_dir={tmp_dir} output_file={output_file}"
     ]
     subprocess.run(snakemake_command, shell=False, check=True)
 
-def run_snakemake_database(tmp_dir, output_file, dietscan_db, profile):
+def run_snakemake_database(tmp_dir, config_path, output_file, dietscan_db, profile):
     snakemake_command = [
         "/bin/bash", "-c",
         "snakemake "
         f"-s {PACKAGE_DIR / 'workflow' / 'Snakefile'} "
         f"--directory {tmp_dir} "
         f"--workflow-profile {PACKAGE_DIR / 'profile' / profile} "
-        f"--configfile {CONFIG_PATH} "
+        f"--configfile {config_path} "
         f"--config package_dir={PACKAGE_DIR} dietscan_db={dietscan_db} tmp_dir={tmp_dir} output_file={output_file}"
     ]
     subprocess.run(snakemake_command, shell=False, check=True)
@@ -221,6 +211,18 @@ def main():
     os.makedirs(tmp_dir, exist_ok=True)
 
     #####
+    # config
+    #####
+
+    config_dir = Path(tmp_dir) / "data"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    config_path = config_dir / "config.yaml"
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    config_data = {"run": current_time}
+    with open(config_path, "w") as f:
+        yaml.dump(config_data, f)
+
+    #####
     # run
     #####
 
@@ -232,11 +234,11 @@ def main():
 
     if args.database:
         if args.unlock:
-            unlock_snakemake(Path(tmp_dir).resolve(), profile)
+            unlock_snakemake(Path(tmp_dir).resolve(), config_path, profile)
         else:
-            run_snakemake_database(Path(tmp_dir).resolve(), args.output, args.database, profile)
+            run_snakemake_database(Path(tmp_dir).resolve(), config_path, args.output, args.database, profile)
     else:
         if args.unlock:
-            unlock_snakemake(Path(tmp_dir).resolve(), profile)
+            unlock_snakemake(Path(tmp_dir).resolve(), config_path, profile)
         else:
-            run_snakemake_origin(Path(tmp_dir).resolve(), args.output, args.database, args.bold, args.unite, args.bold_retain, args.unite_retain, profile)
+            run_snakemake_origin(Path(tmp_dir).resolve(), config_path, args.output, args.database, args.bold, args.unite, args.bold_retain, args.unite_retain, profile)

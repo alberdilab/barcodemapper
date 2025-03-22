@@ -138,6 +138,8 @@ def main():
     parser.add_argument("-1", "--read1", type=str, required=False, help="Comma-separated list of forward reads.")
     parser.add_argument("-2", "--read2", type=str, required=False, help="Comma-separated list of reverse reads.")
     parser.add_argument("-o", "--output", type=str, required=False, help="Output taxonomy file.")
+    parser.add_argument("-m", "--max_mismatches", type=str, required=False, default=2, help="Maximum number of mismatches allowed.")
+    parser.add_argument("-c", "--min_coverage", type=str, required=True, default=100, help="Minimum number of bases required for mapping.")
     parser.add_argument("-p", "--plot", action="store_true", required=False, help="Output sunburst plot html.")
     parser.add_argument("-d", "--database", type=str, required=True, help="Combined DietMapper database (fasta).")
     parser.add_argument("-b", "--bold", type=str, required=False, help="Bold database (fasta).")
@@ -296,7 +298,9 @@ def main():
             "tmp_dir": str(Path(tmp_dir).resolve()),
             "output_file": output_file,
             "build_only": buildonly,
-            "sunburst_file": sunburst_file
+            "sunburst_file": sunburst_file,
+            "max_mismatches": args.max_mismatches,
+            "min_coverage": args.min_coverage
         }
     else:
         config_data = {
@@ -309,8 +313,11 @@ def main():
             "tmp_dir": str(Path(tmp_dir).resolve()),
             "output_file": output_file,
             "build_only": buildonly,
-            "sunburst_file": sunburst_file
+            "sunburst_file": sunburst_file,
+            "max_mismatches": args.max_mismatches,
+            "min_coverage": args.min_coverage
         }
+
 
     with open(config_path, "w") as f:
         yaml.dump(config_data, f)

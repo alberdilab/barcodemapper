@@ -19,6 +19,8 @@ OUTPUT_FILE = config.get("output_file", None)
 TMP_DIR = config.get("tmp_dir", None)
 BUILD_ONLY = config.get("build_only", None)
 SUNBURST_FILE = config.get("sunburst_file", None)
+MAX_MISMATCHES = config.get("max_mismatches", None)
+MIN_COVERAGE = config.get("min_coverage", None)
 
 ################################################################################
 ### Input data
@@ -239,7 +241,9 @@ rule bowtie2_extracting:
     output:
         f"{TMP_DIR}/extract/{{sample}}.tsv"
     params:
-        package_dir={PACKAGE_DIR}
+        package_dir={PACKAGE_DIR},
+        max_mismatches={MAX_MISMATCHES}
+        min_coverage={MIN_COVERAGE}
     threads:
         1
     resources:
@@ -249,7 +253,7 @@ rule bowtie2_extracting:
         "Extracting taxonomy from bam file of {wildcards.sample}"
     shell:
         """
-        python {params.package_dir}/workflow/scripts/extract_taxonomy.py --input {input} --output {output} --max_nm 2 --min_covered 100
+        python {params.package_dir}/workflow/scripts/extract_taxonomy.py --input {input} --output {output} --max_nm {params.max_mismatches} --min_covered {params.min_coverage}
         """
 
 ################################################################################

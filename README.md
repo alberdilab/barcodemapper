@@ -15,10 +15,10 @@ dietmapper -h
 
 #### Software
 
-- snakemake=8.25.3
-- fastp=0.23.1
-- samtools=1.21
-- bowtie2=2.4.2
+- snakemake
+- fastp
+- samtools
+- bowtie2
 
 #### Python modules
 
@@ -29,7 +29,7 @@ dietmapper -h
 - requests
 - plotly
 
-If you don't have these dependencies installed and added to your path, you can create a custom ready-to-use environment for DietMapper using conda.
+If you don't have these dependencies installed and added to your path, you can create a custom ready-to-use environment for DietMapper with fully compatible software versions using conda.
 
 ```sh
 wget https://raw.githubusercontent.com/alberdilab/dietmapper/main/dietmapper_env.yml

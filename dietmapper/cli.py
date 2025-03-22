@@ -275,8 +275,8 @@ def main():
     #####
 
     if args.plot:
-        output_path=str(Path(args.output).resolve())
-        sunburst_file=output_path.with_name(output_path.stem + '.html')
+        output_path=Path(args.output).resolve()
+        sunburst_file=str(output_path.with_name(output_path.stem + '.html'))
     else:
         sunburst_file="no"
 

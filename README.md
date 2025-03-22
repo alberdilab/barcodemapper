@@ -1,16 +1,14 @@
 # DietMapper
 
-Quantification of dietary items from animal-derived metagenomes.
+**DietMapper** is a software for quantifying plant, fungi and animal DNA by mapping shotgun sequencing reads against taxonomically annotated marker genes, including ITS, COI, 16S and others. It is useful for detecting and quantifying the relative proportion of dietary items from intestinal contents of faecal samples, providing the higher possible taxonomic resolution through resolving ambiguous mappings.
 
 ## 1. Installation
 
-DietMapper can be installed directly from this repository using **pip**.
+DietMapper can be installed with its python dependencies (but not fastp, samtools and bowtie2) directly from this repository using **pip**.
 
 ```sh
 pip install git+https://github.com/alberdilab/dietmapper.git
-
-#if you need to uninstall it:
-pip uninstall dietmapper -y
+dietmapper -h
 ```
 
 ### Dependencies
@@ -36,6 +34,8 @@ If you don't have these dependencies installed and added to your path, you can c
 ```sh
 wget https://raw.githubusercontent.com/alberdilab/dietmapper/main/dietmapper_env.yml
 conda env create --file dietmapper_env.yml
+conda activate dietmapper
+dietmapper -h
 ```
 
 ## 2. Source databases

@@ -11,6 +11,14 @@ pip install git+https://github.com/alberdilab/dietmapper.git
 dietmapper -h
 ```
 
+If you don't have the dependencies listed below installed you can create a custom ready-to-use environment for DietMapper with fully compatible software versions using conda.
+
+```sh
+wget https://raw.githubusercontent.com/alberdilab/dietmapper/main/dietmapper_env.yml
+conda env create --file dietmapper_env.yml
+conda activate dietmapper
+dietmapper -h
+```
 ### Dependencies
 
 #### Software
@@ -29,14 +37,7 @@ dietmapper -h
 - requests
 - plotly
 
-If you don't have these dependencies installed and added to your path, you can create a custom ready-to-use environment for DietMapper with fully compatible software versions using conda.
 
-```sh
-wget https://raw.githubusercontent.com/alberdilab/dietmapper/main/dietmapper_env.yml
-conda env create --file dietmapper_env.yml
-conda activate dietmapper
-dietmapper -h
-```
 
 ## 2. Source databases
 

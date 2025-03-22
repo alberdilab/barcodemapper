@@ -4,10 +4,13 @@
     - bioconda
     - defaults
  dependencies:
-    - snakemake=8.25.3
+    - snakemake=8.27.1
     - fastp=0.23.1
-    - samtools
-    - bowtie2 
-    - pip
+    - samtools=1.21
+    - bowtie2=2.5.4
+    - numpy=2.2.1
+    - pandas=2.2.3
+    - plotly=6.0.1
+    - pip=24.3.1
     - pip:
       - git+https://github.com/alberdilab/dietmapper.git

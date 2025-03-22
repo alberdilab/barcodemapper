@@ -238,6 +238,8 @@ rule bowtie2_extracting:
         f"{TMP_DIR}/bowtie/{{sample}}.bam"
     output:
         f"{TMP_DIR}/extract/{{sample}}.tsv"
+    params:
+        package_dir={PACKAGE_DIR}
     threads:
         1
     resources:

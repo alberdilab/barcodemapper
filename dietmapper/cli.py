@@ -133,12 +133,13 @@ def inputlist_to_samples(read1, read2, output_dir):
 #####
 
 def main():
-    parser = argparse.ArgumentParser(description="Dietary profiling from metagenomic data.")
+    parser = argparse.ArgumentParser(description="DietMapper: dietary profiling from metagenomic data.")
     parser.add_argument("-i", "--input", type=str, required=False, help="Path to the input directory containing the sequencing reads.")
     parser.add_argument("-1", "--read1", type=str, required=False, help="Comma-separated list of forward reads.")
     parser.add_argument("-2", "--read2", type=str, required=False, help="Comma-separated list of reverse reads.")
-    parser.add_argument("-o", "--output", type=str, required=False, help="Cryosection identifier (required).")
-    parser.add_argument("-d", "--database", type=str, required=True, help="Combined database (fasta).")
+    parser.add_argument("-o", "--output", type=str, required=False, help="Output taxonomy file.")
+    parser.add_argument("-p", "--plot", action="store_true", required=False, help="Output sunburst plot html.")
+    parser.add_argument("-d", "--database", type=str, required=True, help="Combined DietMapper database (fasta).")
     parser.add_argument("-b", "--bold", type=str, required=False, help="Bold database (fasta).")
     parser.add_argument("-u", "--unite", type=str, required=False, help="Unite database (fasta).")
     parser.add_argument("-x", "--bold_retain", type=str, required=False, default="k__Animalia", help="Comma-separated list of taxa to consider in the BOLD database (e.g. 'o__Coleoptera,o__Lepidoptera')")
@@ -266,6 +267,16 @@ def main():
         buildonly="no"
 
     #####
+    # plot
+    #####
+
+    if args.plot:
+        output_path=str(Path(args.output).resolve())
+        sunburst_file=output_path.with_name(output_path.stem + '.html')
+    else:
+        sunburst_file="no"
+
+    #####
     # config
     #####
 
@@ -279,7 +290,8 @@ def main():
             "dietmapper_db": str(Path(args.database).resolve()),
             "tmp_dir": str(Path(tmp_dir).resolve()),
             "output_file": str(Path(args.output).resolve()),
-            "build_only": buildonly
+            "build_only": buildonly,
+            "sunburst_file": sunburst_file
         }
     else:
         config_data = {
@@ -291,7 +303,8 @@ def main():
             "unite_retain": args.unite_retain,
             "tmp_dir": str(Path(tmp_dir).resolve()),
             "output_file": str(Path(args.output).resolve()),
-            "build_only": buildonly
+            "build_only": buildonly,
+            "sunburst_file": sunburst_file
         }
 
     with open(config_path, "w") as f:

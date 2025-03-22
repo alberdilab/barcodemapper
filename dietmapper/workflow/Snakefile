@@ -18,6 +18,7 @@ UNITE_RETINE = config.get("unite_retain", None)
 OUTPUT_FILE = config.get("output_file", None)
 TMP_DIR = config.get("tmp_dir", None)
 BUILD_ONLY = config.get("build_only", None)
+SUNBURST_FILE = config.get("sunburst_file", None)
 
 ################################################################################
 ### Input data
@@ -53,9 +54,15 @@ if BUILD_ONLY == "yes":
             DIETMAPPER_rev2_BT2L
 
 if BUILD_ONLY == "no":
-    rule all:
-        input:
-            OUTPUT_FILE
+    if SUNBURST_FILE == "no":
+        rule all:
+            input:
+                OUTPUT_FILE
+    else:
+        rule all:
+            input:
+                OUTPUT_FILE,
+                SUNBURST_FILE
 
 ################################################################################
 ### Prepare database
@@ -280,3 +287,24 @@ rule merge_taxonomy:
         "Assigning taxonomy"
     script:
         "{params.package_dir}/workflow/scripts/merge_taxonomy.py"
+
+################################################################################
+### Generate sunburst plot
+rule sunburst_plot:
+    input:
+        OUTPUT_FILE
+    output:
+        SUNBURST_FILE
+    threads:
+        1
+    params:
+        package_dir={PACKAGE_DIR}
+    resources:
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 3) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
+    message:
+        "Preparing database"
+    shell:
+        """
+        python {params.package_dir}/workflow/scripts/sunburst_ploy.py -i {input} -o {output}
+        """

@@ -197,28 +197,45 @@ rule bowtie2_mapping:
 
 ################################################################################
 ### Extract only reads with two or less mismatches + MAPQ>30 (no mismatches)
-rule bowtie2_filtering:
-    input:
-        f"{TMP_DIR}/bowtie/{{sample}}.bam"
-    output:
-        f"{TMP_DIR}/filter/{{sample}}.bam"
-    threads:
-        1
-    resources:
-        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
-        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
-    message:
-        "Filtering bam file of {wildcards.sample}"
-    shell:
-        """
-        samtools view -h {input} | awk 'substr($0,1,1)=="@" || ($3 != "*" && $0 ~ /NM:i:/ && match($0, /NM:i:([0-9]+)/, arr) && arr[1] <= 2)' | samtools view -b -o {output}
-        """
+#rule bowtie2_filtering:
+#    input:
+#        f"{TMP_DIR}/bowtie/{{sample}}.bam"
+#    output:
+#        f"{TMP_DIR}/filter/{{sample}}.bam"
+#    threads:
+#        1
+#    resources:
+#        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
+#        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
+#    message:
+#        "Filtering bam file of {wildcards.sample}"
+#    shell:
+#        """
+#        samtools view -h {input} | awk 'substr($0,1,1)=="@" || ($3 != "*" && $0 ~ /NM:i:/ && match($0, /NM:i:([0-9]+)/, arr) && arr[1] <= 2)' | samtools view -b -o {output}
+#        """
 
 ################################################################################
 ### Extract the taxonomy of mapped reads
+#rule bowtie2_extracting:
+#    input:
+#        f"{TMP_DIR}/filter/{{sample}}.bam"
+#    output:
+#        f"{TMP_DIR}/extract/{{sample}}.tsv"
+#    threads:
+#        1
+#    resources:
+#        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
+#        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
+#    message:
+#        "Filtering bam file of {wildcards.sample}"
+#    shell:
+#        """
+#        samtools view {input} | awk '($3 != "*") && ($0 ~ /NM:i:/ && match($0, /NM:i:([0-9]+)/, arr) && arr[1] <= 2) {{ split($3, taxon, "|"); print $1, taxon[1], taxon[2], taxon[3], arr[1]; }}' > {output}
+#        """
+
 rule bowtie2_extracting:
     input:
-        f"{TMP_DIR}/filter/{{sample}}.bam"
+        f"{TMP_DIR}/bowtie/{{sample}}.bam"
     output:
         f"{TMP_DIR}/extract/{{sample}}.tsv"
     threads:
@@ -227,10 +244,10 @@ rule bowtie2_extracting:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
     message:
-        "Filtering bam file of {wildcards.sample}"
+        "Extracting taxonomy from bam file of {wildcards.sample}"
     shell:
         """
-        samtools view {input} | awk '($3 != "*") && ($0 ~ /NM:i:/ && match($0, /NM:i:([0-9]+)/, arr) && arr[1] <= 2) {{ split($3, taxon, "|"); print $1, taxon[1], taxon[2], taxon[3], arr[1]; }}' > {output}
+        python {params.package_dir}/workflow/scripts/extract_taxonomy.py --input {input} --output {output} --max_nm 2 --min_covered 100
         """
 
 ################################################################################
@@ -248,7 +265,7 @@ rule assign_taxonomy:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 10) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 2) * 2 ** (attempt - 1))
     message:
-        "Assigning taxonomy"
+        "Assigning taxonomy to {wildcards.sample}"
     script:
         "{params.package_dir}/workflow/scripts/assign_taxonomy.py"
 

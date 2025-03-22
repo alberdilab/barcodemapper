@@ -61,7 +61,7 @@ If you want to use different versions of the databases (e.g., a more recent upda
 1. Login to BOLDSystems (you need a user account).
 2. Visit https://bench.boldsystems.org/index.php/datapackages/Latest
 3. Obtain the link of the FASTA version of the database. Note that when making the download request a unique download link like the one shown below will be generated, so this step cannot be reproduced directly.
-4. Download the FASTA file (gz compression) and decompress i.t
+4. Download the FASTA file (gz compression) and decompress it.
 
 ```sh
 cd dietscan_db
@@ -87,8 +87,16 @@ tar xvf sh_general_release_dynamic_s_all_19.02.2025.tgz
 Just provide the input data (-i), the path to the DietScan database (-d) and the output (-o) file.
 
 ```sh
-dietscan -i path/to/readsdir -d dietscan_db_202503.fa -o final_file.txt
+dietscan -i path/to/reads_folder -d dietscan_db_202503.fa -o final_file.txt
 ```
+
+Or alternatively, add your forward (-1) and reverse (-2) sequencing reads as comma-separated lists.
+
+```sh
+dietscan -1 sample1_1.fq.gz,sample2_1.fq.gz -2 sample1_2.fq.gz,sample2_2.fq.gz -d dietscan_db_202503.fa -o final_file.txt
+```
+
+Note that while DietScan can be run on individual samples, it is primarily designed for batch processing to generate combined output files (taxonomy file and sunburst plot).
 
 ### With original BOLD and UNITE databases
 
@@ -106,7 +114,7 @@ dietscan --build -b dietscan_db/BOLD_Public.14-Mar-2025.fa -u dietscan_db/sh_gen
 
 ### On a computational cluster
 
-If using many samples in a computational cluster, it is advised to use a screen session and slurm to run the pipeline optimising resources and respecting the computation queue.
+When processing multiple samples on a computational cluster, it is recommended to use a screen session and SLURM to run the pipeline efficiently—optimising resource usage and adhering to the job queue system.
 
 ```sh
 screen -S dietscan

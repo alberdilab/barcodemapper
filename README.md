@@ -120,3 +120,46 @@ When processing multiple samples on a computational cluster, it is recommended t
 screen -S dietscan
 dietscan -i path/to/readsdir -d dietscan_db_202503.fa -o final_file.txt --slurm
 ```
+
+## 4. Output files
+
+### Taxonomy table
+
+The main output of DietScan is a quantitative taxonomy table that displays the number of reads mapped to each taxonomic level. Read counts are aggregated from lower to higher taxonomic ranks, providing the most specific classification possible—typically at the species level—when a read is uniquely mapped to a species-annotated reference. In cases where reads map to multiple taxa, the pipeline assigns the lowest common taxonomic level.
+
+```
+Taxonomy        SAMPLE1        SAMPLE2
+k__Fungi        244     2
+k__Fungi;p__Basidiomycota       244     2
+k__Fungi;p__Basidiomycota;c__Tremellomycetes    223     0
+k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Holtermanniales 1       0
+k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Holtermanniales;f__Holtermanniaceae     1       0
+k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Holtermanniales;f__Holtermanniaceae;g__Holtermannia     1       0
+k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Holtermanniales;f__Holtermanniaceae;g__Holtermannia;s__Holtermannia_saccardoi   1       0
+k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales     182     0
+k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Cryptococcaceae  6       0
+k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Cryptococcaceae;g__Kwoniella     6       0
+k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Cryptococcaceae;g__Kwoniella;s__Kwoniella_shandongensis  6       0
+k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Tremellaceae     59      0
+k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Tremellaceae;g__Tremella 59      0
+k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Tremellaceae;g__Tremella;s__Tremella_cheejenii   23      0
+k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Tremellaceae;g__Tremella;s__Tremella_mesenterica 36      0
+k__Viridiplantae        23      19
+k__Viridiplantae;p__Anthophyta  23      12
+k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae       20      12
+k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales    19      9
+k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Betulaceae      0       8
+k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Betulaceae;g__Ostrya    0       7
+k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Betulaceae;g__Ostrya;s__Ostrya_carpinifolia     0       2
+k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae        13      0
+k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Castanea    4       0
+k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Castanea;s__Castanea_dentata        1       0
+k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Castanea;s__Castanea_seguinii       1       0
+k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Lithocarpus 1       0
+k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Lithocarpus;s__Lithocarpus_corneus  1       0
+```
+[Note that many lines have been removed from the below example]
+
+### Sunburst plot
+
+An optional second output of DietScan is a HTML file containing sunburst plots of the quantitative taxonomic annotations.

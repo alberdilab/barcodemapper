@@ -13,7 +13,7 @@ from datetime import datetime
 from collections import defaultdict
 
 #####
-# dietscan installation path
+# dietmapper installation path
 #####
 
 PACKAGE_DIR = Path(__file__).parent
@@ -129,7 +129,7 @@ def inputlist_to_samples(read1, read2, output_dir):
         json.dump(SAMPLE_TO_READS2, f, indent=4)
 
 #####
-# dietscan execution
+# dietmapper execution
 #####
 
 def main():
@@ -184,13 +184,13 @@ def main():
         return
 
     if args.database and not (args.bold and args.unite):
-        dietscan_db_path = Path(args.database)
-        if not dietscan_db_path.exists():
-            print(f"Error: Database file {dietscan_db_path} does not exist.")
+        dietmapper_db_path = Path(args.database)
+        if not dietmapper_db_path.exists():
+            print(f"Error: Database file {dietmapper_db_path} does not exist.")
             sys.exit(1)
         else:
-            if dietscan_db_path.suffix.lower() not in [".fa", ".fasta"]:
-                print(f"Error: Database file {dietscan_db_path} does not have a correct (.fa or .fasta) extension.")
+            if dietmapper_db_path.suffix.lower() not in [".fa", ".fasta"]:
+                print(f"Error: Database file {dietmapper_db_path} does not have a correct (.fa or .fasta) extension.")
                 sys.exit(1)
 
     if args.bold:
@@ -206,10 +206,10 @@ def main():
             sys.exit(1)
 
     if args.database and args.bold and args.unite:
-        dietscan_db_path = Path(args.database)
-        if dietscan_db_path.exists():
-            print(f"Warning: The DietScan database {dietscan_db_path} already exists.")
-            print(f"If you want to re-build the DietScan database first remove this one.")
+        dietmapper_db_path = Path(args.database)
+        if dietmapper_db_path.exists():
+            print(f"Warning: The DietMapper database {dietmapper_db_path} already exists.")
+            print(f"If you want to re-build the DietMapper database first remove this one.")
 
     #####
     # depenency check
@@ -225,14 +225,14 @@ def main():
     missing = [tool for tool in tools if not check_tool_installed(tool)]
 
     if missing:
-        sys.exit(f"Make sure {', '.join(missing)} are installed before running DietScan. Optionally, create the DietScan conda environment containing all dependencies following the explanations in the DietScan documentation.")
+        sys.exit(f"Make sure {', '.join(missing)} are installed before running DietMapper. Optionally, create the DietMapper conda environment containing all dependencies following the explanations in the DietMapper documentation.")
 
     #####
     # tmp directory
     #####
 
     if not args.tmpdir:
-        tmp_dir = "dietscan_" + datetime.now().strftime("%Y%m%d%H%M")
+        tmp_dir = "dietmapper_" + datetime.now().strftime("%Y%m%d%H%M")
     else:
         tmp_dir = args.tmpdir
 
@@ -276,7 +276,7 @@ def main():
     if args.database and not (args.bold and args.unite):
         config_data = {
             "run": current_time,
-            "dietscan_db": str(Path(args.database).resolve()),
+            "dietmapper_db": str(Path(args.database).resolve()),
             "tmp_dir": str(Path(tmp_dir).resolve()),
             "output_file": str(Path(args.output).resolve()),
             "build_only": buildonly
@@ -284,7 +284,7 @@ def main():
     else:
         config_data = {
             "run": current_time,
-            "dietscan_db": str(Path(args.database).resolve()),
+            "dietmapper_db": str(Path(args.database).resolve()),
             "bold_db": str(Path(args.bold).resolve()),
             "unite_db": str(Path(args.unite).resolve()),
             "bold_retain": args.bold_retain,

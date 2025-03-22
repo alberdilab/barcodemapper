@@ -162,4 +162,4 @@ k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Lith
 
 ### Sunburst plot
 
-An optional second output of DietScan is a HTML file containing sunburst plots of the quantitative taxonomic annotations.
+An optional second output of DietMapper is a HTML file containing sunburst plots of the quantitative taxonomic annotations.

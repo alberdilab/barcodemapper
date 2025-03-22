@@ -1,5 +1,5 @@
-include dietscan/profile/*
-include dietscan/profile/slurm/*
-include dietscan/profile/local/*
-include dietscan/workflow/*
-include dietscan/workflow/scripts/*
+include dietmapper/profile/*
+include dietmapper/profile/slurm/*
+include dietmapper/profile/local/*
+include dietmapper/workflow/*
+include dietmapper/workflow/scripts/*

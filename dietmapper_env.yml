@@ -1,4 +1,4 @@
- name: dietscan
+ name: dietmapper
  channels:
     - conda-forge
     - bioconda

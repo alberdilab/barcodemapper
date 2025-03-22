@@ -10,7 +10,7 @@ from glob import glob
 
 configfile: "workflow/config.yaml"
 PACKAGE_DIR = config.get("package_dir", None)
-DIETSCAN_DB = config.get("dietscan_db", None)
+DIETMAPPER_DB = config.get("DIETMAPPER_db", None)
 BOLD_DB = config.get("bold_db", None)
 UNITE_DB = config.get("unite_db", None)
 BOLD_RETAIN = config.get("bold_retain", None)
@@ -30,13 +30,13 @@ with open(f"{TMP_DIR}/data/sample_to_reads2.json", "r") as f:
 
 samples = list(SAMPLE_TO_READS1.keys())
 
-DIETSCAN_BASE = os.path.splitext(DIETSCAN_DB)[0]
-DIETSCAN_1_BT2L = f"{DIETSCAN_BASE}.1.bt2l"
-DIETSCAN_2_BT2L = f"{DIETSCAN_BASE}.2.bt2l"
-DIETSCAN_3_BT2L = f"{DIETSCAN_BASE}.3.bt2l"
-DIETSCAN_4_BT2L = f"{DIETSCAN_BASE}.4.bt2l"
-DIETSCAN_rev1_BT2L = f"{DIETSCAN_BASE}.rev.1.bt2l"
-DIETSCAN_rev2_BT2L = f"{DIETSCAN_BASE}.rev.2.bt2l"
+DIETMAPPER_BASE = os.path.splitext(DIETMAPPER_DB)[0]
+DIETMAPPER_1_BT2L = f"{DIETMAPPER_BASE}.1.bt2l"
+DIETMAPPER_2_BT2L = f"{DIETMAPPER_BASE}.2.bt2l"
+DIETMAPPER_3_BT2L = f"{DIETMAPPER_BASE}.3.bt2l"
+DIETMAPPER_4_BT2L = f"{DIETMAPPER_BASE}.4.bt2l"
+DIETMAPPER_rev1_BT2L = f"{DIETMAPPER_BASE}.rev.1.bt2l"
+DIETMAPPER_rev2_BT2L = f"{DIETMAPPER_BASE}.rev.2.bt2l"
 
 ################################################################################
 ### Setup the desired outputs
@@ -44,13 +44,13 @@ DIETSCAN_rev2_BT2L = f"{DIETSCAN_BASE}.rev.2.bt2l"
 if BUILD_ONLY == "yes":
     rule all:
         input:
-            DIETSCAN_DB,
-            DIETSCAN_1_BT2L,
-            DIETSCAN_2_BT2L,
-            DIETSCAN_3_BT2L,
-            DIETSCAN_4_BT2L,
-            DIETSCAN_rev1_BT2L,
-            DIETSCAN_rev2_BT2L
+            DIETMAPPER_DB,
+            DIETMAPPER_1_BT2L,
+            DIETMAPPER_2_BT2L,
+            DIETMAPPER_3_BT2L,
+            DIETMAPPER_4_BT2L,
+            DIETMAPPER_rev1_BT2L,
+            DIETMAPPER_rev2_BT2L
 
 if BUILD_ONLY == "no":
     rule all:
@@ -67,7 +67,7 @@ if BOLD_DB or UNITE_DB:
             bold=BOLD_DB,
             unite=UNITE_DB
         output:
-            DIETSCAN_DB
+            DIETMAPPER_DB
         threads:
             1
         params:
@@ -123,16 +123,16 @@ rule fastp:
 ## Index Unite database:
 rule index_db:
     input:
-        DIETSCAN_DB
+        DIETMAPPER_DB
     output:
-        bt2l1=DIETSCAN_1_BT2L,
-        bt2l2=DIETSCAN_2_BT2L,
-        bt2l3=DIETSCAN_3_BT2L,
-        bt2l4=DIETSCAN_4_BT2L,
-        bt2lrev1=DIETSCAN_rev1_BT2L,
-        bt2l1rev2=DIETSCAN_rev2_BT2L
+        bt2l1=DIETMAPPER_1_BT2L,
+        bt2l2=DIETMAPPER_2_BT2L,
+        bt2l3=DIETMAPPER_3_BT2L,
+        bt2l4=DIETMAPPER_4_BT2L,
+        bt2lrev1=DIETMAPPER_rev1_BT2L,
+        bt2l1rev2=DIETMAPPER_rev2_BT2L
     params:
-        database = DIETSCAN_BASE
+        database = DIETMAPPER_BASE
     threads:
         24
     resources:
@@ -152,18 +152,18 @@ rule index_db:
 ### Map non-host reads to DRAM genes files using Bowtie2
 rule bowtie2_mapping:
     input:
-        bt2l1=DIETSCAN_1_BT2L,
-        bt2l2=DIETSCAN_2_BT2L,
-        bt2l3=DIETSCAN_3_BT2L,
-        bt2l4=DIETSCAN_4_BT2L,
-        bt2lrev1=DIETSCAN_rev1_BT2L,
-        bt2l1rev2=DIETSCAN_rev2_BT2L,
+        bt2l1=DIETMAPPER_1_BT2L,
+        bt2l2=DIETMAPPER_2_BT2L,
+        bt2l3=DIETMAPPER_3_BT2L,
+        bt2l4=DIETMAPPER_4_BT2L,
+        bt2lrev1=DIETMAPPER_rev1_BT2L,
+        bt2l1rev2=DIETMAPPER_rev2_BT2L,
         r1 = f"{TMP_DIR}/fastp/{{sample}}_1.fq.gz",
         r2 = f"{TMP_DIR}/fastp/{{sample}}_2.fq.gz",
     output:
         bam = f"{TMP_DIR}/bowtie/{{sample}}.bam"
     params:
-        database = DIETSCAN_BASE
+        database = DIETMAPPER_BASE
     threads:
         20
     resources:

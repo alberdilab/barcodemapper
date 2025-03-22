@@ -123,7 +123,7 @@ def rename_unite(input_fasta):
     return renamed_records
 
 ### STEP 4: FILTER & MERGE ###
-def filter_fasta(records, retain_list):
+def filter_fasta(records, retain_list, marker_list):
     """Filters FASTA records, keeping only those that match specified taxa."""
     retained_records = []
 
@@ -134,26 +134,29 @@ def filter_fasta(records, retain_list):
             continue  # Skip malformed headers
 
         accession = parts[0]
-        gene_region = parts[1]
+        marker = parts[1]
         taxonomy_string = parts[2]
 
+        if marker not in marker_list:
+            continue  # Skip markers not in the list
+
         taxonomy_levels = taxonomy_string.split(';')
+        taxonomy_levels = taxonomy_string.split(';')
+        if not any(taxon in taxonomy_levels for taxon in retain_list):
+            continue  # No matching taxonomy term
 
-        # Retain only if at least one specified taxon is found in the taxonomy part
-        retain = any(taxon in taxonomy_levels for taxon in retain_list)
-
-        if retain:
-            # Reconstruct the header
-            record.id = f"{accession}|{gene_region}|{taxonomy_string}"
-            record.description = ""
-            retained_records.append(record)
+        # Reconstruct the header
+        record.id = f"{accession}|{marker}|{taxonomy_string}"
+        record.description = ""
+        retained_records.append(record)
 
     return retained_records
 
 def merge_fasta(bold_records, unite_records, output_fasta, retain_bold, retain_unite):
     """Merges the BOLD and UNITE databases after filtering."""
-    filtered_bold = filter_fasta(bold_records, retain_bold)
-    filtered_unite = filter_fasta(unite_records, retain_unite)
+    marker_list = ["ITS", "COI-5P"]
+    filtered_bold = filter_fasta(bold_records, retain_bold, marker_list)
+    filtered_unite = filter_fasta(unite_records, retain_unite, marker_list)
 
     with open(output_fasta, "w") as output_handle:
         SeqIO.write(filtered_bold + filtered_unite, output_handle, "fasta")

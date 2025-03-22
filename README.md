@@ -47,8 +47,9 @@ There are two main modes for running DietScan: **a)** using the default DietScan
 This is the standard database containing marker genes sequences of plants, basidiomycota fungi, and animals. It was generated in **March 2025** with the most updated versions of BOLD (2025-03-14) and UNITE (*All eukaryotes; 2025-02-19) databases at the time. The database can be stored in any directory, and can be used in DietScan by pointing towards the main fasta file -d directory/to/database/dietscan_db_202503.fa'.
 
 ```sh
-wget XXXXXXXXX
-gunzip dietscan_db_202503.tar.gz
+cd dietscan_db
+wget https://sid.erda.dk/share_redirect/FGathhqKb5/dietscan_db_202503.tar.gz
+tar -xzvf dietscan_db_202503.tar.gz
 ```
 
 ### Custom database

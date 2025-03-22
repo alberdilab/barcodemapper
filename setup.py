@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="dietscan",
+    name="dietmapper",
     version="1.0.0",
     author="Antton Alberdi",
     author_email="antton.alberdi@sund.ku.dk",
@@ -19,7 +19,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "dietscan=dietscan.cli:main"
+            "dietmapper=dietmapper.cli:main"
         ],
     },
     python_requires=">=3.6",

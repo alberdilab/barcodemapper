@@ -10,7 +10,7 @@ from glob import glob
 
 configfile: "workflow/config.yaml"
 PACKAGE_DIR = config.get("package_dir", None)
-DIETMAPPER_DB = config.get("DIETMAPPER_db", None)
+DIETMAPPER_DB = config.get("dietmapper_db", None)
 BOLD_DB = config.get("bold_db", None)
 UNITE_DB = config.get("unite_db", None)
 BOLD_RETAIN = config.get("bold_retain", None)

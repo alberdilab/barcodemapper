@@ -272,23 +272,26 @@ rule aggregate_taxonomy:
 
 ################################################################################
 ### Merge data from different samples in a final overall dataset
-rule merge_taxonomy:
-    input:
-        expand(f"{TMP_DIR}/aggregate/{{sample}}.tsv",sample=samples)
-    output:
-        OUTPUT_FILE
-    params:
-        package_dir={PACKAGE_DIR},
-        samples=samples
-    threads:
-        1
-    resources:
-        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 10) * 2 ** (attempt - 1)),
-        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 2) * 2 ** (attempt - 1))
-    message:
-        "Assigning taxonomy"
-    script:
-        "{params.package_dir}/workflow/scripts/merge_taxonomy.py"
+
+if BUILD_ONLY == "no":
+
+    rule merge_taxonomy:
+        input:
+            expand(f"{TMP_DIR}/aggregate/{{sample}}.tsv",sample=samples)
+        output:
+            OUTPUT_FILE
+        params:
+            package_dir={PACKAGE_DIR},
+            samples=samples
+        threads:
+            1
+        resources:
+            mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 10) * 2 ** (attempt - 1)),
+            runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 2) * 2 ** (attempt - 1))
+        message:
+            "Assigning taxonomy"
+        script:
+            "{params.package_dir}/workflow/scripts/merge_taxonomy.py"
 
 ################################################################################
 ### Generate sunburst plot

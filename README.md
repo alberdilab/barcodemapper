@@ -31,11 +31,11 @@ pip uninstall dietmapper -y
 - snakemake
 - plotly
 
-If you don't have these dependencies installed and added to your path, you can create a custom environment for DietMapper using conda.
+If you don't have these dependencies installed and added to your path, you can create a custom ready-to-use environment for DietMapper using conda.
 
 ```sh
 wget https://raw.githubusercontent.com/alberdilab/dietmapper/main/dietmapper_env.yml
-conda env create --name dietmapper --file dietmapper_env.yml
+conda env create --file dietmapper_env.yml
 ```
 
 ## 2. Source databases

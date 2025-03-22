@@ -14,7 +14,8 @@ setup(
         "argparse",
         "PyYAML",
         "requests",
-        "plotly"
+        "plotly",
+        "biopython"
     ],
     entry_points={
         "console_scripts": [

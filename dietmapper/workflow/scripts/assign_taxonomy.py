@@ -7,7 +7,7 @@ input_file = snakemake.input[0]
 output_file = snakemake.output[0]
 
 # Load TSV file
-df = pd.read_csv(input_file, sep=" ", names=["ReadID", "Taxonomy", "Mismatches"])
+df = pd.read_csv(input_file, sep=" ", names=["ReadID", "Reference", "Marker", "Taxonomy", "Mismatches"])
 
 # Group taxonomy assignments by read
 read_taxonomy = defaultdict(list)

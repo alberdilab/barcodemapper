@@ -6,4 +6,7 @@
 
 ```sh
 dietmapper -i dietmapper_podarcis_lab -d dietmapper_db/dietmapper_db_202503.fa -o laboratory_lizards.txt -s --plot
+
+dietmapper -i dietmapper_podarcis_lab -d dietmapper_db/dietmapper_db_202503.fa -o laboratory_lizards_complexityfilter.txt -s --plot
+
 ```

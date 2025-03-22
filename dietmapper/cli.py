@@ -263,6 +263,9 @@ def main():
                 print(f"Error: UNITE database file {unite_db_path} does not exist.")
                 sys.exit(1)
 
+        if not args.output:
+            output_file="no"
+
     else:
         buildonly="no"
 
@@ -284,12 +287,14 @@ def main():
     config_dir.mkdir(parents=True, exist_ok=True)
     config_path = config_dir / "config.yaml"
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    output_file = str(Path(args.output).resolve())
+
     if args.database and not (args.bold and args.unite):
         config_data = {
             "run": current_time,
             "dietmapper_db": str(Path(args.database).resolve()),
             "tmp_dir": str(Path(tmp_dir).resolve()),
-            "output_file": str(Path(args.output).resolve()),
+            "output_file": output_file,
             "build_only": buildonly,
             "sunburst_file": sunburst_file
         }
@@ -302,7 +307,7 @@ def main():
             "bold_retain": args.bold_retain,
             "unite_retain": args.unite_retain,
             "tmp_dir": str(Path(tmp_dir).resolve()),
-            "output_file": str(Path(args.output).resolve()),
+            "output_file": output_file,
             "build_only": buildonly,
             "sunburst_file": sunburst_file
         }

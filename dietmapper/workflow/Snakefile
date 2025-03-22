@@ -242,7 +242,7 @@ rule bowtie2_extracting:
         f"{TMP_DIR}/extract/{{sample}}.tsv"
     params:
         package_dir={PACKAGE_DIR},
-        max_mismatches={MAX_MISMATCHES}
+        max_mismatches={MAX_MISMATCHES},
         min_coverage={MIN_COVERAGE}
     threads:
         1

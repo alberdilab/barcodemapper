@@ -33,13 +33,13 @@ if BUILD_ONLY == "no":
 
     samples = list(SAMPLE_TO_READS1.keys())
 
-    DIETMAPPER_BASE = os.path.splitext(DIETMAPPER_DB)[0]
-    DIETMAPPER_1_BT2L = f"{DIETMAPPER_BASE}.1.bt2l"
-    DIETMAPPER_2_BT2L = f"{DIETMAPPER_BASE}.2.bt2l"
-    DIETMAPPER_3_BT2L = f"{DIETMAPPER_BASE}.3.bt2l"
-    DIETMAPPER_4_BT2L = f"{DIETMAPPER_BASE}.4.bt2l"
-    DIETMAPPER_rev1_BT2L = f"{DIETMAPPER_BASE}.rev.1.bt2l"
-    DIETMAPPER_rev2_BT2L = f"{DIETMAPPER_BASE}.rev.2.bt2l"
+DIETMAPPER_BASE = os.path.splitext(DIETMAPPER_DB)[0]
+DIETMAPPER_1_BT2L = f"{DIETMAPPER_BASE}.1.bt2l"
+DIETMAPPER_2_BT2L = f"{DIETMAPPER_BASE}.2.bt2l"
+DIETMAPPER_3_BT2L = f"{DIETMAPPER_BASE}.3.bt2l"
+DIETMAPPER_4_BT2L = f"{DIETMAPPER_BASE}.4.bt2l"
+DIETMAPPER_rev1_BT2L = f"{DIETMAPPER_BASE}.rev.1.bt2l"
+DIETMAPPER_rev2_BT2L = f"{DIETMAPPER_BASE}.rev.2.bt2l"
 
 ################################################################################
 ### Setup the desired outputs

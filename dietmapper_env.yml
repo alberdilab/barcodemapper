@@ -4,6 +4,7 @@
     - bioconda
     - defaults
  dependencies:
+    - snakemake=8.25.3
     - fastp=0.23.1
     - samtools=1.21
     - bowtie2=2.4.2

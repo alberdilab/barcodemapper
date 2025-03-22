@@ -14,7 +14,6 @@ setup(
         "argparse",
         "PyYAML",
         "requests",
-        "snakemake==8.25.3",
         "plotly"
     ],
     entry_points={

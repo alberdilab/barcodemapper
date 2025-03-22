@@ -4,7 +4,7 @@
 
 ## 1. Installation
 
-DietMapper can be installed with its python dependencies (but not fastp, samtools and bowtie2) directly from this repository using **pip**.
+DietMapper can be installed with its python dependencies (but not snakemake, fastp, samtools and bowtie2) directly from this repository using **pip**.
 
 ```sh
 pip install git+https://github.com/alberdilab/dietmapper.git
@@ -15,6 +15,7 @@ dietmapper -h
 
 #### Software
 
+- snakemake=8.25.3
 - fastp=0.23.1
 - samtools=1.21
 - bowtie2=2.4.2
@@ -26,7 +27,6 @@ dietmapper -h
 - argparse
 - PyYAML
 - requests
-- snakemake
 - plotly
 
 If you don't have these dependencies installed and added to your path, you can create a custom ready-to-use environment for DietMapper using conda.
@@ -103,13 +103,13 @@ Note that while DietMapper can be run on individual samples, it is primarily des
 Provide the paths to the original BOLD (-b) and UNITE (-u) databases, as well as the destination of the DietMapper database (-d). Optionally, limit the taxa to be included in the DietMapper database using -x for limiting BOLD taxa and -y for limiting UNITE taxa. Once the DietMapper database has been generated, you will only need to use (-d).
 
 ```sh
-dietmapper -i path/to/readsdir -b dietmapper_db/BOLD_Public.14-Mar-2025.fa -u dietmapper_db/sh_general_release_dynamic_s_all_19.02.2025.fasta -d dietmapper_db/dietmapper_db_202305.fa -x k__Animalia -y k__Viridiplantae,p__Basidiomycota -o dietmapper_results.txt
+dietmapper -i path/to/readsdir -b dietmapper_db/BOLD_Public.14-Mar-2025.fa -u dietmapper_db/sh_general_release_dynamic_s_all_19.02.2025.fasta -d dietmapper_db/dietmapper_db_202503.fa -x k__Animalia -y k__Viridiplantae,p__Basidiomycota -o dietmapper_results.txt
 ```
 
 If you only want to create the database without running any analysis, use the --build argument without input and output arguments besides the databases.
 
 ```sh
-dietmapper --build -b dietmapper_db/BOLD_Public.14-Mar-2025.fa -u dietmapper_db/sh_general_release_dynamic_s_all_19.02.2025.fasta -d dietmapper_db/dietmapper_db_202305.fa -x k__Animalia -y k__Viridiplantae,p__Basidiomycota
+dietmapper --build -b dietmapper_db/BOLD_Public.14-Mar-2025.fa -u dietmapper_db/sh_general_release_dynamic_s_all_19.02.2025.fasta -d dietmapper_db/dietmapper_db_202503.fa -x k__Animalia -y k__Viridiplantae,p__Basidiomycota
 ```
 
 ### On a computational cluster

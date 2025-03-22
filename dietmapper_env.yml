@@ -12,6 +12,7 @@
     - numpy=2.2.1
     - pandas=2.2.3
     - plotly=6.0.1
+    - biopython=1.85
     - pip=24.3.1
     - pip:
       - git+https://github.com/alberdilab/dietmapper.git

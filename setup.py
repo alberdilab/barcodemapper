@@ -21,5 +21,5 @@ setup(
             "dietmapper=dietmapper.cli:main"
         ],
     },
-    python_requires=">=3.11",
+    python_requires="=3.9",
 )

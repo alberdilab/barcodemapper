@@ -268,6 +268,7 @@ def main():
 
     else:
         buildonly="no"
+        output_file = str(Path(args.output).resolve())
 
     #####
     # plot
@@ -287,7 +288,6 @@ def main():
     config_dir.mkdir(parents=True, exist_ok=True)
     config_path = config_dir / "config.yaml"
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    output_file = str(Path(args.output).resolve())
 
     if args.database and not (args.bold and args.unite):
         config_data = {

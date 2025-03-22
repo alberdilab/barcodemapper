@@ -35,7 +35,7 @@ def unlock_snakemake(tmp_dir, config_path, profile):
     ]
 
     subprocess.run(unlock_command, shell=False, check=True)
-    print(f"The output directory {output_dir} has been succesfully unlocked.")
+    print(f"The output directory {tmp_dir} has been succesfully unlocked.")
 
 def run_snakemake(tmp_dir, config_path, profile):
     snakemake_command = [

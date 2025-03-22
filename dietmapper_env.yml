@@ -5,6 +5,7 @@
     - defaults
  dependencies:
     - snakemake=8.27.1
+    - snakemake-executor-plugin-slurm=1.1.0
     - fastp=0.23.1
     - samtools=1.21
     - bowtie2=2.5.4

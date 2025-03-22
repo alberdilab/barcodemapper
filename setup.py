@@ -14,7 +14,8 @@ setup(
         "argparse",
         "PyYAML",
         "requests",
-        "snakemake"
+        "snakemake",
+        "plotly"
     ],
     entry_points={
         "console_scripts": [

@@ -1,4 +1,4 @@
- name: unite_mapping
+ name: dietscan
  channels:
     - conda-forge
     - bioconda

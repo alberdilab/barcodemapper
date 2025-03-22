@@ -120,7 +120,8 @@ rule fastp:
             --trim_poly_x \
             --n_base_limit 5 \
             --qualified_quality_phred 20 \
-            --length_required 60 \
+            --length_required 100 \
+            --low_complexity_filter 30 \
             --thread {threads} \
             --html {output.fastp_html} \
             --json {output.fastp_json} \
@@ -229,7 +230,7 @@ rule bowtie2_extracting:
         "Filtering bam file of {wildcards.sample}"
     shell:
         """
-        samtools view {input} | awk '($3 != "*") && ($0 ~ /NM:i:/ && match($0, /NM:i:([0-9]+)/, arr) && arr[1] <= 2) {{ split($3, taxon, "|"); print $1, taxon[3], arr[1]; }}' > {output}
+        samtools view {input} | awk '($3 != "*") && ($0 ~ /NM:i:/ && match($0, /NM:i:([0-9]+)/, arr) && arr[1] <= 2) {{ split($3, taxon, "|"); print $1, taxon[1], taxon[2], taxon[3], arr[1]; }}' > {output}
         """
 
 ################################################################################

@@ -37,8 +37,6 @@ dietmapper -h
 - requests
 - plotly
 
-
-
 ## 2. Source databases
 
 There are two main modes for running DietMapper: **a)** using the default DietMapper database or **b)** generating a custom database from raw BOLD and UNITE databases.

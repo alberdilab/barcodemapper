@@ -1,6 +1,8 @@
 import argparse
+from collections import defaultdict
 from Bio.Seq import Seq
 from Bio import SeqIO
+from Bio.SeqRecord import SeqRecord
 import random
 
 ### STEP 1: DEREPLICATE BOLD ###
@@ -9,10 +11,6 @@ def dereplicate_bold(input_fasta):
     - For identical sequences: keeps the one with the most complete taxonomy.
     - For identical headers: keeps the one with the longest sequence.
     """
-    from collections import defaultdict
-    from Bio import SeqIO
-    from Bio.Seq import Seq
-    from Bio.SeqRecord import SeqRecord
 
     # First pass: deduplicate by sequence (keep the best taxonomy)
     seq_map = {}

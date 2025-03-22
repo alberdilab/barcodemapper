@@ -28,9 +28,9 @@ def process_bam(input_bam, output_path, max_nm=2, min_covered=50):
 
             rname = bam.get_reference_name(read.reference_id)
             rnamesplit = rname.split("|")
-            reference = rnamesplit[0] if len(taxon) > 0 else ''
-            marker = rnamesplit[1] if len(taxon) > 1 else ''
-            taxonomy = rnamesplit[2] if len(taxon) > 2 else ''
+            reference = rnamesplit[0] if len(rnamesplit) > 0 else ''
+            marker = rnamesplit[1] if len(rnamesplit) > 1 else ''
+            taxonomy = rnamesplit[2] if len(rnamesplit) > 2 else ''
 
             out.write(f"{read.query_name}\t{reference}\t{marker}\t{taxonomy}\t{nm}\t{covered_bases}\n")
 

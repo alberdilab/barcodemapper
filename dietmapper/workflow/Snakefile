@@ -335,5 +335,5 @@ rule sunburst_plot:
         "Generating plots"
     shell:
         """
-        python {params.package_dir}/workflow/scripts/sunburst_plot.py -i {input} -o {output}
+        python {params.package_dir}/workflow/scripts/sunburst_plot.py --input {input} --output {output}
         """

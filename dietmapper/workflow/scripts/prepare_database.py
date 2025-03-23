@@ -47,7 +47,7 @@ def rename_bold(records):
     renamed_records = []
 
     for record in records:
-        parts = record.id.split('|')
+        parts = record.description.split('|')
 
         # Ensure taxonomy information is available
         taxonomy = parts[3] if len(parts) > 3 else ''
@@ -140,7 +140,6 @@ def filter_fasta(records, retain_list, marker_list):
         if marker not in marker_list:
             continue  # Skip markers not in the list
 
-        taxonomy_levels = taxonomy_string.split(';')
         taxonomy_levels = taxonomy_string.split(';')
         if not any(taxon in taxonomy_levels for taxon in retain_list):
             continue  # No matching taxonomy term

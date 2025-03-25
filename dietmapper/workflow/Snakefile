@@ -328,7 +328,7 @@ rule html_report:
     threads:
         1
     params:
-        package_dir={PACKAGE_DIR}
+        package_dir={PACKAGE_DIR},
         version={VERSION}
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 3) * 2 ** (attempt - 1)),

@@ -75,6 +75,9 @@ def rename_bold(records):
         # Construct new header
         new_header = f"{parts[0]}|{parts[1]}|{';'.join(formatted_taxonomy)}"
 
+        # Replace space for underscore in species name
+        new_header = new_header.replace(" ", "_")
+
         # Modify the record with the new header
         record.id = new_header
         record.description = ""

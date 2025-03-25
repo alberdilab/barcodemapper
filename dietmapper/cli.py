@@ -11,12 +11,14 @@ from pathlib import Path
 import shutil
 from datetime import datetime
 from collections import defaultdict
+from dietmapper.__version__ import __version__
 
 #####
 # dietmapper installation path
 #####
 
 PACKAGE_DIR = Path(__file__).parent
+version=__version__
 
 #####
 # Function definitions
@@ -140,7 +142,6 @@ def main():
     parser.add_argument("-o", "--output", type=str, required=False, help="Output taxonomy file.")
     parser.add_argument("-m", "--max_mismatches", type=str, required=False, default=2, help="Maximum number of mismatches allowed.")
     parser.add_argument("-c", "--min_coverage", type=str, required=False, default=100, help="Minimum number of bases required for mapping.")
-    parser.add_argument("-p", "--plot", action="store_true", required=False, help="Output sunburst plot html.")
     parser.add_argument("-d", "--database", type=str, required=True, help="Combined DietMapper database (fasta).")
     parser.add_argument("-b", "--bold", type=str, required=False, help="Bold database (fasta).")
     parser.add_argument("-u", "--unite", type=str, required=False, help="Unite database (fasta).")
@@ -273,14 +274,11 @@ def main():
         output_file = str(Path(args.output).resolve())
 
     #####
-    # plot
+    # report
     #####
 
-    if args.plot:
-        output_path=Path(args.output).resolve()
-        sunburst_file=str(output_path.with_name(output_path.stem + '.html'))
-    else:
-        sunburst_file="no"
+    output_path=Path(args.output).resolve()
+    report_file=str(output_path.with_name(output_path.stem + '.html'))
 
     #####
     # config
@@ -294,17 +292,19 @@ def main():
     if args.database and not (args.bold and args.unite):
         config_data = {
             "run": current_time,
+            "version": version,
             "dietmapper_db": str(Path(args.database).resolve()),
             "tmp_dir": str(Path(tmp_dir).resolve()),
             "output_file": output_file,
             "build_only": buildonly,
-            "sunburst_file": sunburst_file,
+            "report_file": report_file,
             "max_mismatches": args.max_mismatches,
             "min_coverage": args.min_coverage
         }
     else:
         config_data = {
             "run": current_time,
+            "version": version,
             "dietmapper_db": str(Path(args.database).resolve()),
             "bold_db": str(Path(args.bold).resolve()),
             "unite_db": str(Path(args.unite).resolve()),
@@ -313,7 +313,7 @@ def main():
             "tmp_dir": str(Path(tmp_dir).resolve()),
             "output_file": output_file,
             "build_only": buildonly,
-            "sunburst_file": sunburst_file,
+            "report_file": report_file,
             "max_mismatches": args.max_mismatches,
             "min_coverage": args.min_coverage
         }

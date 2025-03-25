@@ -10,6 +10,7 @@ from glob import glob
 
 configfile: "workflow/config.yaml"
 PACKAGE_DIR = config.get("package_dir", None)
+VERSION = config.get("version", None)
 DIETMAPPER_DB = config.get("dietmapper_db", None)
 BOLD_DB = config.get("bold_db", None)
 UNITE_DB = config.get("unite_db", None)
@@ -18,7 +19,7 @@ UNITE_RETINE = config.get("unite_retain", None)
 OUTPUT_FILE = config.get("output_file", None)
 TMP_DIR = config.get("tmp_dir", None)
 BUILD_ONLY = config.get("build_only", None)
-SUNBURST_FILE = config.get("sunburst_file", None)
+REPORT_FILE = config.get("report_file", None)
 MAX_MISMATCHES = config.get("max_mismatches", None)
 MIN_COVERAGE = config.get("min_coverage", None)
 
@@ -58,7 +59,7 @@ if BUILD_ONLY == "yes":
             DIETMAPPER_rev2_BT2L
 
 if BUILD_ONLY == "no":
-    if SUNBURST_FILE == "no":
+    if REPORT_FILE == "no":
         rule all:
             input:
                 OUTPUT_FILE
@@ -66,7 +67,7 @@ if BUILD_ONLY == "no":
         rule all:
             input:
                 OUTPUT_FILE,
-                SUNBURST_FILE
+                REPORT_FILE
 
 ################################################################################
 ### Prepare database
@@ -319,15 +320,16 @@ if BUILD_ONLY == "no":
 
 ################################################################################
 ### Generate sunburst plot
-rule sunburst_plot:
+rule html_report:
     input:
         OUTPUT_FILE
     output:
-        SUNBURST_FILE
+        REPORT_FILE
     threads:
         1
     params:
         package_dir={PACKAGE_DIR}
+        version={VERSION}
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 3) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
@@ -335,5 +337,5 @@ rule sunburst_plot:
         "Generating plots"
     shell:
         """
-        python {params.package_dir}/workflow/scripts/sunburst_plot.py --input {input} --output {output}
+        python {params.package_dir}/workflow/scripts/html_report.py --input {input} --output {output} --version {params.version}
         """

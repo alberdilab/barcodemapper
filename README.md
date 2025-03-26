@@ -1,4 +1,4 @@
-![alt text](barcodemapper.png "BarcodeMapper")
+![alt text](images/barcodemapper.png "BarcodeMapper")
 
 **BarcodeMapper** is a software tool for detecting and quantifying plant, fungal, and animal DNA by mapping shotgun sequencing reads to taxonomically annotated COI and ITS marker gene sequences. Leveraging filtered versions of the BOLD and UNITE databases, it enables identification of host species from faecal samples, provides insights into dietary composition, and supports the detection of potential contaminants.
 
@@ -198,3 +198,5 @@ k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Lith
 ### Report
 
 BarcodeMapper also yields a HTML report in which the taxonomic classifications of all samples are visualised in barplots and sunburst plots.
+
+![alt text](images/report.png "BarcodeMapper report")

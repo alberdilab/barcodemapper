@@ -278,10 +278,13 @@ def main():
         buildonly="no"
         output_file = str(Path(args.output).resolve())
 
-        #####
-        # report
-        #####
+    #####
+    # report
+    #####
 
+    if args.build:
+        report_file="none"
+    else:
         output_path=Path(args.output).resolve()
         report_file=str(output_path.with_name(output_path.stem + '.html'))
 

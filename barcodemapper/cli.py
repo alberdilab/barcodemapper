@@ -146,7 +146,7 @@ def main():
     parser.add_argument("-b", "--bold", type=str, required=False, help="Bold database (fasta).")
     parser.add_argument("-u", "--unite", type=str, required=False, help="Unite database (fasta).")
     parser.add_argument("-x", "--bold_retain", type=str, required=False, default="k__Animalia", help="Comma-separated list of taxa to consider in the BOLD database (e.g. 'o__Coleoptera,o__Lepidoptera')")
-    parser.add_argument("-y", "--unite_retain", type=str, required=False, default="k__Viridiplantae,c__Agaricomycetes", help="Comma-separated list of taxa to consider in the UNITE database (e.g. 'k__Fungi,k__Viridioplantae')")
+    parser.add_argument("-y", "--unite_retain", type=str, required=False, default="k__Viridiplantae,c__Agaricomycetes,c__Pezizomycetes", help="Comma-separated list of taxa to consider in the UNITE database (e.g. 'k__Fungi,k__Viridioplantae')")
     parser.add_argument("-t", "--tmpdir", type=str, required=False, help="Directory where the temporary files are stored")
     parser.add_argument("-s", "--slurm", action="store_true", required=False, help="Whether to use slurm")
     parser.add_argument("--unlock", action="store_true", required=False, help="Whether to unlock the directory")
@@ -278,12 +278,12 @@ def main():
         buildonly="no"
         output_file = str(Path(args.output).resolve())
 
-    #####
-    # report
-    #####
+        #####
+        # report
+        #####
 
-    output_path=Path(args.output).resolve()
-    report_file=str(output_path.with_name(output_path.stem + '.html'))
+        output_path=Path(args.output).resolve()
+        report_file=str(output_path.with_name(output_path.stem + '.html'))
 
     #####
     # Sensitivity

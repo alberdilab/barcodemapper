@@ -11,10 +11,10 @@ from pathlib import Path
 import shutil
 from datetime import datetime
 from collections import defaultdict
-from dietmapper.__version__ import __version__
+from barcodemapper.__version__ import __version__
 
 #####
-# dietmapper installation path
+# barcodemapper installation path
 #####
 
 PACKAGE_DIR = Path(__file__).parent
@@ -131,26 +131,31 @@ def inputlist_to_samples(read1, read2, output_dir):
         json.dump(SAMPLE_TO_READS2, f, indent=4)
 
 #####
-# dietmapper execution
+# barcodemapper execution
 #####
 
 def main():
-    parser = argparse.ArgumentParser(description="DietMapper: dietary profiling from metagenomic data.")
+    parser = argparse.ArgumentParser(description="BarcodeMapper: dietary profiling from metagenomic data.")
     parser.add_argument("-i", "--input", type=str, required=False, help="Path to the input directory containing the sequencing reads.")
     parser.add_argument("-1", "--read1", type=str, required=False, help="Comma-separated list of forward reads.")
     parser.add_argument("-2", "--read2", type=str, required=False, help="Comma-separated list of reverse reads.")
     parser.add_argument("-o", "--output", type=str, required=False, help="Output taxonomy file.")
-    parser.add_argument("-m", "--max_mismatches", type=str, required=False, default=2, help="Maximum number of mismatches allowed.")
-    parser.add_argument("-c", "--min_coverage", type=str, required=False, default=100, help="Minimum number of bases required for mapping.")
-    parser.add_argument("-d", "--database", type=str, required=True, help="Combined DietMapper database (fasta).")
+    parser.add_argument("-m", "--max_mismatches", type=str, required=False, default=3, help="Maximum percengage of mismatches allowed.")
+    parser.add_argument("-c", "--min_coverage", type=str, required=False, default=80, help="Minimum number of bases required for mapping.")
+    parser.add_argument("-d", "--database", type=str, required=True, help="Combined BarcodeMapper database (fasta).")
     parser.add_argument("-b", "--bold", type=str, required=False, help="Bold database (fasta).")
     parser.add_argument("-u", "--unite", type=str, required=False, help="Unite database (fasta).")
     parser.add_argument("-x", "--bold_retain", type=str, required=False, default="k__Animalia", help="Comma-separated list of taxa to consider in the BOLD database (e.g. 'o__Coleoptera,o__Lepidoptera')")
-    parser.add_argument("-y", "--unite_retain", type=str, required=False, default="k__Viridiplantae,p__Basidiomycota", help="Comma-separated list of taxa to consider in the UNITE database (e.g. 'k__Fungi,k__Viridioplantae')")
+    parser.add_argument("-y", "--unite_retain", type=str, required=False, default="k__Viridiplantae,c__Agaricomycetes", help="Comma-separated list of taxa to consider in the UNITE database (e.g. 'k__Fungi,k__Viridioplantae')")
     parser.add_argument("-t", "--tmpdir", type=str, required=False, help="Directory where the temporary files are stored")
     parser.add_argument("-s", "--slurm", action="store_true", required=False, help="Whether to use slurm")
     parser.add_argument("--unlock", action="store_true", required=False, help="Whether to unlock the directory")
     parser.add_argument("--build", action="store_true", required=False, help="Only build the database")
+    sensitivity_group = parser.add_mutually_exclusive_group()
+    sensitivity_group.add_argument("--ultrasensitive", action="store_true", required=False, help="Ultrasensitive mapping (Equivalent to -m 0, -c 120)")
+    sensitivity_group.add_argument("--sensitive", action="store_true", required=False, help="Sensitive mapping (Equivalent to -m 2, -c 100)")
+    sensitivity_group.add_argument("--standard", action="store_true", required=False, help="Standard mapping (Equivalent to -m 3, -c 80)")
+    sensitivity_group.add_argument("--permissive", action="store_true", required=False, help="Relaxed mapping (Equivalent to -m 5, -c 60)")
 
     args = parser.parse_args()
 
@@ -188,13 +193,13 @@ def main():
         return
 
     if args.database and not (args.bold and args.unite):
-        dietmapper_db_path = Path(args.database)
-        if not dietmapper_db_path.exists():
-            print(f"Error: Database file {dietmapper_db_path} does not exist.")
+        barcodemapper_db_path = Path(args.database)
+        if not barcodemapper_db_path.exists():
+            print(f"Error: Database file {barcodemapper_db_path} does not exist.")
             sys.exit(1)
         else:
-            if dietmapper_db_path.suffix.lower() not in [".fa", ".fasta"]:
-                print(f"Error: Database file {dietmapper_db_path} does not have a correct (.fa or .fasta) extension.")
+            if barcodemapper_db_path.suffix.lower() not in [".fa", ".fasta"]:
+                print(f"Error: Database file {barcodemapper_db_path} does not have a correct (.fa or .fasta) extension.")
                 sys.exit(1)
 
     if args.bold:
@@ -210,10 +215,10 @@ def main():
             sys.exit(1)
 
     if args.database and args.bold and args.unite:
-        dietmapper_db_path = Path(args.database)
-        if dietmapper_db_path.exists():
-            print(f"Warning: The DietMapper database {dietmapper_db_path} already exists.")
-            print(f"If you want to re-build the DietMapper database first remove this one.")
+        barcodemapper_db_path = Path(args.database)
+        if barcodemapper_db_path.exists():
+            print(f"Warning: The BarcodeMapper database {barcodemapper_db_path} already exists.")
+            print(f"If you want to re-build the BarcodeMapper database first remove this one.")
 
     #####
     # depenency check
@@ -229,14 +234,14 @@ def main():
     missing = [tool for tool in tools if not check_tool_installed(tool)]
 
     if missing:
-        sys.exit(f"Make sure {', '.join(missing)} are installed before running DietMapper. Optionally, create the DietMapper conda environment containing all dependencies following the explanations in the DietMapper documentation.")
+        sys.exit(f"Make sure {', '.join(missing)} are installed before running BarcodeMapper. Optionally, create the BarcodeMapper conda environment containing all dependencies following the explanations in the BarcodeMapper documentation.")
 
     #####
     # tmp directory
     #####
 
     if not args.tmpdir:
-        tmp_dir = "dietmapper_" + datetime.now().strftime("%Y%m%d%H%M")
+        tmp_dir = "barcodemapper_" + datetime.now().strftime("%Y%m%d%H%M")
     else:
         tmp_dir = args.tmpdir
 
@@ -281,7 +286,27 @@ def main():
     report_file=str(output_path.with_name(output_path.stem + '.html'))
 
     #####
-    # config
+    # Sensitivity
+    #####
+
+    if args.ultrasensitive:
+        args.max_mismatches = 0
+        args.min_coverage = 120
+    elif args.sensitive:
+        args.max_mismatches = 2
+        args.min_coverage = 100
+    elif args.standard:
+        args.max_mismatches = 3
+        args.min_coverage = 80
+    elif args.permissive:
+        args.max_mismatches = 5
+        args.min_coverage = 60
+
+    # Convert max_mismatches percentage to absolute integer
+    max_mismatches = round(args.max_mismatches * args.min_coverage / 100)
+
+    #####
+    # Config
     #####
 
     config_dir = Path(tmp_dir) / "data"
@@ -293,19 +318,19 @@ def main():
         config_data = {
             "run": current_time,
             "version": version,
-            "dietmapper_db": str(Path(args.database).resolve()),
+            "barcodemapper_db": str(Path(args.database).resolve()),
             "tmp_dir": str(Path(tmp_dir).resolve()),
             "output_file": output_file,
             "build_only": buildonly,
             "report_file": report_file,
-            "max_mismatches": args.max_mismatches,
+            "max_mismatches": max_mismatches,
             "min_coverage": args.min_coverage
         }
     else:
         config_data = {
             "run": current_time,
             "version": version,
-            "dietmapper_db": str(Path(args.database).resolve()),
+            "barcodemapper_db": str(Path(args.database).resolve()),
             "bold_db": str(Path(args.bold).resolve()),
             "unite_db": str(Path(args.unite).resolve()),
             "bold_retain": args.bold_retain,
@@ -314,7 +339,7 @@ def main():
             "output_file": output_file,
             "build_only": buildonly,
             "report_file": report_file,
-            "max_mismatches": args.max_mismatches,
+            "max_mismatches": max_mismatches,
             "min_coverage": args.min_coverage
         }
 

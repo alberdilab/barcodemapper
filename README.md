@@ -1,23 +1,23 @@
-# DietMapper
+# BarcodeMapper
 
-**DietMapper** is a software for quantifying plant, fungi and animal DNA by mapping shotgun sequencing reads against taxonomically annotated marker genes, including ITS, COI, 16S and others. It is useful for detecting and quantifying the relative proportion of dietary items from intestinal contents of faecal samples, providing the higher possible taxonomic resolution through resolving ambiguous mappings.
+**BarcodeMapper** is a software tool for detecting and quantifying plant, fungal, and animal DNA by mapping shotgun sequencing reads to taxonomically annotated COI and ITS marker gene sequences. Leveraging filtered versions of the BOLD and UNITE databases, it enables identification of host species from faecal samples, provides insights into dietary composition, and supports the detection of potential contaminants.
 
 ## 1. Installation
 
-DietMapper can be installed with its python dependencies (but not snakemake, fastp, samtools and bowtie2) directly from this repository using **pip**.
+BarcodeMapper can be installed with its python dependencies (but not snakemake, fastp, samtools and bowtie2) directly from this repository using **pip**.
 
 ```sh
-pip install git+https://github.com/alberdilab/dietmapper.git
-dietmapper -h
+pip install git+https://github.com/alberdilab/barcodemapper.git
+barcodemapper -h
 ```
 
-If you don't have the dependencies listed below installed you can create a custom ready-to-use environment for DietMapper with fully compatible software versions using conda.
+If you don't have the dependencies listed below installed you can create a custom ready-to-use environment for BarcodeMapper with fully compatible software versions using conda.
 
 ```sh
-wget https://raw.githubusercontent.com/alberdilab/dietmapper/main/dietmapper_env.yml
-conda env create --file dietmapper_env.yml
-conda activate dietmapper
-dietmapper -h
+wget https://raw.githubusercontent.com/alberdilab/barcodemapper/main/barcodemapper_env.yml
+conda env create --file barcodemapper_env.yml
+conda activate barcodemapper
+barcodemapper -h
 ```
 ### Dependencies
 
@@ -39,21 +39,21 @@ dietmapper -h
 
 ## 2. Source databases
 
-There are two main modes for running DietMapper: **a)** using the default DietMapper database or **b)** generating a custom database from raw BOLD and UNITE databases.
+There are two main modes for running BarcodeMapper: **a)** using the default BarcodeMapper database or **b)** generating a custom database from raw BOLD and UNITE databases.
 
-### DietMapper database
+### BarcodeMapper database
 
-This is the standard database containing marker genes sequences of plants, basidiomycota fungi, and animals. It was generated in **March 2025** with the most updated versions of BOLD (2025-03-14) and UNITE (*All eukaryotes; 2025-02-19) databases at the time. The database can be stored in any directory, and can be used in DietMapper by pointing towards the main fasta file `-d directory/to/database/dietmapper_db_202503.fa`.
+This is the standard database containing marker genes sequences of plants, basidiomycota fungi, and animals. It was generated in **March 2025** with the most updated versions of BOLD (2025-03-14) and UNITE (*All eukaryotes; 2025-02-19) databases at the time. The database can be stored in any directory, and can be used in BarcodeMapper by pointing towards the main fasta file `-d directory/to/database/barcodemapper_db_202503.fa`.
 
 ```sh
-cd dietmapper_db
-wget https://sid.erda.dk/share_redirect/FGathhqKb5/dietmapper_db_202503.tar.gz
-tar -xzvf dietmapper_db_202503.tar.gz
+cd barcodemapper_db
+wget https://sid.erda.dk/share_redirect/FGathhqKb5/barcodemapper_db_202503.tar.gz
+tar -xzvf barcodemapper_db_202503.tar.gz
 ```
 
 ### Custom database
 
-If you want to use different versions of the databases (e.g., a more recent update) or a different taxonomic breadth (e.g., exclude certain animals from the database), you can download the original databases and create a custom DietMapper database.
+If you want to use different versions of the databases (e.g., a more recent update) or a different taxonomic breadth (e.g., exclude certain animals from the database), you can download the original databases and create a custom BarcodeMapper database.
 
 #### BOLD
 
@@ -63,7 +63,7 @@ If you want to use different versions of the databases (e.g., a more recent upda
 4. Download the FASTA file (gz compression) and decompress it.
 
 ```sh
-cd dietmapper_db
+cd barcodemapper_db
 curl -L -o BOLD_Public.14-Mar-2025.fa.gz "https://bench.boldsystems.org/index.php/API_Datapackage/fasta?id=BOLD_Public.14-Mar-2025&uid=167dcd55552bc4"
 gunzip BOLD_Public.14-Mar-2025.fa.gz
 ```
@@ -74,41 +74,41 @@ gunzip BOLD_Public.14-Mar-2025.fa.gz
 3. Download the FASTA file (tgz compression) and decompress it.
 
 ```sh
-cd dietmapper_db
+cd barcodemapper_db
 wget -O sh_general_release_dynamic_s_all_19.02.2025.tgz https://s3.hpc.ut.ee/plutof-public/original/b02db549-5f04-43fc-afb6-02888b594d10.tgz
 tar xvf sh_general_release_dynamic_s_all_19.02.2025.tgz
 ```
 
-## 3. DietMapper usage
+## 3. BarcodeMapper usage
 
-### With existing DietMapper database
+### With existing BarcodeMapper database
 
-Just provide the input data (-i), the path to the DietMapper database (-d) and the output (-o) file.
+Just provide the input data (-i), the path to the BarcodeMapper database (-d) and the output (-o) file.
 
 ```sh
-dietmapper -i path/to/reads_folder -d dietmapper_db_202503.fa -o final_file.txt
+barcodemapper -i path/to/reads_folder -d barcodemapper_db_202503.fa -o final_file.txt
 ```
 
 Or alternatively, add your forward (-1) and reverse (-2) sequencing reads as comma-separated lists.
 
 ```sh
-dietmapper -1 sample1_1.fq.gz,sample2_1.fq.gz -2 sample1_2.fq.gz,sample2_2.fq.gz -d dietmapper_db_202503.fa -o final_file.txt
+barcodemapper -1 sample1_1.fq.gz,sample2_1.fq.gz -2 sample1_2.fq.gz,sample2_2.fq.gz -d barcodemapper_db_202503.fa -o final_file.txt
 ```
 
-Note that while DietMapper can be run on individual samples, it is primarily designed for batch processing to generate combined output files (taxonomy file and sunburst plot).
+Note that while BarcodeMapper can be run on individual samples, it is primarily designed for batch processing to generate combined output files (taxonomy file and sunburst plot).
 
 ### With original BOLD and UNITE databases
 
-Provide the paths to the original BOLD (-b) and UNITE (-u) databases, as well as the destination of the DietMapper database (-d). Optionally, limit the taxa to be included in the DietMapper database using -x for limiting BOLD taxa and -y for limiting UNITE taxa. Once the DietMapper database has been generated, you will only need to use (-d).
+Provide the paths to the original BOLD (-b) and UNITE (-u) databases, as well as the destination of the BarcodeMapper database (-d). Optionally, limit the taxa to be included in the BarcodeMapper database using -x for limiting BOLD taxa and -y for limiting UNITE taxa. Once the BarcodeMapper database has been generated, you will only need to use (-d).
 
 ```sh
-dietmapper -i path/to/readsdir -b dietmapper_db/BOLD_Public.14-Mar-2025.fa -u dietmapper_db/sh_general_release_dynamic_s_all_19.02.2025.fasta -d dietmapper_db/dietmapper_db_202503.fa -x k__Animalia -y k__Viridiplantae,p__Basidiomycota -o dietmapper_results.txt
+barcodemapper -i path/to/readsdir -b barcodemapper_db/BOLD_Public.14-Mar-2025.fa -u barcodemapper_db/sh_general_release_dynamic_s_all_19.02.2025.fasta -d barcodemapper_db/barcodemapper_db_202503.fa -x k__Animalia -y k__Viridiplantae,p__Basidiomycota -o barcodemapper_results.txt
 ```
 
 If you only want to create the database without running any analysis, use the --build argument without input and output arguments besides the databases.
 
 ```sh
-dietmapper --build -b dietmapper_db/BOLD_Public.14-Mar-2025.fa -u dietmapper_db/sh_general_release_dynamic_s_all_19.02.2025.fasta -d dietmapper_db/dietmapper_db_202503.fa -x k__Animalia -y k__Viridiplantae,p__Basidiomycota
+barcodemapper --build -b barcodemapper_db/BOLD_Public.14-Mar-2025.fa -u barcodemapper_db/sh_general_release_dynamic_s_all_19.02.2025.fasta -d barcodemapper_db/barcodemapper_db_202503.fa -x k__Animalia -y k__Viridiplantae,p__Basidiomycota
 ```
 
 ### On a computational cluster
@@ -116,15 +116,15 @@ dietmapper --build -b dietmapper_db/BOLD_Public.14-Mar-2025.fa -u dietmapper_db/
 When processing multiple samples on a computational cluster, it is recommended to use a screen session and SLURM to run the pipeline efficiently—optimising resource usage and adhering to the job queue system.
 
 ```sh
-screen -S dietmapper
-dietmapper -i path/to/readsdir -d dietmapper_db_202503.fa -o final_file.txt --slurm
+screen -S barcodemapper
+barcodemapper -i path/to/readsdir -d barcodemapper_db_202503.fa -o final_file.txt --slurm
 ```
 
 ## 4. Output files
 
 ### Taxonomy table
 
-The main output of DietMapper is a quantitative taxonomy table that displays the number of reads mapped to each taxonomic level. Read counts are aggregated from lower to higher taxonomic ranks, providing the most specific classification possible—typically at the species level—when a read is uniquely mapped to a species-annotated reference. In cases where reads map to multiple taxa, the pipeline assigns the lowest common taxonomic level.
+The main output of BarcodeMapper is a quantitative taxonomy table that displays the number of reads mapped to each taxonomic level. Read counts are aggregated from lower to higher taxonomic ranks, providing the most specific classification possible—typically at the species level—when a read is uniquely mapped to a species-annotated reference. In cases where reads map to multiple taxa, the pipeline assigns the lowest common taxonomic level.
 
 ```
 Taxonomy        SAMPLE1        SAMPLE2
@@ -161,4 +161,4 @@ k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Lith
 
 ### Sunburst plot
 
-An optional second output of DietMapper is a HTML file containing sunburst plots of the quantitative taxonomic annotations.
+An optional second output of BarcodeMapper is a HTML file containing sunburst plots of the quantitative taxonomic annotations.

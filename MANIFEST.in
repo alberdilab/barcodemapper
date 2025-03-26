@@ -1,5 +1,5 @@
-include dietmapper/profile/*
-include dietmapper/profile/slurm/*
-include dietmapper/profile/local/*
-include dietmapper/workflow/*
-include dietmapper/workflow/scripts/*
+include barcodemapper/profile/*
+include barcodemapper/profile/slurm/*
+include barcodemapper/profile/local/*
+include barcodemapper/workflow/*
+include barcodemapper/workflow/scripts/*

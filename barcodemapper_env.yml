@@ -1,4 +1,4 @@
- name: dietmapper
+ name: barcodemapper
  channels:
     - conda-forge
     - bioconda
@@ -16,4 +16,4 @@
     - pysam=0.23.0
     - pip=24.3.1
     - pip:
-      - git+https://github.com/alberdilab/dietmapper.git
+      - git+https://github.com/alberdilab/barcodemapper.git

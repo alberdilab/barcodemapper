@@ -132,11 +132,29 @@ To simplify this process, BarcodeMapper offers four preset mapping modes, each s
 
 - **Ultrastrict (--ultrastrict):** sets -c to 120 and -m to 0. This mode minimises false positives by requiring perfect matches across a large portion of the sequence. While ideal for high-confidence species-level annotations, it may miss valid mappings due to its high stringency, increasing the false negative rate.
 
+```sh
+barcodemapper -i path/to/readsdir -d barcodemapper_db_202503.fa -o final_file.txt --ultrastrict
+```
+
 - **Strict (--strict):** sets -c to 100 and -m to 2. This mode balances accuracy and flexibility, allowing for minor differences between sample reads and reference sequences. It accounts for natural intraspecific variability that is naturally found across different environments or geographic regions, slightly increasing the false positive rate while significantly reducing false negatives.
+
+```sh
+barcodemapper -i path/to/readsdir -d barcodemapper_db_202503.fa -o final_file.txt --strict
+```
 
 - **Standard (--standard or nothing):** sets -c to 80 and -m to 3. The default mode, designed to strike a practical balance between sensitivity and specificity. It may miss some species-level annotations but tends to recover a broader range of higher taxonomic levels, offering a more comprehensive and realistic view of the sample’s biodiversity. Recommended for general use.
 
+```sh
+barcodemapper -i path/to/readsdir -d barcodemapper_db_202503.fa -o final_file.txt --standard
+#or
+barcodemapper -i path/to/readsdir -d barcodemapper_db_202503.fa -o final_file.txt
+```
+
 - **Permissive (--permissive):** sets -c to 60 and -m to 5. The most relaxed setting, aimed at capturing the widest possible taxonomic breadth. While it allows for more mismatches and may miss fine-grained identifications, it provides valuable insights at broader taxonomic levels (e.g., class or phylum). Ideal when species-level resolution is not a priority.
+
+```sh
+barcodemapper -i path/to/readsdir -d barcodemapper_db_202503.fa -o final_file.txt --permissive
+```
 
 ## 4. Output files
 

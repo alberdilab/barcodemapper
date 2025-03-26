@@ -151,11 +151,11 @@ def main():
     parser.add_argument("-s", "--slurm", action="store_true", required=False, help="Whether to use slurm")
     parser.add_argument("--unlock", action="store_true", required=False, help="Whether to unlock the directory")
     parser.add_argument("--build", action="store_true", required=False, help="Only build the database")
-    sensitivity_group = parser.add_mutually_exclusive_group()
-    sensitivity_group.add_argument("--ultrasensitive", action="store_true", required=False, help="Ultrasensitive mapping (Equivalent to -m 0, -c 120)")
-    sensitivity_group.add_argument("--sensitive", action="store_true", required=False, help="Sensitive mapping (Equivalent to -m 2, -c 100)")
-    sensitivity_group.add_argument("--standard", action="store_true", required=False, help="Standard mapping (Equivalent to -m 3, -c 80)")
-    sensitivity_group.add_argument("--permissive", action="store_true", required=False, help="Relaxed mapping (Equivalent to -m 5, -c 60)")
+    stringency_group = parser.add_mutually_exclusive_group()
+    stringency_group.add_argument("--ultrastrict", action="store_true", required=False, help="Ultrastrict mapping (Equivalent to -m 0, -c 120)")
+    stringency_group.add_argument("--strict", action="store_true", required=False, help="Strict mapping (Equivalent to -m 2, -c 100)")
+    stringency_group.add_argument("--standard", action="store_true", required=False, help="Standard mapping (Equivalent to -m 3, -c 80)")
+    stringency_group.add_argument("--permissive", action="store_true", required=False, help="Relaxed mapping (Equivalent to -m 5, -c 60)")
 
     args = parser.parse_args()
 
@@ -292,10 +292,10 @@ def main():
     # Sensitivity
     #####
 
-    if args.ultrasensitive:
+    if args.ultrastrict:
         args.max_mismatches = 0
         args.min_coverage = 120
-    elif args.sensitive:
+    elif args.strict:
         args.max_mismatches = 2
         args.min_coverage = 100
     elif args.standard:

@@ -157,7 +157,7 @@ k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Cast
 k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Lithocarpus 1       0
 k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Lithocarpus;s__Lithocarpus_corneus  1       0
 ```
-[Note that many lines have been removed from the below example]
+[Note that many lines have been removed from the above example for the sake of visualisation]
 
 ### Sunburst plot
 

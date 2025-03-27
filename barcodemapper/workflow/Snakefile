@@ -12,6 +12,7 @@ configfile: "workflow/config.yaml"
 PACKAGE_DIR = config.get("package_dir", None)
 VERSION = config.get("version", None)
 BARCODEMAPPER_DB = config.get("barcodemapper_db", None)
+BARCODEMAPPER_DB_HEADERS = config.get("barcodemapper_db_headers", None)
 BOLD_DB = config.get("bold_db", None)
 UNITE_DB = config.get("unite_db", None)
 BOLD_RETAIN = config.get("bold_retain", None)
@@ -56,18 +57,15 @@ if BUILD_ONLY == "yes":
             BARCODEMAPPER_3_BT2L,
             BARCODEMAPPER_4_BT2L,
             BARCODEMAPPER_rev1_BT2L,
-            BARCODEMAPPER_rev2_BT2L
+            BARCODEMAPPER_rev2_BT2L,
+            BARCODEMAPPER_DB_HEADERS
 
 if BUILD_ONLY == "no":
-    if REPORT_FILE == "no":
-        rule all:
-            input:
-                OUTPUT_FILE
-    else:
-        rule all:
-            input:
-                OUTPUT_FILE,
-                REPORT_FILE
+    rule all:
+        input:
+            OUTPUT_FILE,
+            REPORT_FILE,
+            BARCODEMAPPER_DB_HEADERS
 
 ################################################################################
 ### Prepare database
@@ -161,6 +159,26 @@ rule index_db:
             --large-index \
             --threads {threads} \
             {input} {params.database}
+        """
+
+################################################################################
+## Index BarcodeMapper database:
+
+rule db_headers:
+    input:
+        BARCODEMAPPER_DB
+    output:
+        BARCODEMAPPER_DB_HEADERS
+    threads:
+        1
+    resources:
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 30) * 2 ** (attempt - 1))
+    message:
+        "Generating taxonomic overview of database"
+    shell:
+        """
+        grep '^>' {input} | cut -d'|' -f3- | sort -u | tr ';' '\t' > {output}
         """
 
 ################################################################################

@@ -278,8 +278,12 @@ def main():
         buildonly="no"
         output_file = str(Path(args.output).resolve())
 
+    # Database overview (headers)
+    db_path=Path(args.database).resolve()
+    headers_file=str(db_path.with_name(db_path.stem + '.tsv'))
+
     #####
-    # report
+    # Report
     #####
 
     if args.build:

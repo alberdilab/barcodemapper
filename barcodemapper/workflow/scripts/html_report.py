@@ -9,7 +9,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Generate a static HTML sunburst plot with sidebar sample selection.")
     parser.add_argument("--input", required=True, help="Input TSV file with taxonomy and abundance per sample")
     parser.add_argument("--output", required=True, help="Output HTML file")
-    parser.add_argument("--version", default="1.0.0", help="Version of DietMapper")
+    parser.add_argument("--version", default="1.0.0", help="Version of BarcodeMapper")
     return parser.parse_args()
 
 
@@ -98,7 +98,7 @@ def generate_html(samples, data_by_sample, output_file, abs_barplot, rel_barplot
 <html>
 <head>
     <meta charset="utf-8">
-    <title>DietMapper – Sunburst Plot</title>
+    <title>BarcodeMapper – Sunburst Plot</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         body {{
@@ -195,7 +195,7 @@ def generate_html(samples, data_by_sample, output_file, abs_barplot, rel_barplot
 </head>
 <body>
     <div id="header">
-        <div><a href="https://github.com/alberdilab/dietmapper" target="_blank" rel="DietMapper website" id="header-link">DietMapper</a> <span id="version">v{version}</span></div>
+        <div><a href="https://github.com/alberdilab/barcodemapper" target="_blank" rel="BarcodeMapper website" id="header-link">BarcodeMapper</a> <span id="version">v{version}</span></div>
         <div id="date">{generation_date}</div>
     </div>
     <div id="main">

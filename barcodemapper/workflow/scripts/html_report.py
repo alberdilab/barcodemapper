@@ -98,7 +98,7 @@ def generate_html(samples, data_by_sample, output_file, abs_barplot, rel_barplot
 <html>
 <head>
     <meta charset="utf-8">
-    <title>BarcodeMapper – Sunburst Plot</title>
+    <title>BarcodeMapper – Report</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         body {{

@@ -8,24 +8,20 @@ import random
 ### STEP 1: DEREPLICATE BOLD ###
 def dereplicate_bold(input_fasta):
     """Removes redundancy:
-    - For identical sequences: keeps the one with the most complete taxonomy.
+    - For identical sequences with the same taxonomy: keeps one record.
+    - For identical sequences with different taxonomies: keeps both records so
+      downstream lowest-common-ancestor assignment can see the ambiguity.
     - For identical headers: keeps the one with the longest sequence.
     """
 
-    # First pass: deduplicate by sequence (keep the best taxonomy)
+    # First pass: deduplicate only within a taxonomic assignment.
     seq_map = {}
     for record in SeqIO.parse(input_fasta, "fasta"):
         seq = str(record.seq)
         header = record.description
         taxonomy = header.split('|')[3] if len(header.split('|')) > 3 else ''
 
-        if seq in seq_map:
-            existing_record = seq_map[seq]
-            existing_taxonomy = existing_record.description.split('|')[3] if len(existing_record.description.split('|')) > 3 else ''
-            if len(taxonomy) > len(existing_taxonomy):
-                seq_map[seq] = record
-        else:
-            seq_map[seq] = record
+        seq_map.setdefault((seq, taxonomy), record)
 
     # Second pass: deduplicate by header (keep the longest sequence)
     header_map = {}

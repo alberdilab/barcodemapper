@@ -1,5 +1,3 @@
-include barcodemapper/profile/*
-include barcodemapper/profile/slurm/*
-include barcodemapper/profile/local/*
-include barcodemapper/workflow/*
-include barcodemapper/workflow/scripts/*
+include LICENSE CITATION.cff CHANGELOG.md tests.md barcodemapper_env.yml
+recursive-include docs *.md
+recursive-include tests *.py

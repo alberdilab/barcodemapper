@@ -2,6 +2,7 @@ import re
 import os
 import gzip
 import json
+import shlex
 import pandas as pd
 from glob import glob
 
@@ -16,13 +17,24 @@ BARCODEMAPPER_DB_HEADERS = config.get("barcodemapper_db_headers", None)
 BOLD_DB = config.get("bold_db", None)
 UNITE_DB = config.get("unite_db", None)
 BOLD_RETAIN = config.get("bold_retain", None)
-UNITE_RETINE = config.get("unite_retain", None)
+UNITE_RETAIN = config.get("unite_retain", None)
 OUTPUT_FILE = config.get("output_file", None)
 TMP_DIR = config.get("tmp_dir", None)
 BUILD_ONLY = config.get("build_only", None)
 REPORT_FILE = config.get("report_file", None)
-MAX_MISMATCHES = config.get("max_mismatches", None)
+MAX_EDIT_PERCENT = config.get("max_edit_percent", 3.0)
 MIN_COVERAGE = config.get("min_coverage", None)
+MIN_READ_LENGTH = config.get("min_read_length", 100)
+COMPLEXITY_THRESHOLD = config.get("complexity_threshold", 30)
+COMPLEXITY_ARGS = (
+    f"--low_complexity_filter --complexity_threshold {COMPLEXITY_THRESHOLD}"
+    if config.get("low_complexity_filter", True) else ""
+)
+ADAPTER_ARGS = (
+    "" if config.get("adapter_r1", "auto") == "auto" else
+    "--adapter_sequence " + shlex.quote(config["adapter_r1"]) +
+    " --adapter_sequence_r2 " + shlex.quote(config["adapter_r2"])
+)
 
 ################################################################################
 ### Input data
@@ -81,9 +93,9 @@ if BOLD_DB or UNITE_DB:
         threads:
             1
         params:
-            package_dir={PACKAGE_DIR},
+            package_dir=PACKAGE_DIR,
             bold=BOLD_RETAIN,
-            unite=UNITE_RETINE
+            unite=UNITE_RETAIN
         resources:
             mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 3) * 2 ** (attempt - 1)),
             runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
@@ -91,7 +103,7 @@ if BOLD_DB or UNITE_DB:
             "Preparing database"
         shell:
             """
-            python {params.package_dir}/workflow/scripts/prepare_database.py -b {input.bold} -u {input.unite} -x {params.bold} -y {params.unite} -o {output}
+            python {params.package_dir:q}/workflow/scripts/prepare_database.py -b {input.bold:q} -u {input.unite:q} -x {params.bold:q} -y {params.unite:q} -o {output:q}
             """
 
 ################################################################################
@@ -113,22 +125,25 @@ rule fastp:
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 10) * 2 ** (attempt - 1))
     message:
         "Using FASTP to trim adapters and low quality sequences for {wildcards.sample}"
+    params:
+        adapter_args=ADAPTER_ARGS,
+        complexity_args=COMPLEXITY_ARGS,
+        min_read_length=MIN_READ_LENGTH
     shell:
         """
         fastp \
-            --in1 {input.r1} --in2 {input.r2} \
-            --out1 {output.r1} --out2 {output.r2} \
+            --in1 {input.r1:q} --in2 {input.r2:q} \
+            --out1 {output.r1:q} --out2 {output.r2:q} \
             --trim_poly_g \
             --trim_poly_x \
             --n_base_limit 5 \
             --qualified_quality_phred 20 \
-            --length_required 100 \
-            --low_complexity_filter 30 \
+            --length_required {params.min_read_length} \
+            {params.complexity_args} \
             --thread {threads} \
-            --html {output.fastp_html} \
-            --json {output.fastp_json} \
-            --adapter_sequence CTGTCTCTTATACACATCT \
-            --adapter_sequence_r2 CTGTCTCTTATACACATCT
+            --html {output.fastp_html:q} \
+            --json {output.fastp_json:q} \
+            {params.adapter_args}
         """
 
 ################################################################################
@@ -152,13 +167,13 @@ rule index_db:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 30) * 2 ** (attempt - 1))
     message:
-        "Indexing unite database with Bowtie2"
+        "Indexing BarcodeMapper database with Bowtie2"
     shell:
         """
         bowtie2-build \
             --large-index \
             --threads {threads} \
-            {input} {params.database}
+            {input:q} {params.database:q}
         """
 
 ################################################################################
@@ -178,7 +193,7 @@ rule db_headers:
         "Generating taxonomic overview of database"
     shell:
         """
-        grep '^>' {input} | cut -d'|' -f3- | sort -u | tr ';' '\t' > {output}
+        grep '^>' {input:q} | cut -d'|' -f3- | sort -u | tr ';' '\t' > {output:q}
         """
 
 ################################################################################
@@ -204,19 +219,19 @@ rule bowtie2_mapping:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
     message:
-        "Mapping {wildcards.sample} to unite using Bowtie2"
+        "Mapping {wildcards.sample} to BarcodeMapper database with Bowtie2"
     shell:
         """
-        # Map reads to MAGs using Bowtie2
+        set -o pipefail
         bowtie2 \
             --time \
             --threads {threads} \
-            -x {params.database} \
-            -1 {input.r1} \
-            -2 {input.r2} \
-            -k 10 \
+            -x {params.database:q} \
+            -1 {input.r1:q} \
+            -2 {input.r2:q} \
+            -a \
             --seed 1337 \
-        | samtools sort -@ {threads} -o {output.bam}
+        | samtools sort -@ {threads} -o {output.bam:q}
         """
 
 ################################################################################
@@ -228,9 +243,9 @@ rule bowtie2_extracting:
     output:
         f"{TMP_DIR}/extract/{{sample}}.tsv"
     params:
-        package_dir={PACKAGE_DIR},
-        max_mismatches={MAX_MISMATCHES},
-        min_coverage={MIN_COVERAGE}
+        package_dir=PACKAGE_DIR,
+        max_edit_percent=MAX_EDIT_PERCENT,
+        min_coverage=MIN_COVERAGE
     threads:
         1
     resources:
@@ -240,7 +255,7 @@ rule bowtie2_extracting:
         "Extracting taxonomy from bam file of {wildcards.sample}"
     shell:
         """
-        python {params.package_dir}/workflow/scripts/extract_taxonomy.py --input {input} --output {output} --max_nm {params.max_mismatches} --min_covered {params.min_coverage}
+        python {params.package_dir:q}/workflow/scripts/extract_taxonomy.py --input {input:q} --output {output:q} --max-edit-percent {params.max_edit_percent} --min-covered {params.min_coverage}
         """
 
 ################################################################################
@@ -252,7 +267,7 @@ rule assign_taxonomy:
     output:
         f"{TMP_DIR}/taxonomy/{{sample}}.tsv"
     params:
-        package_dir={PACKAGE_DIR}
+        package_dir=PACKAGE_DIR
     threads:
         1
     resources:
@@ -272,7 +287,7 @@ rule aggregate_taxonomy:
     output:
         f"{TMP_DIR}/aggregate/{{sample}}.tsv"
     params:
-        package_dir={PACKAGE_DIR}
+        package_dir=PACKAGE_DIR
     threads:
         1
     resources:
@@ -294,7 +309,7 @@ if BUILD_ONLY == "no":
         output:
             OUTPUT_FILE
         params:
-            package_dir={PACKAGE_DIR},
+            package_dir=PACKAGE_DIR,
             samples=samples
         threads:
             1
@@ -317,8 +332,8 @@ rule html_report:
     threads:
         1
     params:
-        package_dir={PACKAGE_DIR},
-        version={VERSION}
+        package_dir=PACKAGE_DIR,
+        version=VERSION
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 3) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
@@ -326,5 +341,5 @@ rule html_report:
         "Generating plots"
     shell:
         """
-        python {params.package_dir}/workflow/scripts/html_report.py --input {input} --output {output} --version {params.version}
+        python {params.package_dir:q}/workflow/scripts/html_report.py --input {input:q} --output {output:q} --version {params.version:q}
         """

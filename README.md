@@ -1,202 +1,89 @@
-![alt text](images/barcodemapper.png "BarcodeMapper")
+![BarcodeMapper logo](https://raw.githubusercontent.com/alberdilab/barcodemapper/main/images/barcodemapper.png)
 
-**BarcodeMapper** is a software tool for detecting and quantifying plant, fungal, and animal DNA by mapping shotgun sequencing reads to taxonomically annotated COI and ITS marker gene sequences. Leveraging filtered versions of the BOLD and UNITE databases, it enables identification of host species from faecal samples, provides insights into dietary composition, and supports the detection of potential contaminants.
+# BarcodeMapper
 
-## 1. Installation
+BarcodeMapper maps paired shotgun reads to taxonomically annotated COI and ITS reference sequences. It filters reads with fastp, aligns them with Bowtie2, and assigns each read ID to the lowest taxonomy shared by its accepted alignments. It produces a cumulative taxonomy count table, a self-contained HTML report, and a JSON run manifest.
 
-BarcodeMapper can be installed with its python dependencies (but not snakemake, fastp, samtools and bowtie2) directly from this repository using **pip**.
+Read counts describe marker-matching fragments. They are **not** estimates of organism abundance: marker copy number, reference coverage, read length, and mapping ambiguity affect the counts. See [validation and limitations](docs/validation.md).
 
-```sh
-pip install git+https://github.com/alberdilab/barcodemapper.git
-barcodemapper -h
-```
+## Install
 
-If you don't have the dependencies listed below installed you can create a custom ready-to-use environment for BarcodeMapper with fully compatible software versions using conda.
+Python 3.12 or newer is required. The provided Conda environment pins the workflow tools and Python dependencies. From a checked-out release tag or source tree:
 
 ```sh
-wget https://raw.githubusercontent.com/alberdilab/barcodemapper/main/barcodemapper_env.yml
 conda env create --file barcodemapper_env.yml
 conda activate barcodemapper
-barcodemapper -h
+python -m pip install --no-deps .
+barcodemapper --version
 ```
-### Dependencies
 
-#### Software
+The pinned environment is intended for Linux x86_64 and macOS x86_64. The pinned fastp 0.23.1 build is unavailable for native macOS arm64; Apple Silicon users can use an x86_64 Conda environment under Rosetta or install compatible workflow executables separately. For a Python-only install, `python -m pip install .` installs the Python dependencies; `snakemake`, `fastp`, `bowtie2`, `bowtie2-build`, and `samtools` must also be on `PATH`. Slurm runs additionally need the Snakemake Slurm executor plugin.
 
-- snakemake
-- fastp
-- samtools
-- bowtie2
+## Reference database
 
-#### Python modules
+BarcodeMapper requires a FASTA whose headers have the form `accession|marker|k__Kingdom;p__Phylum;...`, where `marker` is `COI-5P` or `ITS`. The FASTA and Bowtie2 index are separate from the Python package.
 
-- numpy
-- pandas
-- argparse
-- PyYAML
-- requests
-- plotly
+An existing March 2025 database snapshot was previously distributed as [barcodemapper_db_202503.tar.gz](https://sid.erda.dk/share_redirect/FGathhqKb5/barcodemapper_db_202503.tar.gz). Its source inputs were BOLD Public (14 March 2025) and UNITE All Eukaryotes (19 February 2025). Confirm its availability and the underlying providers' terms before using or redistributing it. The software's MIT license does not grant rights to third-party reference sequences.
 
-## 2. Source databases
-
-There are two main modes for running BarcodeMapper: **a)** using the default BarcodeMapper database or **b)** generating a custom database from raw BOLD and UNITE databases.
-
-### BarcodeMapper database
-
-This is the standard database containing marker genes sequences of plants, basidiomycota fungi, and animals. It was generated in **March 2025** with the most updated versions of BOLD (2025-03-14) and UNITE (*All eukaryotes; 2025-02-19) databases at the time. The database can be stored in any directory, and can be used in BarcodeMapper by pointing towards the main fasta file `-d directory/to/database/barcodemapper_db_202503.fa`.
+To build your own database, obtain the FASTA inputs from [BOLD](https://www.boldsystems.org/) and the [UNITE repository](https://unite.ut.ee/repository.php), record their release identifiers, and run:
 
 ```sh
-cd barcodemapper_db
-wget https://sid.erda.dk/share_redirect/FGathhqKb5/barcodemapper_db_202503.tar.gz
-tar -xzvf barcodemapper_db_202503.tar.gz
+barcodemapper --build \
+  -b BOLD_Public.fa -u UNITE_All_Eukaryotes.fasta \
+  -d references/barcodemapper.fa \
+  -x k__Animalia \
+  -y k__Viridiplantae,c__Agaricomycetes,c__Pezizomycetes
 ```
 
-### Custom database
+`-x` and `-y` accept comma-separated taxonomy terms present in the source data. The default filters select Animalia from BOLD and Viridiplantae, Agaricomycetes, and Pezizomycetes from UNITE. The build creates the combined FASTA, six Bowtie2 index files, a taxonomy overview TSV, and a manifest with source and output SHA-256 hashes. Use a new `-d` path for each build; existing FASTA files are not overwritten.
 
-If you want to use different versions of the databases (e.g., a more recent update) or a different taxonomic breadth (e.g., exclude certain animals from the database), you can download the original databases and create a custom BarcodeMapper database.
+When reporting results, cite both the software release and the reference providers. Follow [BOLD's citation guidance](https://boldsystems.org/about/citation/) for the platform and any data package DOI, and [UNITE's citation guidance](https://unite.ut.ee/cite.php) for its current database paper. Retain the exact source release identifiers and checksums with your analysis.
 
-#### BOLD
+## Run an analysis
 
-1. Login to BOLDSystems (you need a user account).
-2. Visit https://bench.boldsystems.org/index.php/datapackages/Latest
-3. Obtain the link of the FASTA version of the database. Note that when making the download request a unique download link like the one shown below will be generated, so this step cannot be reproduced directly.
-4. Download the FASTA file (gz compression) and decompress it.
+Put one read pair per sample in a directory, named `sample_1.fq.gz` and `sample_2.fq.gz` (or `.fastq.gz`):
 
 ```sh
-cd barcodemapper_db
-curl -L -o BOLD_Public.14-Mar-2025.fa.gz "https://bench.boldsystems.org/index.php/API_Datapackage/fasta?id=BOLD_Public.14-Mar-2025&uid=167dcd55552bc4"
-gunzip BOLD_Public.14-Mar-2025.fa.gz
-```
-#### UNITE
-
-1. Visit: https://unite.ut.ee/repository.php
-2. Obtain the link of the FASTA version of the All Eukaryotes database.
-3. Download the FASTA file (tgz compression) and decompress it.
-
-```sh
-cd barcodemapper_db
-wget -O sh_general_release_dynamic_s_all_19.02.2025.tgz https://s3.hpc.ut.ee/plutof-public/original/b02db549-5f04-43fc-afb6-02888b594d10.tgz
-tar xvf sh_general_release_dynamic_s_all_19.02.2025.tgz
+barcodemapper -i reads -d references/barcodemapper.fa -o results/taxonomy.tsv
 ```
 
-## 3. BarcodeMapper usage
+You can instead provide comma-separated R1 and R2 file lists with `-1` and `-2`. Both mates must exist and use matching sample names. Merge lanes before analysis, or name each pair as a separate sample. `-t work_directory` gives the run a stable working directory that Snakemake can resume. The default is a new timestamped directory. Use `--unlock -t work_directory` only if a previous run left a stale Snakemake lock.
 
-### With existing BarcodeMapper database
+The bundled adapters are `CTGTCTCTTATACACATCT` for both mates. Set `--adapter-r1` and `--adapter-r2` for your library, or set both to `auto` to use fastp's adapter handling. Other preprocessing controls include `--min-read-length`, `--complexity-threshold`, and `--no-low-complexity-filter`. Inspect fastp's per-sample HTML and JSON files in the work directory for filtering results.
 
-Just provide the input data (-i), the path to the BarcodeMapper database (-d) and the output (-o) file.
+### Mapping stringency
 
-```sh
-barcodemapper -i path/to/reads_folder -d barcodemapper_db_202503.fa -o final_file.txt
-```
+`-c` / `--min-coverage` is the minimum aligned bases per alignment; `-m` / `--max-mismatches` is the maximum Bowtie2 `NM` edit distance as a percentage of those aligned bases. `NM` includes substitutions and indels. The default is 80 bases and 3%. Presets replace both values:
 
-Or alternatively, add your forward (-1) and reverse (-2) sequencing reads as comma-separated lists.
+| Preset | Minimum aligned bases | Maximum edits |
+| --- | ---: | ---: |
+| `--ultrastrict` | 120 | 0% |
+| `--strict` | 100 | 2% |
+| `--standard` (default) | 80 | 3% |
+| `--permissive` | 60 | 5% |
 
-```sh
-barcodemapper -1 sample1_1.fq.gz,sample2_1.fq.gz -2 sample1_2.fq.gz,sample2_2.fq.gz -d barcodemapper_db_202503.fa -o final_file.txt
-```
+For example, `barcodemapper -i reads -d references/barcodemapper.fa -o results.tsv --strict`. Bowtie2 reports all alignments it finds, so repetitive sequences and large databases can increase run time and disk use substantially.
 
-Note that while BarcodeMapper can be run on individual samples, it is primarily designed for batch processing to generate combined output files (taxonomy file and sunburst plot).
+### Slurm
 
-### With original BOLD and UNITE databases
+Use `--slurm` on a cluster with the Snakemake Slurm executor plugin installed. Adjust `barcodemapper/profile/slurm/config.yaml` for site resources before running large datasets; the provided profile submits up to 50 jobs and caps threads per job at 8.
 
-Provide the paths to the original BOLD (-b) and UNITE (-u) databases, as well as the destination of the BarcodeMapper database (-d). Optionally, limit the taxa to be included in the BarcodeMapper database using -x for limiting BOLD taxa and -y for limiting UNITE taxa. Once the BarcodeMapper database has been generated, you will only need to use (-d).
+## Outputs
 
-```sh
-barcodemapper -i path/to/readsdir -b barcodemapper_db/BOLD_Public.14-Mar-2025.fa -u barcodemapper_db/sh_general_release_dynamic_s_all_19.02.2025.fasta -d barcodemapper_db/barcodemapper_db_202503.fa -x k__Animalia -y k__Viridiplantae,p__Basidiomycota -o barcodemapper_results.txt
-```
+For `-o results/taxonomy.tsv`, BarcodeMapper writes:
 
-If you only want to create the database without running any analysis, use the --build argument without input and output arguments besides the databases.
+| File | Contents |
+| --- | --- |
+| `results/taxonomy.tsv` | Taxonomy paths and one count column per sample, including zero-hit samples. |
+| `results/taxonomy.html` | Offline, self-contained bar and sunburst plots. |
+| `results/taxonomy.manifest.json` | Version, parameters, tool versions, database checksum, inputs, and fastp/assignment counts. |
 
-```sh
-barcodemapper --build -b barcodemapper_db/BOLD_Public.14-Mar-2025.fa -u barcodemapper_db/sh_general_release_dynamic_s_all_19.02.2025.fasta -d barcodemapper_db/barcodemapper_db_202503.fa -x k__Animalia -y k__Viridiplantae,p__Basidiomycota
-```
+Counts are propagated to every resolved ancestor. A fragment assigned to species therefore also appears in its genus, family, and higher-rank rows. **Do not sum all taxonomy rows** to obtain a total. A fragment with no shared named taxon is `Unclassified`; a sample with no accepted alignments has a zero column. The report's relative bars use assigned fragments at the phylum level plus unresolved and unclassified fragments as the denominator.
 
-### On a computational cluster
+## Tests and releases
 
-When processing multiple samples on a computational cluster, it is recommended to use a screen session and SLURM to run the pipeline efficiently—optimising resource usage and adhering to the job queue system.
+Run `python -m pytest -q` after installing `pytest` and the workflow tools. The two end-to-end tests skip when their external executables are unavailable. [Test details](tests.md) and [validation scope](docs/validation.md) explain what they cover.
 
-```sh
-screen -S barcodemapper
-barcodemapper -i path/to/readsdir -d barcodemapper_db_202503.fa -o final_file.txt --slurm
-```
+The package version is declared once in `pyproject.toml` and exposed through `barcodemapper --version`. Versions follow `MAJOR.MINOR.PATCH`; release tags use `vMAJOR.MINOR.PATCH`. Changes are recorded in [CHANGELOG.md](CHANGELOG.md), citation metadata in [CITATION.cff](CITATION.cff), and release steps in [docs/releasing.md](docs/releasing.md). Version 1.0.0 is currently an untagged source snapshot; no package publication or release tag is implied.
 
-### Modulate mapping stringency
-
-BarcodeMapper allows to hone the stringency of the mapping by tweaking two parameters:
-
-- **Minimum coverage (-c, --min_coverage):** specifies the minimum number of nucleotide bases that must align with the reference sequence.
-
-- **Maximum percentage of mismatches (-m, --max_mismatches):** defines the maximum percentage of mismatches allowed in the alignment. For instance, if -c is set to 150, and -m to 2 (%), then up to 3 mismatches will be permitted (150*2/100=3) for a read to be considered mapped.
-
-To simplify this process, BarcodeMapper offers four preset mapping modes, each setting specific -c and -m values to control stringency levels:
-
-- **Ultrastrict (--ultrastrict):** sets -c to 120 and -m to 0. This mode minimises false positives by requiring perfect matches across a large portion of the sequence. While ideal for high-confidence species-level annotations, it may miss valid mappings due to its high stringency, increasing the false negative rate.
-
-```sh
-barcodemapper -i path/to/readsdir -d barcodemapper_db_202503.fa -o final_file.txt --ultrastrict
-```
-
-- **Strict (--strict):** sets -c to 100 and -m to 2. This mode balances accuracy and flexibility, allowing for minor differences between sample reads and reference sequences. It accounts for natural intraspecific variability that is naturally found across different environments or geographic regions, slightly increasing the false positive rate while significantly reducing false negatives.
-
-```sh
-barcodemapper -i path/to/readsdir -d barcodemapper_db_202503.fa -o final_file.txt --strict
-```
-
-- **Standard (--standard or nothing):** sets -c to 80 and -m to 3. The default mode, designed to strike a practical balance between sensitivity and specificity. It may miss some species-level annotations but tends to recover a broader range of higher taxonomic levels, offering a more comprehensive and realistic view of the sample’s biodiversity. Recommended for general use.
-
-```sh
-barcodemapper -i path/to/readsdir -d barcodemapper_db_202503.fa -o final_file.txt --standard
-#or
-barcodemapper -i path/to/readsdir -d barcodemapper_db_202503.fa -o final_file.txt
-```
-
-- **Permissive (--permissive):** sets -c to 60 and -m to 5. The most relaxed setting, aimed at capturing the widest possible taxonomic breadth. While it allows for more mismatches and may miss fine-grained identifications, it provides valuable insights at broader taxonomic levels (e.g., class or phylum). Ideal when species-level resolution is not a priority.
-
-```sh
-barcodemapper -i path/to/readsdir -d barcodemapper_db_202503.fa -o final_file.txt --permissive
-```
-
-## 4. Output files
-
-### Taxonomy table
-
-The main output of BarcodeMapper is a quantitative taxonomy table that displays the number of reads mapped to each taxonomic level. Read counts are aggregated from lower to higher taxonomic ranks, providing the most specific classification possible—typically at the species level—when a read is uniquely mapped to a species-annotated reference. In cases where reads map to multiple taxa, the pipeline assigns the lowest common taxonomic level.
-
-```
-Taxonomy        SAMPLE1        SAMPLE2
-k__Fungi        244     2
-k__Fungi;p__Basidiomycota       244     2
-k__Fungi;p__Basidiomycota;c__Tremellomycetes    223     0
-k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Holtermanniales 1       0
-k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Holtermanniales;f__Holtermanniaceae     1       0
-k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Holtermanniales;f__Holtermanniaceae;g__Holtermannia     1       0
-k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Holtermanniales;f__Holtermanniaceae;g__Holtermannia;s__Holtermannia_saccardoi   1       0
-k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales     182     0
-k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Cryptococcaceae  6       0
-k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Cryptococcaceae;g__Kwoniella     6       0
-k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Cryptococcaceae;g__Kwoniella;s__Kwoniella_shandongensis  6       0
-k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Tremellaceae     59      0
-k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Tremellaceae;g__Tremella 59      0
-k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Tremellaceae;g__Tremella;s__Tremella_cheejenii   23      0
-k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Tremellaceae;g__Tremella;s__Tremella_mesenterica 36      0
-k__Viridiplantae        23      19
-k__Viridiplantae;p__Anthophyta  23      12
-k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae       20      12
-k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales    19      9
-k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Betulaceae      0       8
-k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Betulaceae;g__Ostrya    0       7
-k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Betulaceae;g__Ostrya;s__Ostrya_carpinifolia     0       2
-k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae        13      0
-k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Castanea    4       0
-k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Castanea;s__Castanea_dentata        1       0
-k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Castanea;s__Castanea_seguinii       1       0
-k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Lithocarpus 1       0
-k__Viridiplantae;p__Anthophyta;c__Eudicotyledonae;o__Fagales;f__Fagaceae;g__Lithocarpus;s__Lithocarpus_corneus  1       0
-```
-[Note that many lines have been removed from the above example for the sake of visualisation]
-
-### Report
-
-BarcodeMapper also yields a HTML report in which the taxonomic classifications of all samples are visualised in barplots and sunburst plots.
-
-![alt text](images/report.png "BarcodeMapper report")
+BarcodeMapper source code is available under the [MIT license](LICENSE). Reference databases retain their providers' terms.

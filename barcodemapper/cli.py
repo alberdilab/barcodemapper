@@ -1,370 +1,326 @@
+"""Command line interface for the BarcodeMapper workflow."""
+
 import argparse
-import os
-import sys
-import subprocess
-import yaml
-import re
+import hashlib
 import json
-import requests
-import pandas as pd
-from pathlib import Path
+import re
 import shutil
-from datetime import datetime
+import subprocess
+import sys
 from collections import defaultdict
+from datetime import datetime, timezone
+from pathlib import Path
+
+import yaml
+
 from barcodemapper.__version__ import __version__
 
-#####
-# barcodemapper installation path
-#####
 
-PACKAGE_DIR = Path(__file__).parent
-version=__version__
+PACKAGE_DIR = Path(__file__).resolve().parent
+READ_PATTERN = re.compile(r"^(?P<sample>.+)_(?P<mate>[12])\.(?:fq|fastq)\.gz$")
+DEFAULT_ADAPTER = "CTGTCTCTTATACACATCT"
+PRESETS = {
+    "ultrastrict": (0.0, 120),
+    "strict": (2.0, 100),
+    "standard": (3.0, 80),
+    "permissive": (5.0, 60),
+}
 
-#####
-# Function definitions
-#####
 
-def unlock_snakemake(tmp_dir, config_path, profile):
-    unlock_command = [
-        "/bin/bash", "-c",  # Ensures the module system works properly
-        "snakemake "
-        f"-s {PACKAGE_DIR / 'workflow' / 'Snakefile'} "
-        f"--directory {tmp_dir} "
-        f"--workflow-profile {PACKAGE_DIR / 'profile' / profile} "
-        f"--configfile {config_path} "
-        f"--config package_dir={PACKAGE_DIR} "
-        f"--unlock"
+def _snakemake_command(tmp_dir: Path, config_path: Path, profile: str) -> list[str]:
+    return [
+        "snakemake",
+        "-s", str(PACKAGE_DIR / "workflow" / "Snakefile"),
+        "--directory", str(tmp_dir),
+        "--workflow-profile", str(PACKAGE_DIR / "profile" / profile),
+        "--configfile", str(config_path),
+        "--config", f"package_dir={PACKAGE_DIR}",
     ]
 
-    subprocess.run(unlock_command, shell=False, check=True)
-    print(f"The output directory {tmp_dir} has been succesfully unlocked.")
 
-def run_snakemake(tmp_dir, config_path, profile):
-    snakemake_command = [
-        "/bin/bash", "-c",
-        "snakemake "
-        f"-s {PACKAGE_DIR / 'workflow' / 'Snakefile'} "
-        f"--directory {tmp_dir} "
-        f"--workflow-profile {PACKAGE_DIR / 'profile' / profile} "
-        f"--configfile {config_path} "
-        f"--config package_dir={PACKAGE_DIR}"
-    ]
-    subprocess.run(snakemake_command, shell=False, check=True)
+def unlock_snakemake(tmp_dir: Path, config_path: Path, profile: str) -> None:
+    subprocess.run(_snakemake_command(tmp_dir, config_path, profile) + ["--unlock"], check=True)
+    print(f"The working directory {tmp_dir} has been unlocked.")
 
-def inputdir_to_samples(input_dir, output_dir):
-    # Define the directory containing the raw reads
-    READS_DIR = Path(input_dir).resolve()
 
-    # Initialize dictionaries
-    SAMPLE_TO_READS1 = defaultdict(list)
-    SAMPLE_TO_READS2 = defaultdict(list)
+def run_snakemake(tmp_dir: Path, config_path: Path, profile: str) -> None:
+    subprocess.run(_snakemake_command(tmp_dir, config_path, profile), check=True)
 
-    # Match both _1.fq.gz, _2.fq.gz, _1.fastq.gz, _2.fastq.gz
-    pattern = re.compile(r"^(.*)_(1|2)\.f(ast)?q\.gz$")  # Captures everything before "_1.fq.gz" or "_2.fq.gz"
 
-    # Scan the directory
-    for filename in os.listdir(READS_DIR):
-        if filename.endswith((".fq.gz", ".fastq.gz")):
-            full_path = os.path.join(READS_DIR, filename)
+def _sample_maps(paths: list[Path]) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+    mates: dict[int, dict[str, list[str]]] = {1: defaultdict(list), 2: defaultdict(list)}
+    for path in paths:
+        if not path.is_file():
+            raise ValueError(f"Read file does not exist: {path}")
+        match = READ_PATTERN.fullmatch(path.name)
+        if match is None:
+            raise ValueError(f"Read filename must end in _1/_2.fq.gz or _1/_2.fastq.gz: {path.name}")
+        sample = match.group("sample")
+        mate = int(match.group("mate"))
+        mates[mate][sample].append(str(path.resolve()))
 
-            # Extract sample name using regex
-            match = pattern.match(filename)
-            if match:
-                sample_name, read_num = match.group(1), match.group(2)
-                if read_num == "1":
-                    SAMPLE_TO_READS1[sample_name].append(full_path)
-                elif read_num == "2":
-                    SAMPLE_TO_READS2[sample_name].append(full_path)
+    forward = mates[1]
+    reverse = mates[2]
+    if not forward and not reverse:
+        raise ValueError("No paired FASTQ files were found")
+    if set(forward) != set(reverse):
+        missing_r1 = sorted(set(reverse) - set(forward))
+        missing_r2 = sorted(set(forward) - set(reverse))
+        raise ValueError(f"Unpaired samples: missing R1={missing_r1}, missing R2={missing_r2}")
+    for sample in sorted(forward):
+        if len(forward[sample]) != 1 or len(reverse[sample]) != 1:
+            raise ValueError(
+                f"Sample {sample!r} has multiple files per mate. Merge lanes first or give each pair a distinct sample name."
+            )
+    return dict(sorted(forward.items())), dict(sorted(reverse.items()))
 
-    # Convert defaultdict to standard dict (optional)
-    SAMPLE_TO_READS1 = dict(SAMPLE_TO_READS1)
-    SAMPLE_TO_READS2 = dict(SAMPLE_TO_READS2)
 
-    os.makedirs(f"{output_dir}/data", exist_ok=True)
-    with open(f"{output_dir}/data/sample_to_reads1.json", "w") as f:
-        json.dump(SAMPLE_TO_READS1, f, indent=4)
+def _save_samples(
+    read1: dict[str, list[str]], read2: dict[str, list[str]], output_dir: Path
+) -> None:
+    data_dir = output_dir / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    for mate, mapping in ((1, read1), (2, read2)):
+        (data_dir / f"sample_to_reads{mate}.json").write_text(
+            json.dumps(mapping, indent=2) + "\n", encoding="utf-8"
+        )
 
-    with open(f"{output_dir}/data/sample_to_reads2.json", "w") as f:
-        json.dump(SAMPLE_TO_READS2, f, indent=4)
 
-def inputlist_to_samples(read1, read2, output_dir):
-    forward_files = read1.split(",")
-    reverse_files = read2.split(",")
+def inputdir_to_samples(input_dir: str | Path, output_dir: str | Path) -> tuple[dict, dict]:
+    directory = Path(input_dir).expanduser().resolve()
+    if not directory.is_dir():
+        raise ValueError(f"Input directory does not exist: {directory}")
+    paths = sorted(
+        path for path in directory.iterdir()
+        if path.name.endswith((".fq.gz", ".fastq.gz"))
+    )
+    maps = _sample_maps(paths)
+    _save_samples(*maps, Path(output_dir))
+    return maps
 
-    # Initialize dictionaries
-    SAMPLE_TO_READS1 = defaultdict(list)
-    SAMPLE_TO_READS2 = defaultdict(list)
 
-    # Regular expression to capture sample names
-    pattern = re.compile(r"^(.*)_(1|2)\.f(ast)?q\.gz$")
+def inputlist_to_samples(read1: str, read2: str, output_dir: str | Path) -> tuple[dict, dict]:
+    def split_files(value: str, mate: int) -> list[Path]:
+        paths = [Path(item.strip()).expanduser().resolve() for item in value.split(",") if item.strip()]
+        if not paths:
+            raise ValueError(f"No R{mate} files were supplied")
+        for path in paths:
+            match = READ_PATTERN.fullmatch(path.name)
+            if match is None or int(match.group("mate")) != mate:
+                raise ValueError(f"Expected an R{mate} filename: {path}")
+        return paths
 
-    # Process forward reads
-    for file in forward_files:
-        filename = os.path.basename(file)
-        match = pattern.match(filename)
-        if match:
-            sample_name = match.group(1)
-            SAMPLE_TO_READS1[sample_name].append(file)
+    maps = _sample_maps(split_files(read1, 1) + split_files(read2, 2))
+    _save_samples(*maps, Path(output_dir))
+    return maps
 
-    # Process reverse reads
-    for file in reverse_files:
-        filename = os.path.basename(file)
-        match = pattern.match(filename)
-        if match:
-            sample_name = match.group(1)
-            SAMPLE_TO_READS2[sample_name].append(file)
 
-    # Convert defaultdict to standard dict
-    SAMPLE_TO_READS1 = dict(SAMPLE_TO_READS1)
-    SAMPLE_TO_READS2 = dict(SAMPLE_TO_READS2)
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
-    # Ensure output directory exists
-    os.makedirs(f"{output_dir}/data", exist_ok=True)
 
-    # Save JSON files
-    with open(f"{output_dir}/data/sample_to_reads1.json", "w") as f:
-        json.dump(SAMPLE_TO_READS1, f, indent=4)
+def _tool_version(name: str) -> str:
+    try:
+        completed = subprocess.run([name, "--version"], capture_output=True, text=True, check=False)
+    except OSError:
+        return "unavailable"
+    lines = (completed.stdout + completed.stderr).splitlines()
+    return lines[0].strip() if lines else "unknown"
 
-    with open(f"{output_dir}/data/sample_to_reads2.json", "w") as f:
-        json.dump(SAMPLE_TO_READS2, f, indent=4)
 
-#####
-# barcodemapper execution
-#####
-
-def main():
-    parser = argparse.ArgumentParser(description="BarcodeMapper: dietary profiling from metagenomic data.")
-    parser.add_argument("-i", "--input", type=str, required=False, help="Path to the input directory containing the sequencing reads.")
-    parser.add_argument("-1", "--read1", type=str, required=False, help="Comma-separated list of forward reads.")
-    parser.add_argument("-2", "--read2", type=str, required=False, help="Comma-separated list of reverse reads.")
-    parser.add_argument("-o", "--output", type=str, required=False, help="Output taxonomy file.")
-    parser.add_argument("-m", "--max_mismatches", type=str, required=False, default=3, help="Maximum percengage of mismatches allowed.")
-    parser.add_argument("-c", "--min_coverage", type=str, required=False, default=80, help="Minimum number of bases required for mapping.")
-    parser.add_argument("-d", "--database", type=str, required=True, help="Combined BarcodeMapper database (fasta).")
-    parser.add_argument("-b", "--bold", type=str, required=False, help="Bold database (fasta).")
-    parser.add_argument("-u", "--unite", type=str, required=False, help="Unite database (fasta).")
-    parser.add_argument("-x", "--bold_retain", type=str, required=False, default="k__Animalia", help="Comma-separated list of taxa to consider in the BOLD database (e.g. 'o__Coleoptera,o__Lepidoptera')")
-    parser.add_argument("-y", "--unite_retain", type=str, required=False, default="k__Viridiplantae,c__Agaricomycetes,c__Pezizomycetes", help="Comma-separated list of taxa to consider in the UNITE database (e.g. 'k__Fungi,k__Viridioplantae')")
-    parser.add_argument("-t", "--tmpdir", type=str, required=False, help="Directory where the temporary files are stored")
-    parser.add_argument("-s", "--slurm", action="store_true", required=False, help="Whether to use slurm")
-    parser.add_argument("--unlock", action="store_true", required=False, help="Whether to unlock the directory")
-    parser.add_argument("--build", action="store_true", required=False, help="Only build the database")
-    stringency_group = parser.add_mutually_exclusive_group()
-    stringency_group.add_argument("--ultrastrict", action="store_true", required=False, help="Ultrastrict mapping (Equivalent to -m 0, -c 120)")
-    stringency_group.add_argument("--strict", action="store_true", required=False, help="Strict mapping (Equivalent to -m 2, -c 100)")
-    stringency_group.add_argument("--standard", action="store_true", required=False, help="Standard mapping (Equivalent to -m 3, -c 80)")
-    stringency_group.add_argument("--permissive", action="store_true", required=False, help="Relaxed mapping (Equivalent to -m 5, -c 60)")
-
-    args = parser.parse_args()
-
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit(1)
-
-    #####
-    # select profile
-    #####
-
-    if args.slurm:
-        profile = 'slurm'
-    else:
-        profile = 'local'
-
-    #####
-    # input check
-    #####
-
-    if args.input and (args.read1 or args.read2):
-        print(f"    Please, provide either an input directory or a list of input files.")
-        return
-
-    if args.read1 and not args.read2:
-        print(f"    Please, provide both forward and reverse sequencing read files.")
-        return
-
-    if args.read2 and not args.read1:
-        print(f"    Please, provide both forward and reverse sequencing read files.")
-        return
-
-    if not args.build and not (args.input or (args.read1 and args.read2)):
-        print(f"    No input data was specified. Use either the -i, or the -1 and -2 arguments.")
-        return
-
-    if args.database and not (args.bold and args.unite):
-        barcodemapper_db_path = Path(args.database)
-        if not barcodemapper_db_path.exists():
-            print(f"Error: Database file {barcodemapper_db_path} does not exist.")
-            sys.exit(1)
-        else:
-            if barcodemapper_db_path.suffix.lower() not in [".fa", ".fasta"]:
-                print(f"Error: Database file {barcodemapper_db_path} does not have a correct (.fa or .fasta) extension.")
-                sys.exit(1)
-
-    if args.bold:
-        bold_db_path = Path(args.bold)
-        if not bold_db_path.exists():
-            print(f"Error: BOLD database file {bold_db_path} does not exist.")
-            sys.exit(1)
-
-    if args.unite:
-        unite_db_path = Path(args.unite)
-        if not unite_db_path.exists():
-            print(f"Error: UNITE database file {unite_db_path} does not exist.")
-            sys.exit(1)
-
-    if args.database and args.bold and args.unite:
-        barcodemapper_db_path = Path(args.database)
-        if barcodemapper_db_path.exists():
-            print(f"Warning: The BarcodeMapper database {barcodemapper_db_path} already exists.")
-            print(f"If you want to re-build the BarcodeMapper database first remove this one.")
-
-    #####
-    # depenency check
-    #####
-
-    def check_tool_installed(tool_name):
-        if shutil.which(tool_name) is None:
-            print(f"    Error: {tool_name} is not installed or not in your PATH.", file=sys.stderr)
-            return False
-        return True
-
-    tools = ["bowtie2", "samtools", "fastp"]
-    missing = [tool for tool in tools if not check_tool_installed(tool)]
-
-    if missing:
-        sys.exit(f"Make sure {', '.join(missing)} are installed before running BarcodeMapper. Optionally, create the BarcodeMapper conda environment containing all dependencies following the explanations in the BarcodeMapper documentation.")
-
-    #####
-    # tmp directory
-    #####
-
-    if not args.tmpdir:
-        tmp_dir = "barcodemapper_" + datetime.now().strftime("%Y%m%d%H%M")
-    else:
-        tmp_dir = args.tmpdir
-
-    os.makedirs(Path(tmp_dir).resolve(), exist_ok=True)
-
-    #####
-    # database build
-    #####
-
-    if args.build:
-        buildonly="yes"
-
-        if not args.bold:
-            print(f"Error: You did not specify a BOLD database.")
-            sys.exit(1)
-        else:
-            bold_db_path = Path(args.bold)
-            if not bold_db_path.exists():
-                print(f"Error: BOLD database file {bold_db_path} does not exist.")
-                sys.exit(1)
-
-        if not args.unite:
-            print(f"Error: You did not specify a UNITE database.")
-        else:
-            unite_db_path = Path(args.unite)
-            if not unite_db_path.exists():
-                print(f"Error: UNITE database file {unite_db_path} does not exist.")
-                sys.exit(1)
-
-        if not args.output:
-            output_file="no"
-
-    else:
-        buildonly="no"
-        output_file = str(Path(args.output).resolve())
-
-    # Database overview (headers)
-    db_path=Path(args.database).resolve()
-    headers_file=str(db_path.with_name(db_path.stem + '.tsv'))
-
-    #####
-    # Report
-    #####
-
-    if args.build:
-        report_file="none"
-    else:
-        output_path=Path(args.output).resolve()
-        report_file=str(output_path.with_name(output_path.stem + '.html'))
-
-    #####
-    # Sensitivity
-    #####
-
-    if args.ultrastrict:
-        args.max_mismatches = 0
-        args.min_coverage = 120
-    elif args.strict:
-        args.max_mismatches = 2
-        args.min_coverage = 100
-    elif args.standard:
-        args.max_mismatches = 3
-        args.min_coverage = 80
-    elif args.permissive:
-        args.max_mismatches = 5
-        args.min_coverage = 60
-
-    # Convert max_mismatches percentage to absolute integer
-    max_mismatches = round(args.max_mismatches * args.min_coverage / 100)
-
-    #####
-    # Config
-    #####
-
-    config_dir = Path(tmp_dir) / "data"
-    config_dir.mkdir(parents=True, exist_ok=True)
-    config_path = config_dir / "config.yaml"
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    if args.database and not (args.bold and args.unite):
-        config_data = {
-            "run": current_time,
-            "version": version,
-            "barcodemapper_db": str(Path(args.database).resolve()),
-            "barcodemapper_db_headers": headers_file,
-            "tmp_dir": str(Path(tmp_dir).resolve()),
-            "output_file": output_file,
-            "build_only": buildonly,
-            "report_file": report_file,
-            "max_mismatches": max_mismatches,
-            "min_coverage": args.min_coverage
+def _write_manifest(
+    destination: Path,
+    db_path: Path,
+    config: dict,
+    read1: dict[str, list[str]],
+    read2: dict[str, list[str]],
+) -> None:
+    manifest = {
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "barcodemapper_version": __version__,
+        "database": {"path": str(db_path), "sha256": _sha256(db_path)},
+        "parameters": config,
+        "samples": {sample: {"read1": read1[sample], "read2": read2[sample]} for sample in read1},
+        "tools": {tool: _tool_version(tool) for tool in ("snakemake", "fastp", "bowtie2", "bowtie2-build", "samtools")},
+    }
+    if "bold_db" in config:
+        manifest["sources"] = {
+            source: {"path": config[key], "sha256": _sha256(Path(config[key]))}
+            for source, key in (("bold", "bold_db"), ("unite", "unite_db"))
         }
-    else:
-        config_data = {
-            "run": current_time,
-            "version": version,
-            "barcodemapper_db": str(Path(args.database).resolve()),
-            "barcodemapper_db_headers": headers_file,
-            "bold_db": str(Path(args.bold).resolve()),
-            "unite_db": str(Path(args.unite).resolve()),
+    for sample in read1:
+        fastp_file = Path(config["tmp_dir"]) / "fastp" / f"{sample}.json"
+        taxonomy_file = Path(config["tmp_dir"]) / "taxonomy" / f"{sample}.tsv"
+        if fastp_file.is_file():
+            fastp_data = json.loads(fastp_file.read_text(encoding="utf-8"))
+            manifest["samples"][sample]["fastp_reads_before"] = fastp_data.get("summary", {}).get("before_filtering", {}).get("total_reads")
+            manifest["samples"][sample]["fastp_reads_after"] = fastp_data.get("summary", {}).get("after_filtering", {}).get("total_reads")
+        if taxonomy_file.is_file():
+            with taxonomy_file.open(encoding="utf-8") as handle:
+                manifest["samples"][sample]["assigned_read_ids"] = max(0, sum(1 for _ in handle) - 1)
+    destination.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Map shotgun reads to COI and ITS reference sequences.")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+    parser.add_argument("-i", "--input", help="Directory of paired .fq.gz or .fastq.gz files")
+    parser.add_argument("-1", "--read1", help="Comma-separated R1 FASTQ files")
+    parser.add_argument("-2", "--read2", help="Comma-separated R2 FASTQ files")
+    parser.add_argument("-o", "--output", help="Output taxonomy TSV file")
+    parser.add_argument("-d", "--database", help="Combined BarcodeMapper FASTA path")
+    parser.add_argument("-b", "--bold", help="BOLD FASTA for database creation")
+    parser.add_argument("-u", "--unite", help="UNITE FASTA for database creation")
+    parser.add_argument("-x", "--bold_retain", default="k__Animalia", help="Comma-separated BOLD taxa to retain")
+    parser.add_argument("-y", "--unite_retain", default="k__Viridiplantae,c__Agaricomycetes,c__Pezizomycetes", help="Comma-separated UNITE taxa to retain")
+    parser.add_argument("-t", "--tmpdir", help="Working directory; reuse this path to resume")
+    parser.add_argument("-s", "--slurm", action="store_true", help="Submit workflow jobs through Slurm")
+    parser.add_argument("--unlock", action="store_true", help="Unlock an existing working directory")
+    parser.add_argument("--build", action="store_true", help="Build and index a database only")
+    parser.add_argument("-m", "--max_mismatches", "--max-mismatches", type=float, default=3.0,
+                        help="Maximum NM edit distance as a percent of aligned bases (default: 3)")
+    parser.add_argument("-c", "--min_coverage", "--min-coverage", type=int, default=80,
+                        help="Minimum aligned bases (default: 80)")
+    parser.add_argument("--adapter-r1", default=DEFAULT_ADAPTER, help="R1 adapter sequence, or 'auto'")
+    parser.add_argument("--adapter-r2", default=DEFAULT_ADAPTER, help="R2 adapter sequence, or 'auto'")
+    parser.add_argument("--min-read-length", type=int, default=100, help="Minimum read length after fastp (default: 100)")
+    parser.add_argument("--complexity-threshold", type=int, default=30, help="fastp complexity threshold (default: 30)")
+    parser.add_argument("--no-low-complexity-filter", action="store_true", help="Disable fastp low complexity filtering")
+    presets = parser.add_mutually_exclusive_group()
+    for name, (percent, bases) in PRESETS.items():
+        presets.add_argument(f"--{name}", action="store_true", help=f"Set -m {percent:g} and -c {bases}")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> None:
+    parser = _parser()
+    args = parser.parse_args(argv)
+    if argv is None and len(sys.argv) == 1:
+        parser.print_help()
+        parser.exit(2)
+
+    if args.build and args.unlock:
+        parser.error("--build and --unlock cannot be combined")
+    if args.build:
+        if args.input or args.read1 or args.read2 or args.output:
+            parser.error("--build accepts database inputs only; omit reads and -o")
+        if not (args.bold and args.unite):
+            parser.error("--build requires both -b/--bold and -u/--unite")
+    elif not args.unlock:
+        if not args.output:
+            parser.error("-o/--output is required for an analysis run")
+        if bool(args.input) == bool(args.read1 or args.read2):
+            parser.error("provide either -i or both -1 and -2")
+        if bool(args.read1) != bool(args.read2):
+            parser.error("both -1 and -2 are required for file-list input")
+    if args.unlock and not args.tmpdir:
+        parser.error("--unlock requires the existing --tmpdir")
+    if args.unlock:
+        if shutil.which("snakemake") is None:
+            parser.error("snakemake is missing from PATH")
+        tmp_dir = Path(args.tmpdir).expanduser().resolve()
+        config_path = tmp_dir / "data" / "config.yaml"
+        if not config_path.is_file():
+            parser.error(f"no existing run configuration found at {config_path}")
+        unlock_snakemake(tmp_dir, config_path, "slurm" if args.slurm else "local")
+        return
+    if not args.database:
+        parser.error("-d/--database is required")
+    if bool(args.bold) != bool(args.unite):
+        parser.error("provide both BOLD and UNITE FASTA files, or neither")
+    if args.max_mismatches < 0 or args.max_mismatches > 100:
+        parser.error("-m/--max-mismatches must be between 0 and 100")
+    if args.min_coverage < 1 or args.min_read_length < 1:
+        parser.error("coverage and read length must be positive")
+    if not 0 <= args.complexity_threshold <= 100:
+        parser.error("--complexity-threshold must be between 0 and 100")
+    for label, adapter in (("--adapter-r1", args.adapter_r1), ("--adapter-r2", args.adapter_r2)):
+        if adapter != "auto" and not re.fullmatch(r"[ACGTNacgtn]+", adapter):
+            parser.error(f"{label} must be a DNA sequence or 'auto'")
+    if (args.adapter_r1 == "auto") != (args.adapter_r2 == "auto"):
+        parser.error("use 'auto' for both adapters or provide both sequences")
+
+    db_path = Path(args.database).expanduser().resolve()
+    if db_path.suffix.lower() not in {".fa", ".fasta"}:
+        parser.error("database path must end in .fa or .fasta")
+    if args.bold:
+        for label, value in (("BOLD", args.bold), ("UNITE", args.unite)):
+            if not Path(value).expanduser().is_file():
+                parser.error(f"{label} FASTA does not exist: {value}")
+        if db_path.exists():
+            parser.error(f"database target already exists: {db_path}; choose a new -d path")
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+    elif not db_path.is_file():
+        parser.error(f"database FASTA does not exist: {db_path}")
+
+    required_tools = ["snakemake", "bowtie2-build"]
+    if not args.build and not args.unlock:
+        required_tools += ["bowtie2", "samtools", "fastp"]
+    missing = [tool for tool in required_tools if shutil.which(tool) is None]
+    if missing:
+        parser.error("required executables are missing from PATH: " + ", ".join(missing))
+
+    for preset, (percent, bases) in PRESETS.items():
+        if getattr(args, preset):
+            args.max_mismatches, args.min_coverage = percent, bases
+            break
+
+    tmp_dir = Path(args.tmpdir).expanduser().resolve() if args.tmpdir else Path(
+        "barcodemapper_" + datetime.now().strftime("%Y%m%d%H%M%S%f")
+    ).resolve()
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    output_path = Path(args.output).expanduser().resolve() if args.output else None
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+    headers_path = db_path.with_name(db_path.stem + ".tsv")
+    report_path = output_path.with_suffix(".html") if output_path else None
+    config_path = tmp_dir / "data" / "config.yaml"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config = {
+        "run": datetime.now(timezone.utc).isoformat(),
+        "version": __version__,
+        "barcodemapper_db": str(db_path),
+        "barcodemapper_db_headers": str(headers_path),
+        "tmp_dir": str(tmp_dir),
+        "output_file": str(output_path) if output_path else "no",
+        "build_only": "yes" if args.build else "no",
+        "report_file": str(report_path) if report_path else "none",
+        "max_edit_percent": args.max_mismatches,
+        "min_coverage": args.min_coverage,
+        "adapter_r1": args.adapter_r1,
+        "adapter_r2": args.adapter_r2,
+        "min_read_length": args.min_read_length,
+        "complexity_threshold": args.complexity_threshold,
+        "low_complexity_filter": not args.no_low_complexity_filter,
+    }
+    if args.bold:
+        config.update({
+            "bold_db": str(Path(args.bold).expanduser().resolve()),
+            "unite_db": str(Path(args.unite).expanduser().resolve()),
             "bold_retain": args.bold_retain,
             "unite_retain": args.unite_retain,
-            "tmp_dir": str(Path(tmp_dir).resolve()),
-            "output_file": output_file,
-            "build_only": buildonly,
-            "report_file": report_file,
-            "max_mismatches": max_mismatches,
-            "min_coverage": args.min_coverage
-        }
+        })
+
+    read1: dict[str, list[str]] = {}
+    read2: dict[str, list[str]] = {}
+    if not args.build:
+        try:
+            if args.input:
+                read1, read2 = inputdir_to_samples(args.input, tmp_dir)
+            else:
+                read1, read2 = inputlist_to_samples(args.read1, args.read2, tmp_dir)
+        except ValueError as exc:
+            parser.error(str(exc))
+    config_path.write_text(yaml.safe_dump(config, sort_keys=True), encoding="utf-8")
+    run_snakemake(tmp_dir, config_path, "slurm" if args.slurm else "local")
+    manifest_path = (db_path if args.build else output_path).with_suffix(".manifest.json")
+    _write_manifest(manifest_path, db_path, config, read1, read2)
+    print(f"Run manifest: {manifest_path}")
 
 
-    with open(config_path, "w") as f:
-        yaml.dump(config_data, f)
-
-    #####
-    # run
-    #####
-
-    if args.read1 and args.read2:
-        inputlist_to_samples(args.read1, args.read2, Path(tmp_dir).resolve())
-
-    if args.input:
-        inputdir_to_samples(args.input, Path(tmp_dir).resolve())
-
-    if args.unlock:
-        unlock_snakemake(Path(tmp_dir).resolve(), config_path, profile)
-    else:
-        run_snakemake(Path(tmp_dir).resolve(), config_path, profile)
+if __name__ == "__main__":
+    main()

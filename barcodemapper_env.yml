@@ -1,9 +1,9 @@
- name: barcodemapper
- channels:
+name: barcodemapper
+channels:
     - conda-forge
     - bioconda
-    - defaults
- dependencies:
+dependencies:
+    - python=3.12
     - snakemake=8.27.1
     - snakemake-executor-plugin-slurm=1.1.0
     - fastp=0.23.1
@@ -14,6 +14,4 @@
     - plotly=6.0.1
     - biopython=1.85
     - pysam=0.23.0
-    - pip=24.3.1
-    - pip:
-      - git+https://github.com/alberdilab/barcodemapper.git
+    - pyyaml=6.0.2

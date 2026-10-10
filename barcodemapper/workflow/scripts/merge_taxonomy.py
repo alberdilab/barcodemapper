@@ -21,6 +21,10 @@ for file, sample_name in zip(input_files, sample_names):
 
 # Convert dictionary to DataFrame
 merged_df = pd.DataFrame.from_dict(taxonomy_dict, orient="index").fillna(0).astype(int)
+for sample_name in sample_names:
+    if sample_name not in merged_df:
+        merged_df[sample_name] = 0
+merged_df = merged_df[sample_names]
 
 # Reset index and rename columns
 merged_df.index.name = "Taxonomy"

@@ -1,4 +1,6 @@
 latency-wait: 60
+cores: 8
+scheduler: greedy
 use-conda: true
 rerun-incomplete: true
 keep-going: true

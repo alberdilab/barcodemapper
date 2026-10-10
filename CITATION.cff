@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use BarcodeMapper, please cite this software release."
+type: software
+title: "BarcodeMapper"
+authors:
+  - family-names: Alberdi
+    given-names: Antton
+repository-code: "https://github.com/alberdilab/barcodemapper"
+version: 1.0.0
+license: MIT

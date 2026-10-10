@@ -1,18 +1,16 @@
-import pandas as pd
 from collections import defaultdict
-import sys
+import pandas as pd
 
 # Read input and output file paths from Snakemake
 input_file = snakemake.input[0]
 output_file = snakemake.output[0]
 
 # Load TSV file
-df = pd.read_csv(
-    input_file,
-    sep="\t",
-    names=["ReadID", "Reference", "Marker", "Taxonomy", "Mismatches", "CoveredBases"],
-    dtype={"Taxonomy": str}
-)
+columns = ["ReadID", "Reference", "Marker", "Taxonomy", "Mismatches", "CoveredBases"]
+try:
+    df = pd.read_csv(input_file, sep="\t", names=columns, dtype={"Taxonomy": str})
+except pd.errors.EmptyDataError:
+    df = pd.DataFrame(columns=columns)
 df["Taxonomy"] = df["Taxonomy"].fillna("")
 
 # Group taxonomy assignments by read

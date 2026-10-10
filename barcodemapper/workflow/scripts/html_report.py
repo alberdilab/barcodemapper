@@ -2,14 +2,16 @@ import pandas as pd
 import argparse
 import json
 import colorsys
+from html import escape
 from datetime import datetime
+from plotly.offline import get_plotlyjs
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Generate a static HTML sunburst plot with sidebar sample selection.")
     parser.add_argument("--input", required=True, help="Input TSV file with taxonomy and abundance per sample")
     parser.add_argument("--output", required=True, help="Output HTML file")
-    parser.add_argument("--version", default="1.0.0", help="Version of BarcodeMapper")
+    parser.add_argument("--version", default="unknown", help="Version of BarcodeMapper")
     return parser.parse_args()
 
 
@@ -65,15 +67,34 @@ def prepare_data(df):
                 if depth == len(levels) - 1:
                     nodes[path_id]["value"] += row["Abundance"]
 
-        frame = pd.DataFrame(nodes.values())
+        frame = pd.DataFrame(nodes.values(), columns=["id", "label", "parent", "depth", "value", "kingdom"])
         frame["color"] = [assign_color(row["kingdom"], row["depth"]) for _, row in frame.iterrows()]
         all_data[sample] = frame.to_dict(orient="list")
 
-        phylum_rows = frame[frame["depth"] == 1][["label", "kingdom", "value", "color"]].copy()
-        phylum_rows.columns = ["Phylum", "Kingdom", sample, "color"]
+        if frame.empty:
+            phylum_rows = pd.DataFrame({
+                "Phylum": pd.Series(dtype="string"),
+                "Kingdom": pd.Series(dtype="string"),
+                sample: pd.Series(dtype="int64"),
+                "color": pd.Series(dtype="string"),
+            })
+        else:
+            phylum_rows = frame[(frame["depth"] == 1) | (frame["label"] == "Unclassified")][["label", "kingdom", "value", "color"]].copy()
+            phylum_rows.columns = ["Phylum", "Kingdom", sample, "color"]
+            phylum_rows = phylum_rows.reset_index(drop=True)
+            for _, kingdom in frame[frame["depth"] == 0].iterrows():
+                if kingdom["label"] == "Unclassified":
+                    continue
+                children = frame[frame["parent"] == kingdom["id"]]
+                unresolved = kingdom["value"] - children["value"].sum()
+                if unresolved > 0:
+                    phylum_rows.loc[len(phylum_rows)] = [
+                        "Unresolved within " + kingdom["label"],
+                        kingdom["label"], unresolved, kingdom["color"],
+                    ]
         all_phylum_rows.append(phylum_rows)
 
-    merged = all_phylum_rows[0]
+    merged = all_phylum_rows[0] if all_phylum_rows else pd.DataFrame(columns=["Phylum", "Kingdom", "color"])
     for phylum_df in all_phylum_rows[1:]:
         merged = pd.merge(merged, phylum_df, on=["Phylum", "Kingdom", "color"], how="outer")
     merged = merged.fillna(0)
@@ -88,10 +109,18 @@ def prepare_data(df):
 
 
 def generate_html(samples, data_by_sample, output_file, abs_barplot, rel_barplot, version):
-    menu_html = "".join([f'<div onclick="loadSample(\'{s}\')" class="sample-button">{s}</div>' for s in samples])
+    menu_html = "".join(
+        f'<button type="button" class="sample-button" data-sample="{escape(s, quote=True)}">{escape(s)}</button>'
+        for s in samples
+    )
     abs_json = abs_barplot.to_dict(orient="list")
     rel_json = rel_barplot.to_dict(orient="list")
     generation_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    def safe_json(value):
+        return json.dumps(value).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
+
+    first_sample = samples[0] if samples else ""
+    plotly_js = get_plotlyjs()
 
     with open(output_file, "w") as f:
         f.write(f"""<!DOCTYPE html>
@@ -99,7 +128,7 @@ def generate_html(samples, data_by_sample, output_file, abs_barplot, rel_barplot
 <head>
     <meta charset="utf-8">
     <title>BarcodeMapper – Report</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>{plotly_js}</script>
     <style>
         body {{
             margin: 0;
@@ -153,6 +182,10 @@ def generate_html(samples, data_by_sample, output_file, abs_barplot, rel_barplot
             border-radius: 4px;
             margin-bottom: 5px;
             background-color: #fff;
+            border: 0;
+            display: block;
+            text-align: left;
+            width: 100%;
         }}
         .sample-button:hover {{
             background-color: #e0e0e0;
@@ -195,7 +228,7 @@ def generate_html(samples, data_by_sample, output_file, abs_barplot, rel_barplot
 </head>
 <body>
     <div id="header">
-        <div><a href="https://github.com/alberdilab/barcodemapper" target="_blank" rel="BarcodeMapper website" id="header-link">BarcodeMapper</a> <span id="version">v{version}</span></div>
+        <div><a href="https://github.com/alberdilab/barcodemapper" target="_blank" rel="noopener noreferrer" id="header-link">BarcodeMapper</a> <span id="version">v{escape(version)}</span></div>
         <div id="date">{generation_date}</div>
     </div>
     <div id="main">
@@ -209,14 +242,14 @@ def generate_html(samples, data_by_sample, output_file, abs_barplot, rel_barplot
 		<div class="tab" id="tab-relative" onclick="switchBarplot('relative')">Relative number of reads</div>
             </div>
             <div id="barplot"></div>
-            <div id="sample-title">{samples[0]}</div>
+            <div id="sample-title">{escape(first_sample)}</div>
             <div id="sunburst"></div>
         </div>
     </div>
     <script>
-        const dataBySample = {json.dumps(data_by_sample)};
-        const absData = {json.dumps(abs_json)};
-        const relData = {json.dumps(rel_json)};
+        const dataBySample = {safe_json(data_by_sample)};
+        const absData = {safe_json(abs_json)};
+        const relData = {safe_json(rel_json)};
         let currentBarplot = "absolute";
 
         function drawBarplot(type) {{
@@ -298,8 +331,11 @@ def generate_html(samples, data_by_sample, output_file, abs_barplot, rel_barplot
             Plotly.newPlot("sunburst", [trace], layout);
         }}
 
+        document.querySelectorAll('.sample-button').forEach(button => {{
+            button.addEventListener('click', () => loadSample(button.dataset.sample));
+        }});
         drawBarplot(currentBarplot);
-        loadSample("{samples[0]}");
+        loadSample({safe_json(first_sample)});
     </script>
 </body>
 </html>

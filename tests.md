@@ -1,12 +1,11 @@
-# BarcodeMapper tests
+# Testing BarcodeMapper
 
-## Laboratory lizards
-
-10 lizard faecal samples from Garazi's experiment. Samples collected after the antibiotic treatment. Animals had only been fed ***Acheta domesticus*** crickets for ca. 2 weeks.
+From the repository root, in an environment with the package and `pytest` installed:
 
 ```sh
-barcodemapper -i barcodemapper_podarcis_lab -d barcodemapper_db/barcodemapper_db_202503.fa -o laboratory_lizards.txt -s --plot
-
-barcodemapper -i barcodemapper_podarcis_lab -d barcodemapper_db/barcodemapper_db_202503.fa -o laboratory_lizards_complexityfilter.txt -s --plot
-
+python -m pytest -q
 ```
+
+The unit tests check input validation, per-alignment edit filtering, taxonomy aggregation, zero-hit samples, report accounting, and handling of conflicting BOLD records. Two end-to-end tests generate a tiny deterministic paired-read fixture and use real Snakemake, fastp, Bowtie2, and samtools executables. They check that an ambiguous species match stops at genus, an unrelated sample remains at zero, a combined database can be built, and source checksums are recorded. Integration tests skip when required executables are absent. Run only unit tests with `python -m pytest -q -m 'not integration'`.
+
+These checks verify software behavior on synthetic data. They do not establish sensitivity, specificity, or abundance accuracy on biological samples; see [validation scope](docs/validation.md).

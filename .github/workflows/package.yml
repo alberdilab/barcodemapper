@@ -1,0 +1,43 @@
+name: Package checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install build twine
+      - run: python scripts/check_release.py
+      - if: startsWith(github.ref, 'refs/tags/v')
+        run: python scripts/check_release.py --tag "$GITHUB_REF_NAME"
+      - run: python -m build
+      - run: python -m twine check dist/*
+      - run: python -m pip install dist/*.whl
+      - run: barcodemapper --help
+      - run: barcodemapper --version
+      - run: python -c "from importlib.resources import files; assert (files('barcodemapper') / 'workflow' / 'Snakefile').is_file()"
+
+  workflow-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mamba-org/setup-micromamba@v3
+        with:
+          environment-file: barcodemapper_env.yml
+          init-shell: bash
+      - name: Install BarcodeMapper and pytest
+        shell: bash -el {0}
+        run: |
+          python -m pip install --no-deps .
+          python -m pip install pytest
+      - name: Run unit and end-to-end tests
+        shell: bash -el {0}
+        run: |
+          for tool in snakemake fastp bowtie2 bowtie2-build samtools; do command -v "$tool"; done
+          python -m pytest -q

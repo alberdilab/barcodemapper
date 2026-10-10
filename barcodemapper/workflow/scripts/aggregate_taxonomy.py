@@ -8,20 +8,24 @@ output_file = snakemake.output[0]
 # Load taxonomic classifications (ignoring ReadID)
 df = pd.read_csv(input_file, sep="\t")
 
-# Count occurrences of each taxonomy
-taxonomy_counts = df["Taxonomy"].value_counts().to_dict()
+# Count occurrences of each taxonomy, including missing assignments.
+taxonomy_counts = df["Taxonomy"].fillna("").value_counts().to_dict()
 
 # Initialize taxonomic hierarchy
 taxonomy_tree = defaultdict(int)
 
-# Function to check for empty taxonomy levels
-def has_empty_levels(taxon):
-    return any(level.endswith("__") for level in taxon.split(";"))
+def resolved_prefix(taxon):
+    """Keep the highest contiguous ranks that have names."""
+    levels = []
+    for level in taxon.split(";"):
+        if not level or level.endswith("__"):
+            break
+        levels.append(level)
+    return ";".join(levels) if levels else "Unclassified"
 
 # Process each taxon, ensuring parents accumulate child counts
 for taxon, count in taxonomy_counts.items():
-    if has_empty_levels(taxon):
-        continue  # Skip taxa with empty levels
+    taxon = resolved_prefix(taxon)
 
     # Assign count to the specific taxon
     taxonomy_tree[taxon] += count
@@ -30,8 +34,6 @@ for taxon, count in taxonomy_counts.items():
     tax_levels = taxon.split(";")
     for i in range(1, len(tax_levels)):
         parent_taxon = ";".join(tax_levels[:i])
-        if has_empty_levels(parent_taxon):
-            continue  # Skip partial paths with empty levels
         taxonomy_tree[parent_taxon] += count
 
 # Convert to DataFrame

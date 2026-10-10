@@ -1,6 +1,7 @@
 executor: slurm
 jobs: 50
 latency-wait: 60
+scheduler: greedy
 use-conda: true
 rerun-incomplete: true
 keep-going: true

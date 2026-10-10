@@ -4,6 +4,10 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+### Added
+
+- Allow `barcodemapper --build` without source files to fetch the current BOLD and UNITE releases, record their provenance, and skip or repair an already current database.
+
 ## [1.0.0] - Pending release
 
 The first release is being prepared. This section describes the current source tree; no tag or package publication is implied.

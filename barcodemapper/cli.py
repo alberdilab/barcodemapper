@@ -8,6 +8,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -15,6 +16,7 @@ from pathlib import Path
 import yaml
 
 from barcodemapper.__version__ import __version__
+from barcodemapper.reference_sources import Release, discover_latest, download_sources
 from barcodemapper.workflow.scripts.validate_database import validate_database
 
 
@@ -175,16 +177,23 @@ def _write_manifest(
     config: dict,
     read1: dict[str, list[str]],
     read2: dict[str, list[str]],
+    source_info: dict | None = None,
+    database_path: Path | None = None,
+    automatic_sources: bool = False,
 ) -> None:
     manifest = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "barcodemapper_version": __version__,
-        "database": {"path": str(db_path), "sha256": _sha256(db_path)},
+        "database": {"path": str(database_path or db_path), "sha256": _sha256(db_path)},
         "parameters": config,
         "samples": {sample: {"read1": read1[sample], "read2": read2[sample]} for sample in read1},
         "tools": {tool: _tool_version(tool) for tool in ("snakemake", "fastp", "bowtie2", "bowtie2-build", "samtools")},
     }
-    if "bold_db" in config:
+    if automatic_sources:
+        manifest["automatic_sources"] = True
+    if source_info is not None:
+        manifest["sources"] = source_info
+    elif "bold_db" in config:
         manifest["sources"] = {
             source: {"path": config[key], "sha256": _sha256(Path(config[key]))}
             for source, key in (("bold", "bold_db"), ("unite", "unite_db"))
@@ -200,6 +209,151 @@ def _write_manifest(
             with taxonomy_file.open(encoding="utf-8") as handle:
                 manifest["samples"][sample]["assigned_read_ids"] = max(0, sum(1 for _ in handle) - 1)
     destination.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+
+def _auto_manifest(db_path: Path) -> dict | None:
+    path = db_path.with_suffix(".manifest.json")
+    if not path.is_file():
+        return None
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return manifest if isinstance(manifest, dict) and manifest.get("automatic_sources") is True else None
+
+
+def _same_auto_database(db_path: Path, manifest: dict | None, releases: dict[str, Release], args) -> bool:
+    if not db_path.is_file() or not manifest:
+        return False
+    params = manifest.get("parameters")
+    sources = manifest.get("sources")
+    database = manifest.get("database")
+    if not all(isinstance(value, dict) for value in (params, sources, database)):
+        return False
+    if params.get("bold_retain") != args.bold_retain:
+        return False
+    if params.get("unite_retain") != args.unite_retain:
+        return False
+    for name in ("bold", "unite"):
+        source = sources.get(name, {})
+        if not isinstance(source, dict):
+            return False
+        if source.get("release") != releases[name].identifier or source.get("doi") != releases[name].doi:
+            return False
+    return database.get("sha256") == _sha256(db_path)
+
+
+def _build_config(db_path: Path, tmp_dir: Path, args, *, bold: Path | None = None,
+                  unite: Path | None = None, generate_index: bool = True,
+                  generate_headers: bool = True) -> dict:
+    config = {
+        "run": datetime.now(timezone.utc).isoformat(),
+        "version": __version__,
+        "barcodemapper_db": str(db_path),
+        "barcodemapper_index_base": str(db_path.with_suffix("")),
+        "barcodemapper_index_extension": "bt2l",
+        "generate_index": generate_index,
+        "barcodemapper_db_headers": str(db_path.with_suffix(".tsv")),
+        "generate_headers": generate_headers,
+        "tmp_dir": str(tmp_dir),
+        "output_file": "no",
+        "build_only": "yes",
+        "report_file": "none",
+    }
+    if bold is not None and unite is not None:
+        config.update({"bold_db": str(bold), "unite_db": str(unite),
+                       "bold_retain": args.bold_retain, "unite_retain": args.unite_retain})
+    return config
+
+
+def _promote_database(staged: Path, destination: Path) -> None:
+    """Replace a previous automatic build after all new artifacts are complete."""
+    names = [staged.name, staged.with_suffix(".tsv").name,
+             staged.with_suffix(".manifest.json").name]
+    names += [f"{staged.stem}.{part}.bt2l" for part in INDEX_PARTS]
+    old_names = names + [f"{staged.stem}.{part}.bt2" for part in INDEX_PARTS]
+    backup = staged.parent / "previous"
+    backup.mkdir()
+    moved_old = []
+    moved_new = []
+    try:
+        for name in old_names:
+            old = destination.parent / name
+            if old.exists():
+                old.replace(backup / name)
+                moved_old.append(name)
+        for name in names:
+            (staged.parent / name).replace(destination.parent / name)
+            moved_new.append(name)
+    except OSError:
+        for name in reversed(moved_new):
+            (destination.parent / name).replace(staged.parent / name)
+        for name in reversed(moved_old):
+            (backup / name).replace(destination.parent / name)
+        raise
+
+
+def _build_latest(args, parser: argparse.ArgumentParser, db_path: Path) -> None:
+    try:
+        releases = discover_latest()
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        parser.error(f"could not discover the latest BOLD/UNITE releases: {exc}")
+    manifest = _auto_manifest(db_path)
+    if db_path.exists() and manifest is None:
+        parser.error(f"{db_path} has no automatic-build manifest; choose a new -d path")
+    tmp_dir = Path(args.tmpdir).expanduser().resolve() if args.tmpdir else Path(
+        "barcodemapper_" + datetime.now().strftime("%Y%m%d%H%M%S%f")
+    ).resolve()
+    same = _same_auto_database(db_path, manifest, releases, args)
+    if same:
+        index_files = [Path(f"{db_path.with_suffix('')}.{part}.bt2l") for part in INDEX_PARTS]
+        headers = db_path.with_suffix(".tsv")
+        index_current = _current_files(index_files, db_path)
+        headers_current = _current_files([headers], db_path)
+        if index_current and headers_current:
+            print(f"Database is current: {db_path}")
+            return
+        missing = [tool for tool in ("snakemake", "bowtie2-build") if shutil.which(tool) is None]
+        if missing:
+            parser.error("required executables are missing from PATH: " + ", ".join(missing))
+        tmp_dir.mkdir(parents=True, exist_ok=True)
+        config = _build_config(db_path, tmp_dir, args, generate_index=not index_current,
+                               generate_headers=not headers_current)
+        config_path = tmp_dir / "data" / "config.yaml"
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        config_path.write_text(yaml.safe_dump(config, sort_keys=True), encoding="utf-8")
+        run_snakemake(tmp_dir, config_path, "slurm" if args.slurm else "local")
+        print(f"Repaired database artifacts: {db_path}")
+        return
+
+    missing = [tool for tool in ("snakemake", "bowtie2-build") if shutil.which(tool) is None]
+    if missing:
+        parser.error("required executables are missing from PATH: " + ", ".join(missing))
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=f".{db_path.stem}.build-", dir=db_path.parent) as stage_name:
+        stage_dir = Path(stage_name)
+        staged_db = stage_dir / db_path.name
+        try:
+            paths, provenance = download_sources(releases, stage_dir / "sources")
+        except (OSError, ValueError, json.JSONDecodeError, tarfile.TarError) as exc:
+            parser.error(f"could not download the latest BOLD/UNITE FASTAs: {exc}")
+        config = _build_config(staged_db, tmp_dir, args, bold=paths["bold"], unite=paths["unite"])
+        config_path = tmp_dir / "data" / "config.yaml"
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        config_path.write_text(yaml.safe_dump(config, sort_keys=True), encoding="utf-8")
+        run_snakemake(tmp_dir, config_path, "slurm" if args.slurm else "local")
+        manifest_config = config.copy()
+        manifest_config["barcodemapper_db"] = str(db_path)
+        manifest_config["barcodemapper_index_base"] = str(db_path.with_suffix(""))
+        manifest_config["barcodemapper_db_headers"] = str(db_path.with_suffix(".tsv"))
+        manifest_config.pop("bold_db")
+        manifest_config.pop("unite_db")
+        _write_manifest(staged_db.with_suffix(".manifest.json"), staged_db, manifest_config, {}, {},
+                        source_info=provenance, database_path=db_path, automatic_sources=True)
+        _promote_database(staged_db, db_path)
+    print(f"Built latest database: {db_path}")
+    print(f"Run manifest: {db_path.with_suffix('.manifest.json')}")
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -245,8 +399,6 @@ def main(argv: list[str] | None = None) -> None:
     if args.build:
         if args.input or args.read1 or args.read2 or args.output:
             parser.error("--build accepts database inputs only; omit reads and -o")
-        if not (args.bold and args.unite):
-            parser.error("--build requires both -b/--bold and -u/--unite")
     elif not args.unlock:
         if not args.output:
             parser.error("-o/--output is required for an analysis run")
@@ -284,6 +436,9 @@ def main(argv: list[str] | None = None) -> None:
     db_path = Path(args.database).expanduser().resolve()
     if db_path.suffix.lower() not in {".fa", ".fasta"}:
         parser.error("database path must end in .fa or .fasta")
+    if args.build and not args.bold:
+        _build_latest(args, parser, db_path)
+        return
     if args.bold:
         for label, value in (("BOLD", args.bold), ("UNITE", args.unite)):
             if not Path(value).expanduser().is_file():

@@ -77,6 +77,10 @@ def test_synthetic_analysis_keeps_ambiguous_and_zero_hit_samples(tmp_path, monke
     assert manifest["samples"]["positive"]["assigned_read_ids"] == 1
     assert manifest["samples"]["negative"]["assigned_read_ids"] == 0
     assert len(manifest["database"]["sha256"]) == 64
+    assert (tmp_path / "work/reference/synthetic.1.bt2l").is_file()
+    assert (tmp_path / "work/reference/synthetic.tsv").is_file()
+    assert not database.with_suffix(".1.bt2l").exists()
+    assert not database.with_suffix(".tsv").exists()
 
 
 @pytest.mark.integration

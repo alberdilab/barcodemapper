@@ -29,3 +29,5 @@ The first release is being prepared. This section describes the current source t
 - Use fastp's low-complexity flag with its threshold argument correctly.
 - Preserve empty samples and unresolved taxonomy during aggregation and reporting.
 - Pass paths safely to workflow commands and propagate Bowtie2 pipe failures.
+- Generate missing analysis index and taxonomy overview files in the work directory instead of beside a shared reference FASTA.
+- Handle sample names that match internal report column names.

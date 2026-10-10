@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -76,9 +77,61 @@ def test_numeric_options_and_paths_with_spaces(monkeypatch, tmp_path):
     assert config["max_edit_percent"] == 2.0
     assert config["min_coverage"] == 100
     assert config["barcodemapper_db"] == str(database)
+    assert config["barcodemapper_index_base"] == str(work / "reference/database")
+    assert config["barcodemapper_db_headers"] == str(work / "reference/database.tsv")
+    assert config["generate_index"] and config["generate_headers"]
     assert captured[0][0] == "snakemake"
     assert str(work) in captured[0]
     assert json.loads((work / "data/sample_to_reads1.json").read_text()) == {"sample": [str(reads / "sample_1.fq.gz")]}
+
+
+@pytest.mark.parametrize("extension", ["bt2l", "bt2"])
+def test_analysis_reuses_complete_current_database_artifacts(tmp_path, extension):
+    database = _db(tmp_path)
+    index_base = database.with_suffix("")
+    for part in cli.INDEX_PARTS:
+        Path(f"{index_base}.{part}.{extension}").write_text("index")
+    headers = database.with_suffix(".tsv")
+    headers.write_text("k__Fungi\n")
+
+    assert cli._database_artifacts(database, tmp_path / "work", False) == (
+        index_base, extension, False, headers, False
+    )
+
+    Path(f"{index_base}.rev.2.{extension}").unlink()
+    chosen = cli._database_artifacts(database, tmp_path / "work", False)
+    assert chosen[0] == tmp_path / "work/reference/database"
+    assert chosen[2] is True
+    assert chosen[3] == headers and chosen[4] is False
+
+    Path(f"{index_base}.rev.2.{extension}").write_text("index")
+    newer = max(path.stat().st_mtime_ns for path in tmp_path.iterdir()) + 1_000_000_000
+    os.utime(database, ns=(newer, newer))
+    chosen = cli._database_artifacts(database, tmp_path / "work", False)
+    assert chosen[2] is True and chosen[4] is True
+    assert chosen[3] == tmp_path / "work/reference/database.tsv"
+
+
+def test_preindexed_analysis_does_not_require_bowtie2_build(monkeypatch, tmp_path):
+    database = _db(tmp_path)
+    index_base = database.with_suffix("")
+    for part in cli.INDEX_PARTS:
+        Path(f"{index_base}.{part}.bt2l").write_text("index")
+    database.with_suffix(".tsv").write_text("k__Fungi\n")
+    reads = tmp_path / "reads"
+    reads.mkdir()
+    (reads / "sample_1.fq.gz").touch()
+    (reads / "sample_2.fq.gz").touch()
+    monkeypatch.setattr(cli.shutil, "which", lambda name: None if name == "bowtie2-build" else f"/mock/{name}")
+    monkeypatch.setattr(cli, "run_snakemake", lambda *args: None)
+    monkeypatch.setattr(cli, "_write_manifest", lambda *args: None)
+
+    work = tmp_path / "work"
+    cli.main(["-d", str(database), "-i", str(reads), "-o", str(tmp_path / "out.tsv"), "-t", str(work)])
+    config = yaml.safe_load((work / "data/config.yaml").read_text())
+    assert config["generate_index"] is False
+    assert config["generate_headers"] is False
+    assert config["barcodemapper_index_base"] == str(index_base)
 
 
 def test_nan_edit_limit_is_rejected(tmp_path):

@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 import pandas as pd
 import pysam
+import pytest
 
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "barcodemapper" / "workflow" / "scripts"
@@ -146,6 +147,25 @@ def test_report_handles_all_zero_samples(tmp_path):
     output = tmp_path / "empty.html"
     module.generate_html(samples, data, output, absolute, relative, "1.0.0")
     assert "No data for this sample" in output.read_text()
+
+
+@pytest.mark.parametrize("sample_name", ["Abundance", "Level_0"])
+def test_report_handles_sample_names_matching_internal_columns(sample_name, tmp_path):
+    spec = importlib.util.spec_from_file_location("html_report", SCRIPTS / "html_report.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    table = pd.DataFrame({
+        "Taxonomy": ["k__Fungi"],
+        "other": [1],
+        sample_name: [2],
+    })
+    samples, data, absolute, relative = module.prepare_data(table)
+    assert samples == ["other", sample_name]
+    assert absolute.set_index("Phylum").loc["Unresolved within k__Fungi", sample_name] == 2
+    assert relative[sample_name].sum() == 1
+    report = tmp_path / "report.html"
+    module.generate_html(samples, data, report, absolute, relative, "1.0.0")
+    assert sample_name in report.read_text()
 
 
 def test_report_names_relative_denominator(tmp_path):

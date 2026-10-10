@@ -28,6 +28,38 @@ PRESETS = {
     "standard": (3.0, 80),
     "permissive": (5.0, 60),
 }
+INDEX_PARTS = ("1", "2", "3", "4", "rev.1", "rev.2")
+
+
+def _current_files(paths: list[Path], database: Path) -> bool:
+    database_mtime = database.stat().st_mtime_ns
+    return all(
+        path.is_file() and path.stat().st_size > 0 and path.stat().st_mtime_ns >= database_mtime
+        for path in paths
+    )
+
+
+def _database_artifacts(database: Path, work_dir: Path, build: bool) -> tuple[Path, str, bool, Path, bool]:
+    """Choose existing artifacts or place generated analysis artifacts in the work directory."""
+    database_index = database.with_suffix("")
+    database_headers = database.with_suffix(".tsv")
+    if build:
+        return database_index, "bt2l", True, database_headers, True
+
+    for extension in ("bt2l", "bt2"):
+        index_files = [Path(f"{database_index}.{part}.{extension}") for part in INDEX_PARTS]
+        if _current_files(index_files, database):
+            index_base, generate_index = database_index, False
+            break
+    else:
+        index_base = work_dir / "reference" / database.stem
+        extension, generate_index = "bt2l", True
+
+    if _current_files([database_headers], database):
+        headers_path, generate_headers = database_headers, False
+    else:
+        headers_path, generate_headers = work_dir / "reference" / f"{database.stem}.tsv", True
+    return index_base, extension, generate_index, headers_path, generate_headers
 
 
 def _snakemake_command(tmp_dir: Path, config_path: Path, profile: str) -> list[str]:
@@ -267,8 +299,16 @@ def main(argv: list[str] | None = None) -> None:
         except ValueError as exc:
             parser.error(f"invalid database FASTA: {exc}")
 
-    required_tools = ["snakemake", "bowtie2-build"]
-    if not args.build and not args.unlock:
+    tmp_dir = Path(args.tmpdir).expanduser().resolve() if args.tmpdir else Path(
+        "barcodemapper_" + datetime.now().strftime("%Y%m%d%H%M%S%f")
+    ).resolve()
+    index_base, index_extension, generate_index, headers_path, generate_headers = _database_artifacts(
+        db_path, tmp_dir, args.build
+    )
+    required_tools = ["snakemake"]
+    if generate_index:
+        required_tools.append("bowtie2-build")
+    if not args.build:
         required_tools += ["bowtie2", "samtools", "fastp"]
     missing = [tool for tool in required_tools if shutil.which(tool) is None]
     if missing:
@@ -279,14 +319,10 @@ def main(argv: list[str] | None = None) -> None:
             args.max_mismatches, args.min_coverage = percent, bases
             break
 
-    tmp_dir = Path(args.tmpdir).expanduser().resolve() if args.tmpdir else Path(
-        "barcodemapper_" + datetime.now().strftime("%Y%m%d%H%M%S%f")
-    ).resolve()
     tmp_dir.mkdir(parents=True, exist_ok=True)
     output_path = Path(args.output).expanduser().resolve() if args.output else None
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
-    headers_path = db_path.with_name(db_path.stem + ".tsv")
     report_path = output_path.with_suffix(".html") if output_path else None
     config_path = tmp_dir / "data" / "config.yaml"
     config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -294,7 +330,11 @@ def main(argv: list[str] | None = None) -> None:
         "run": datetime.now(timezone.utc).isoformat(),
         "version": __version__,
         "barcodemapper_db": str(db_path),
+        "barcodemapper_index_base": str(index_base),
+        "barcodemapper_index_extension": index_extension,
+        "generate_index": generate_index,
         "barcodemapper_db_headers": str(headers_path),
+        "generate_headers": generate_headers,
         "tmp_dir": str(tmp_dir),
         "output_file": str(output_path) if output_path else "no",
         "build_only": "yes" if args.build else "no",

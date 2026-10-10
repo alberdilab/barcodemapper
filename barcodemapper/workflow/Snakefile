@@ -13,7 +13,11 @@ configfile: "workflow/config.yaml"
 PACKAGE_DIR = config.get("package_dir", None)
 VERSION = config.get("version", None)
 BARCODEMAPPER_DB = config.get("barcodemapper_db", None)
+BARCODEMAPPER_INDEX_BASE = config.get("barcodemapper_index_base", os.path.splitext(BARCODEMAPPER_DB)[0])
+BARCODEMAPPER_INDEX_EXTENSION = config.get("barcodemapper_index_extension", "bt2l")
+GENERATE_INDEX = config.get("generate_index", True)
 BARCODEMAPPER_DB_HEADERS = config.get("barcodemapper_db_headers", None)
+GENERATE_HEADERS = config.get("generate_headers", True)
 BOLD_DB = config.get("bold_db", None)
 UNITE_DB = config.get("unite_db", None)
 BOLD_RETAIN = config.get("bold_retain", None)
@@ -49,13 +53,13 @@ if BUILD_ONLY == "no":
 
     samples = list(SAMPLE_TO_READS1.keys())
 
-BARCODEMAPPER_BASE = os.path.splitext(BARCODEMAPPER_DB)[0]
-BARCODEMAPPER_1_BT2L = f"{BARCODEMAPPER_BASE}.1.bt2l"
-BARCODEMAPPER_2_BT2L = f"{BARCODEMAPPER_BASE}.2.bt2l"
-BARCODEMAPPER_3_BT2L = f"{BARCODEMAPPER_BASE}.3.bt2l"
-BARCODEMAPPER_4_BT2L = f"{BARCODEMAPPER_BASE}.4.bt2l"
-BARCODEMAPPER_rev1_BT2L = f"{BARCODEMAPPER_BASE}.rev.1.bt2l"
-BARCODEMAPPER_rev2_BT2L = f"{BARCODEMAPPER_BASE}.rev.2.bt2l"
+BARCODEMAPPER_BASE = BARCODEMAPPER_INDEX_BASE
+BARCODEMAPPER_1_INDEX = f"{BARCODEMAPPER_BASE}.1.{BARCODEMAPPER_INDEX_EXTENSION}"
+BARCODEMAPPER_2_INDEX = f"{BARCODEMAPPER_BASE}.2.{BARCODEMAPPER_INDEX_EXTENSION}"
+BARCODEMAPPER_3_INDEX = f"{BARCODEMAPPER_BASE}.3.{BARCODEMAPPER_INDEX_EXTENSION}"
+BARCODEMAPPER_4_INDEX = f"{BARCODEMAPPER_BASE}.4.{BARCODEMAPPER_INDEX_EXTENSION}"
+BARCODEMAPPER_REV1_INDEX = f"{BARCODEMAPPER_BASE}.rev.1.{BARCODEMAPPER_INDEX_EXTENSION}"
+BARCODEMAPPER_REV2_INDEX = f"{BARCODEMAPPER_BASE}.rev.2.{BARCODEMAPPER_INDEX_EXTENSION}"
 
 ################################################################################
 ### Setup the desired outputs
@@ -64,12 +68,12 @@ if BUILD_ONLY == "yes":
     rule all:
         input:
             BARCODEMAPPER_DB,
-            BARCODEMAPPER_1_BT2L,
-            BARCODEMAPPER_2_BT2L,
-            BARCODEMAPPER_3_BT2L,
-            BARCODEMAPPER_4_BT2L,
-            BARCODEMAPPER_rev1_BT2L,
-            BARCODEMAPPER_rev2_BT2L,
+            BARCODEMAPPER_1_INDEX,
+            BARCODEMAPPER_2_INDEX,
+            BARCODEMAPPER_3_INDEX,
+            BARCODEMAPPER_4_INDEX,
+            BARCODEMAPPER_REV1_INDEX,
+            BARCODEMAPPER_REV2_INDEX,
             BARCODEMAPPER_DB_HEADERS
 
 if BUILD_ONLY == "no":
@@ -149,64 +153,66 @@ rule fastp:
 ################################################################################
 ## Index BarcodeMapper database:
 
-rule index_db:
-    input:
-        BARCODEMAPPER_DB
-    output:
-        bt2l1=BARCODEMAPPER_1_BT2L,
-        bt2l2=BARCODEMAPPER_2_BT2L,
-        bt2l3=BARCODEMAPPER_3_BT2L,
-        bt2l4=BARCODEMAPPER_4_BT2L,
-        bt2lrev1=BARCODEMAPPER_rev1_BT2L,
-        bt2l1rev2=BARCODEMAPPER_rev2_BT2L
-    params:
-        database = BARCODEMAPPER_BASE
-    threads:
-        24
-    resources:
-        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
-        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 30) * 2 ** (attempt - 1))
-    message:
-        "Indexing BarcodeMapper database with Bowtie2"
-    shell:
-        """
-        bowtie2-build \
-            --large-index \
-            --threads {threads} \
-            {input:q} {params.database:q}
-        """
+if GENERATE_INDEX:
+    rule index_db:
+        input:
+            BARCODEMAPPER_DB
+        output:
+            index1=BARCODEMAPPER_1_INDEX,
+            index2=BARCODEMAPPER_2_INDEX,
+            index3=BARCODEMAPPER_3_INDEX,
+            index4=BARCODEMAPPER_4_INDEX,
+            indexrev1=BARCODEMAPPER_REV1_INDEX,
+            indexrev2=BARCODEMAPPER_REV2_INDEX
+        params:
+            database = BARCODEMAPPER_BASE
+        threads:
+            24
+        resources:
+            mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
+            runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 30) * 2 ** (attempt - 1))
+        message:
+            "Indexing BarcodeMapper database with Bowtie2"
+        shell:
+            """
+            bowtie2-build \
+                --large-index \
+                --threads {threads} \
+                {input:q} {params.database:q}
+            """
 
 ################################################################################
 ## Index BarcodeMapper database:
 
-rule db_headers:
-    input:
-        BARCODEMAPPER_DB
-    output:
-        BARCODEMAPPER_DB_HEADERS
-    threads:
-        1
-    resources:
-        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
-        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 30) * 2 ** (attempt - 1))
-    message:
-        "Generating taxonomic overview of database"
-    shell:
-        """
-        grep '^>' {input:q} | cut -d'|' -f3- | sort -u | tr ';' '\t' > {output:q}
-        """
+if GENERATE_HEADERS:
+    rule db_headers:
+        input:
+            BARCODEMAPPER_DB
+        output:
+            BARCODEMAPPER_DB_HEADERS
+        threads:
+            1
+        resources:
+            mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
+            runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 30) * 2 ** (attempt - 1))
+        message:
+            "Generating taxonomic overview of database"
+        shell:
+            """
+            grep '^>' {input:q} | cut -d'|' -f3- | sort -u | tr ';' '\t' > {output:q}
+            """
 
 ################################################################################
 ### Map quality-filtered reads against BarcodeMapper database
 
 rule bowtie2_mapping:
     input:
-        bt2l1=BARCODEMAPPER_1_BT2L,
-        bt2l2=BARCODEMAPPER_2_BT2L,
-        bt2l3=BARCODEMAPPER_3_BT2L,
-        bt2l4=BARCODEMAPPER_4_BT2L,
-        bt2lrev1=BARCODEMAPPER_rev1_BT2L,
-        bt2l1rev2=BARCODEMAPPER_rev2_BT2L,
+        index1=BARCODEMAPPER_1_INDEX,
+        index2=BARCODEMAPPER_2_INDEX,
+        index3=BARCODEMAPPER_3_INDEX,
+        index4=BARCODEMAPPER_4_INDEX,
+        indexrev1=BARCODEMAPPER_REV1_INDEX,
+        indexrev2=BARCODEMAPPER_REV2_INDEX,
         r1 = f"{TMP_DIR}/fastp/{{sample}}_1.fq.gz",
         r2 = f"{TMP_DIR}/fastp/{{sample}}_2.fq.gz",
     output:

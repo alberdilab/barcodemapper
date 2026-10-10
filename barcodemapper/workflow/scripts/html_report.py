@@ -37,8 +37,7 @@ def prepare_data(df):
     all_phylum_rows = []
 
     for sample in samples:
-        subset = df.copy()
-        subset = subset.rename(columns={sample: 'Abundance'})
+        subset = df[['Taxonomy', sample]].rename(columns={sample: 'Abundance'}).copy()
         taxonomy_levels = subset['Taxonomy'].str.split(';', expand=True)
         max_depth = taxonomy_levels.shape[1]
         colnames = [f'Level_{i}' for i in range(max_depth)]

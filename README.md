@@ -17,7 +17,7 @@ python -m pip install --no-deps .
 barcodemapper --version
 ```
 
-The pinned environment is intended for Linux x86_64 and macOS x86_64. The pinned fastp 0.23.1 build is unavailable for native macOS arm64; Apple Silicon users can use an x86_64 Conda environment under Rosetta or install compatible workflow executables separately. For a Python-only install, `python -m pip install .` installs the Python dependencies; `snakemake`, `fastp`, `bowtie2`, `bowtie2-build`, and `samtools` must also be on `PATH`. Slurm runs additionally need the Snakemake Slurm executor plugin.
+The pinned environment is intended for Linux x86_64 and macOS x86_64. The pinned fastp 0.23.1 build is unavailable for native macOS arm64; Apple Silicon users can use an x86_64 Conda environment under Rosetta or install compatible workflow executables separately. For a Python-only install, `python -m pip install .` installs the Python dependencies; `snakemake`, `fastp`, `bowtie2`, and `samtools` must also be on `PATH`. Database builds and analyses without a current Bowtie2 index also need `bowtie2-build`. Slurm runs additionally need the Snakemake Slurm executor plugin.
 
 ## Reference database
 
@@ -36,6 +36,8 @@ barcodemapper --build \
 ```
 
 `-x` and `-y` accept comma-separated taxonomy terms present in the source data. The default filters select Animalia from BOLD and Viridiplantae, Agaricomycetes, and Pezizomycetes from UNITE. The build creates the combined FASTA, six Bowtie2 index files, a taxonomy overview TSV, and a manifest with source and output SHA-256 hashes. It checks reference headers and requires at least one retained record for each marker. Use a new `-d` path for each build; existing FASTA files are not overwritten. Analysis runs also check the FASTA header format before mapping.
+
+An analysis reuses a complete, current Bowtie2 index (`.bt2l` or `.bt2`) and taxonomy overview beside the FASTA when available. If either is missing or older than the FASTA, it generates that artifact under the run's working directory instead. Analysis therefore does not create files beside a shared reference FASTA. Reuse `-t work_directory` to reuse an index generated there on a resumed run; separate work directories require their own index unless the database has a prebuilt one.
 
 When reporting results, cite both the software release and the reference providers. Follow [BOLD's citation guidance](https://boldsystems.org/about/citation/) for the platform and any data package DOI, and [UNITE's citation guidance](https://unite.ut.ee/cite.php) for its current database paper. Retain the exact source release identifiers and checksums with your analysis.
 

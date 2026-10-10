@@ -1,48 +1,34 @@
-from collections import defaultdict
-import pandas as pd
+"""Assign each read ID to the taxonomy shared by its accepted alignments."""
 
-# Read input and output file paths from Snakemake
-input_file = snakemake.input[0]
-output_file = snakemake.output[0]
+import csv
+from itertools import groupby
 
-# Load TSV file
-columns = ["ReadID", "Reference", "Marker", "Taxonomy", "Mismatches", "CoveredBases"]
-try:
-    df = pd.read_csv(input_file, sep="\t", names=columns, dtype={"Taxonomy": str})
-except pd.errors.EmptyDataError:
-    df = pd.DataFrame(columns=columns)
-df["Taxonomy"] = df["Taxonomy"].fillna("")
 
-# Group taxonomy assignments by read
-read_taxonomy = defaultdict(list)
-
-for _, row in df.iterrows():
-    read_taxonomy[row["ReadID"]].append(row["Taxonomy"])
-
-def find_finest_common_taxon(tax_list):
-    """
-    Given multiple taxonomic classifications, find the finest shared level.
-    """
-    split_taxonomies = [t.split(";") for t in tax_list]
-
-    # Determine the common taxonomic levels
-    min_length = min(map(len, split_taxonomies))  # Find shortest classification
-    common_taxon = []
-
-    for i in range(min_length):
-        level = {tax[i] for tax in split_taxonomies}  # Collect unique values at this level
-        if len(level) == 1:  # If all alignments share the same level, keep it
-            common_taxon.append(list(level)[0])
-        else:  # Stop at the last common level
+def common_taxonomy(first: str, second: str) -> str:
+    shared = []
+    for left, right in zip(first.split(";"), second.split(";")):
+        if left != right:
             break
+        shared.append(left)
+    return ";".join(shared)
 
-    return ";".join(common_taxon)
 
-# Process each read
-assigned_taxonomy = {read: find_finest_common_taxon(taxons) for read, taxons in read_taxonomy.items()}
+def assign_file(input_file: str, output_file: str) -> None:
+    # The input BAM is query-name collated, so every alignment for a fragment is
+    # adjacent in the extracted TSV. Process one fragment at a time.
+    with open(input_file, newline="", encoding="utf-8") as source, open(
+        output_file, "w", newline="", encoding="utf-8"
+    ) as destination:
+        reader = csv.reader(source, delimiter="\t")
+        writer = csv.writer(destination, delimiter="\t", lineterminator="\n")
+        writer.writerow(("ReadID", "Taxonomy"))
+        for read_id, rows in groupby(reader, key=lambda row: row[0]):
+            taxonomy = None
+            for row in rows:
+                if len(row) != 6:
+                    raise ValueError(f"Invalid extracted alignment for read {read_id!r}")
+                taxonomy = row[3] if taxonomy is None else common_taxonomy(taxonomy, row[3])
+            writer.writerow((read_id, taxonomy))
 
-# Convert to DataFrame
-output_df = pd.DataFrame(assigned_taxonomy.items(), columns=["ReadID", "Taxonomy"])
 
-# Save to TSV
-output_df.to_csv(output_file, sep="\t", index=False)
+assign_file(snakemake.input[0], snakemake.output[0])

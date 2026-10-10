@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import math
 import re
 import shutil
 import subprocess
@@ -14,11 +15,13 @@ from pathlib import Path
 import yaml
 
 from barcodemapper.__version__ import __version__
+from barcodemapper.workflow.scripts.validate_database import validate_database
 
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 READ_PATTERN = re.compile(r"^(?P<sample>.+)_(?P<mate>[12])\.(?:fq|fastq)\.gz$")
 DEFAULT_ADAPTER = "CTGTCTCTTATACACATCT"
+RESERVED_SAMPLE_NAMES = {"Taxonomy", "Phylum", "Kingdom", "color"}
 PRESETS = {
     "ultrastrict": (0.0, 120),
     "strict": (2.0, 100),
@@ -56,6 +59,8 @@ def _sample_maps(paths: list[Path]) -> tuple[dict[str, list[str]], dict[str, lis
         if match is None:
             raise ValueError(f"Read filename must end in _1/_2.fq.gz or _1/_2.fastq.gz: {path.name}")
         sample = match.group("sample")
+        if sample in RESERVED_SAMPLE_NAMES:
+            raise ValueError(f"Sample name {sample!r} is reserved for an output column")
         mate = int(match.group("mate"))
         mates[mate][sample].append(str(path.resolve()))
 
@@ -232,7 +237,7 @@ def main(argv: list[str] | None = None) -> None:
         parser.error("-d/--database is required")
     if bool(args.bold) != bool(args.unite):
         parser.error("provide both BOLD and UNITE FASTA files, or neither")
-    if args.max_mismatches < 0 or args.max_mismatches > 100:
+    if not math.isfinite(args.max_mismatches) or args.max_mismatches < 0 or args.max_mismatches > 100:
         parser.error("-m/--max-mismatches must be between 0 and 100")
     if args.min_coverage < 1 or args.min_read_length < 1:
         parser.error("coverage and read length must be positive")
@@ -256,6 +261,11 @@ def main(argv: list[str] | None = None) -> None:
         db_path.parent.mkdir(parents=True, exist_ok=True)
     elif not db_path.is_file():
         parser.error(f"database FASTA does not exist: {db_path}")
+    if not args.bold:
+        try:
+            validate_database(db_path)
+        except ValueError as exc:
+            parser.error(f"invalid database FASTA: {exc}")
 
     required_tools = ["snakemake", "bowtie2-build"]
     if not args.build and not args.unlock:

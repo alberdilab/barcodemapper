@@ -238,8 +238,8 @@ def generate_html(samples, data_by_sample, output_file, abs_barplot, rel_barplot
         </div>
         <div id="plot">
             <div id="barplot-tabs">
-		<div class="tab active" id="tab-absolute" onclick="switchBarplot('absolute')">Absolute number of reads</div>
-		<div class="tab" id="tab-relative" onclick="switchBarplot('relative')">Relative number of reads</div>
+			<div class="tab active" id="tab-absolute" onclick="switchBarplot('absolute')">Marker-matching fragments</div>
+			<div class="tab" id="tab-relative" onclick="switchBarplot('relative')">Share of marker-matching fragments</div>
             </div>
             <div id="barplot"></div>
             <div id="sample-title">{escape(first_sample)}</div>
@@ -254,7 +254,7 @@ def generate_html(samples, data_by_sample, output_file, abs_barplot, rel_barplot
 
         function drawBarplot(type) {{
             const data = type === "absolute" ? absData : relData;
-            const yLabel = type === "absolute" ? "Number of reads" : "Relative abundance";
+            const yLabel = type === "absolute" ? "Number of fragments" : "Fraction of marker-matching fragments";
 
             const phyla = data["Phylum"];
             const kingdoms = data["Kingdom"];

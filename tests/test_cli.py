@@ -38,6 +38,15 @@ def test_mate_number_and_duplicate_samples_are_checked(tmp_path):
         )
 
 
+def test_reserved_sample_name_is_rejected(tmp_path):
+    reads = tmp_path / "reads"
+    reads.mkdir()
+    (reads / "Taxonomy_1.fq.gz").touch()
+    (reads / "Taxonomy_2.fq.gz").touch()
+    with pytest.raises(ValueError, match="reserved for an output column"):
+        cli.inputdir_to_samples(reads, tmp_path / "work")
+
+
 def test_build_and_analysis_require_their_inputs(tmp_path):
     database = _db(tmp_path)
     with pytest.raises(SystemExit) as missing_output:
@@ -70,3 +79,19 @@ def test_numeric_options_and_paths_with_spaces(monkeypatch, tmp_path):
     assert captured[0][0] == "snakemake"
     assert str(work) in captured[0]
     assert json.loads((work / "data/sample_to_reads1.json").read_text()) == {"sample": [str(reads / "sample_1.fq.gz")]}
+
+
+def test_nan_edit_limit_is_rejected(tmp_path):
+    database = _db(tmp_path)
+    with pytest.raises(SystemExit) as error:
+        cli.main(["-d", str(database), "-i", str(tmp_path), "-o", str(tmp_path / "out.tsv"), "-m", "nan"])
+    assert error.value.code == 2
+
+
+def test_analysis_rejects_malformed_database_before_mapping(tmp_path, capsys):
+    database = tmp_path / "invalid.fa"
+    database.write_text(">ref|ITS\nACGT\n")
+    with pytest.raises(SystemExit) as error:
+        cli.main(["-d", str(database), "-i", str(tmp_path), "-o", str(tmp_path / "out.tsv")])
+    assert error.value.code == 2
+    assert "invalid database FASTA" in capsys.readouterr().err

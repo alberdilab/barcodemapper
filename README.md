@@ -35,7 +35,7 @@ barcodemapper --build \
   -y k__Viridiplantae,c__Agaricomycetes,c__Pezizomycetes
 ```
 
-`-x` and `-y` accept comma-separated taxonomy terms present in the source data. The default filters select Animalia from BOLD and Viridiplantae, Agaricomycetes, and Pezizomycetes from UNITE. The build creates the combined FASTA, six Bowtie2 index files, a taxonomy overview TSV, and a manifest with source and output SHA-256 hashes. Use a new `-d` path for each build; existing FASTA files are not overwritten.
+`-x` and `-y` accept comma-separated taxonomy terms present in the source data. The default filters select Animalia from BOLD and Viridiplantae, Agaricomycetes, and Pezizomycetes from UNITE. The build creates the combined FASTA, six Bowtie2 index files, a taxonomy overview TSV, and a manifest with source and output SHA-256 hashes. It checks reference headers and requires at least one retained record for each marker. Use a new `-d` path for each build; existing FASTA files are not overwritten. Analysis runs also check the FASTA header format before mapping.
 
 When reporting results, cite both the software release and the reference providers. Follow [BOLD's citation guidance](https://boldsystems.org/about/citation/) for the platform and any data package DOI, and [UNITE's citation guidance](https://unite.ut.ee/cite.php) for its current database paper. Retain the exact source release identifiers and checksums with your analysis.
 
@@ -47,7 +47,7 @@ Put one read pair per sample in a directory, named `sample_1.fq.gz` and `sample_
 barcodemapper -i reads -d references/barcodemapper.fa -o results/taxonomy.tsv
 ```
 
-You can instead provide comma-separated R1 and R2 file lists with `-1` and `-2`. Both mates must exist and use matching sample names. Merge lanes before analysis, or name each pair as a separate sample. `-t work_directory` gives the run a stable working directory that Snakemake can resume. The default is a new timestamped directory. Use `--unlock -t work_directory` only if a previous run left a stale Snakemake lock.
+You can instead provide comma-separated R1 and R2 file lists with `-1` and `-2`. Both mates must exist and use matching sample names. Merge lanes before analysis, or name each pair as a separate sample. The names `Taxonomy`, `Phylum`, `Kingdom`, and `color` are reserved for output columns. `-t work_directory` gives the run a stable working directory that Snakemake can resume. The default is a new timestamped directory. Use `--unlock -t work_directory` only if a previous run left a stale Snakemake lock.
 
 The bundled adapters are `CTGTCTCTTATACACATCT` for both mates. Set `--adapter-r1` and `--adapter-r2` for your library, or set both to `auto` to use fastp's adapter handling. Other preprocessing controls include `--min-read-length`, `--complexity-threshold`, and `--no-low-complexity-filter`. Inspect fastp's per-sample HTML and JSON files in the work directory for filtering results.
 
@@ -78,7 +78,7 @@ For `-o results/taxonomy.tsv`, BarcodeMapper writes:
 | `results/taxonomy.html` | Offline, self-contained bar and sunburst plots. |
 | `results/taxonomy.manifest.json` | Version, parameters, tool versions, database checksum, inputs, and fastp/assignment counts. |
 
-Counts are propagated to every resolved ancestor. A fragment assigned to species therefore also appears in its genus, family, and higher-rank rows. **Do not sum all taxonomy rows** to obtain a total. A fragment with no shared named taxon is `Unclassified`; a sample with no accepted alignments has a zero column. The report's relative bars use assigned fragments at the phylum level plus unresolved and unclassified fragments as the denominator.
+Counts are propagated to every resolved ancestor. A fragment assigned to species therefore also appears in its genus, family, and higher-rank rows. **Do not sum all taxonomy rows** to obtain a total. A fragment with no shared named taxon is `Unclassified`; a sample with no accepted alignments has a zero column. The report's relative bars use assigned fragments at the phylum level plus unresolved and unclassified fragments as the denominator, and are labelled as a fraction of marker-matching fragments.
 
 ## Tests and releases
 

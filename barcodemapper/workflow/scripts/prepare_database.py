@@ -1,9 +1,10 @@
 import argparse
-from collections import defaultdict
-from Bio.Seq import Seq
 from Bio import SeqIO
-from Bio.SeqRecord import SeqRecord
-import random
+
+if __package__:
+    from .validate_database import validate_database
+else:
+    from validate_database import validate_database
 
 ### STEP 1: DEREPLICATE BOLD ###
 def dereplicate_bold(input_fasta):
@@ -19,7 +20,10 @@ def dereplicate_bold(input_fasta):
     for record in SeqIO.parse(input_fasta, "fasta"):
         seq = str(record.seq)
         header = record.description
-        taxonomy = header.split('|')[3] if len(header.split('|')) > 3 else ''
+        parts = header.split('|')
+        if len(parts) < 4 or not parts[0] or not parts[1] or not parts[3]:
+            raise ValueError(f"Malformed BOLD reference header: {header!r}")
+        taxonomy = parts[3]
 
         seq_map.setdefault((seq, taxonomy), record)
 
@@ -84,53 +88,48 @@ def rename_bold(records):
 ### STEP 3: RENAME UNITE HEADERS ###
 def rename_unite(input_fasta):
     """Renames UNITE FASTA headers by extracting accession number and taxonomy."""
-    renamed_records = []
-
     for record in SeqIO.parse(input_fasta, "fasta"):
         parts = record.description.split('|')
 
-        if len(parts) >= 5:
-            accession = parts[1]
-            taxonomy = parts[-1]  # full taxonomy string
-            levels = taxonomy.split(';')
+        if len(parts) < 5 or not parts[1] or not parts[-1]:
+            raise ValueError(f"Malformed UNITE reference header: {record.description!r}")
+        accession = parts[1]
+        taxonomy = parts[-1]  # full taxonomy string
+        levels = taxonomy.split(';')
 
-            cleaned_levels = []
+        cleaned_levels = []
 
-            for level in levels:
-                if level.startswith('s__') and level.endswith('_sp'):
-                    cleaned_levels.append('s__')
-                elif level.startswith('g__') and '_gen_Incertae_sedis' in level:
-                    cleaned_levels.append('g__')
-                elif level.startswith('f__') and '_fam_Incertae_sedis' in level:
-                    cleaned_levels.append('f__')
-                elif level.startswith('o__') and '_ord_Incertae_sedis' in level:
-                    cleaned_levels.append('o__')
-                elif level.startswith('c__') and '_cls_Incertae_sedis' in level:
-                    cleaned_levels.append('c__')
-                elif level.startswith('p__') and '_phy_Incertae_sedis' in level:
-                    cleaned_levels.append('p__')
-                else:
-                    cleaned_levels.append(level)
+        for level in levels:
+            if level.startswith('s__') and level.endswith('_sp'):
+                cleaned_levels.append('s__')
+            elif level.startswith('g__') and '_gen_Incertae_sedis' in level:
+                cleaned_levels.append('g__')
+            elif level.startswith('f__') and '_fam_Incertae_sedis' in level:
+                cleaned_levels.append('f__')
+            elif level.startswith('o__') and '_ord_Incertae_sedis' in level:
+                cleaned_levels.append('o__')
+            elif level.startswith('c__') and '_cls_Incertae_sedis' in level:
+                cleaned_levels.append('c__')
+            elif level.startswith('p__') and '_phy_Incertae_sedis' in level:
+                cleaned_levels.append('p__')
+            else:
+                cleaned_levels.append(level)
 
-            cleaned_taxonomy = ';'.join(cleaned_levels)
+        cleaned_taxonomy = ';'.join(cleaned_levels)
 
-            new_header = f"{accession}|ITS|{cleaned_taxonomy}"
-            record.id = new_header
-            record.description = ""
-            renamed_records.append(record)
-
-    return renamed_records
+        new_header = f"{accession}|ITS|{cleaned_taxonomy}"
+        record.id = new_header
+        record.description = ""
+        yield record
 
 ### STEP 4: FILTER & MERGE ###
 def filter_fasta(records, retain_list, marker_list):
     """Filters FASTA records, keeping only those that match specified taxa."""
-    retained_records = []
-
     for record in records:
         parts = record.id.split('|')
 
         if len(parts) < 3:
-            continue  # Skip malformed headers
+            raise ValueError(f"Malformed prepared reference header: {record.id!r}")
 
         accession = parts[0]
         marker = parts[1]
@@ -146,9 +145,7 @@ def filter_fasta(records, retain_list, marker_list):
         # Reconstruct the header
         record.id = f"{accession}|{marker}|{taxonomy_string}"
         record.description = ""
-        retained_records.append(record)
-
-    return retained_records
+        yield record
 
 def merge_fasta(bold_records, unite_records, output_fasta, retain_bold, retain_unite):
     """Merges the BOLD and UNITE databases after filtering."""
@@ -157,7 +154,8 @@ def merge_fasta(bold_records, unite_records, output_fasta, retain_bold, retain_u
     filtered_unite = filter_fasta(unite_records, retain_unite, marker_list)
 
     with open(output_fasta, "w") as output_handle:
-        SeqIO.write(filtered_bold + filtered_unite, output_handle, "fasta")
+        SeqIO.write(filtered_bold, output_handle, "fasta")
+        SeqIO.write(filtered_unite, output_handle, "fasta")
 
 ### MAIN FUNCTION ###
 def main():
@@ -165,8 +163,8 @@ def main():
     parser.add_argument("-b","--bold_fasta", required=True, help="Input BOLD FASTA file")
     parser.add_argument("-u","--unite_fasta", required=True, help="Input UNITE FASTA file")
     parser.add_argument("-o","--output_fasta", required=True, help="Output merged FASTA file")
-    parser.add_argument("-x","--retain_bold", required=False, default="", help="Comma-separated taxa to retain from BOLD (e.g. 'o__Coleoptera,o__Lepidoptera')")
-    parser.add_argument("-y","--retain_unite", required=False, default="", help="Comma-separated taxa to retain from UNITE (e.g. 'k__Fungi,k__Viridioplantae')")
+    parser.add_argument("-x","--retain_bold", required=False, default="k__Animalia", help="Comma-separated taxa to retain from BOLD (e.g. 'o__Coleoptera,o__Lepidoptera')")
+    parser.add_argument("-y","--retain_unite", required=False, default="k__Viridiplantae,c__Agaricomycetes,c__Pezizomycetes", help="Comma-separated taxa to retain from UNITE (e.g. 'k__Fungi,k__Viridiplantae')")
 
     args = parser.parse_args()
 
@@ -186,6 +184,11 @@ def main():
     # Merge databases with filtering
     print("Merging and filtering databases...")
     merge_fasta(bold_records, unite_records, args.output_fasta, retain_bold, retain_unite)
+
+    counts = validate_database(args.output_fasta)
+    if not all(counts.values()):
+        raise ValueError("Database build retained no COI-5P or no ITS records; check the retain filters")
+    print(f"Validated reference records: COI-5P={counts['COI-5P']}, ITS={counts['ITS']}")
 
     print("Processing complete! Output saved to:", args.output_fasta)
 

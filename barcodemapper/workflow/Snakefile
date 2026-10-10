@@ -231,7 +231,7 @@ rule bowtie2_mapping:
             -2 {input.r2:q} \
             -a \
             --seed 1337 \
-        | samtools sort -@ {threads} -o {output.bam:q}
+        | samtools collate -@ {threads} -o {output.bam:q} -
         """
 
 ################################################################################

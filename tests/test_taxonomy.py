@@ -86,6 +86,26 @@ def test_empty_alignment_file_produces_empty_taxonomy_with_header(tmp_path):
     assert aggregated.read_text() == "Taxonomy\tCount\n"
 
 
+def test_numeric_looking_read_ids_remain_distinct_and_hits_share_taxonomy(tmp_path):
+    extracted = tmp_path / "hits.tsv"
+    extracted.write_text(
+        "001\tref_a\tITS\tk__Fungi;g__Alpha;s__one\t0\t100\n"
+        "001\tref_b\tITS\tk__Fungi;g__Alpha;s__two\t1\t100\n"
+        "1\tref_c\tCOI-5P\tk__Animalia\t0\t100\n"
+        "NA\tref_d\tITS\tk__Fungi\t0\t100\n"
+    )
+    assigned = tmp_path / "assigned.tsv"
+    runpy.run_path(str(SCRIPTS / "assign_taxonomy.py"), init_globals={
+        "snakemake": SimpleNamespace(input=[str(extracted)], output=[str(assigned)])
+    })
+    assert assigned.read_text() == (
+        "ReadID\tTaxonomy\n"
+        "001\tk__Fungi;g__Alpha\n"
+        "1\tk__Animalia\n"
+        "NA\tk__Fungi\n"
+    )
+
+
 def test_report_barplot_includes_kingdom_only_assignments():
     spec = importlib.util.spec_from_file_location("html_report", SCRIPTS / "html_report.py")
     module = importlib.util.module_from_spec(spec)
@@ -126,3 +146,16 @@ def test_report_handles_all_zero_samples(tmp_path):
     output = tmp_path / "empty.html"
     module.generate_html(samples, data, output, absolute, relative, "1.0.0")
     assert "No data for this sample" in output.read_text()
+
+
+def test_report_names_relative_denominator(tmp_path):
+    spec = importlib.util.spec_from_file_location("html_report", SCRIPTS / "html_report.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    table = pd.DataFrame({"Taxonomy": ["k__Fungi"], "sample": [1]})
+    samples, data, absolute, relative = module.prepare_data(table)
+    output = tmp_path / "report.html"
+    module.generate_html(samples, data, output, absolute, relative, "1.0.0")
+    html = output.read_text()
+    assert "Fraction of marker-matching fragments" in html
+    assert "Relative abundance" not in html

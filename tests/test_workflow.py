@@ -2,13 +2,39 @@
 
 import json
 import shutil
+import subprocess
 from pathlib import Path
 
 import pandas as pd
+import pysam
 import pytest
 
 from barcodemapper import cli
 from tests.make_fixture import TAXON_PREFIX, make_fixture
+
+
+@pytest.mark.integration
+def test_collation_keeps_numeric_looking_read_ids_together(tmp_path):
+    _require_tools("samtools")
+    unsorted = tmp_path / "unsorted.bam"
+    collated = tmp_path / "collated.bam"
+    header = {"HD": {"VN": "1.6"}, "SQ": [{"SN": "ref|ITS|k__Fungi", "LN": 100}]}
+    with pysam.AlignmentFile(unsorted, "wb", header=header) as handle:
+        for name in ("001", "1", "001"):
+            read = pysam.AlignedSegment()
+            read.query_name = name
+            read.query_sequence = "A" * 100
+            read.flag = 0
+            read.reference_id = 0
+            read.reference_start = 0
+            read.mapping_quality = 60
+            read.cigar = [(0, 100)]
+            read.query_qualities = pysam.qualitystring_to_array("I" * 100)
+            handle.write(read)
+    subprocess.run(["samtools", "collate", "-o", str(collated), "-"], input=unsorted.read_bytes(), check=True)
+    with pysam.AlignmentFile(collated, "rb") as handle:
+        names = [read.query_name for read in handle]
+    assert names in (["001", "001", "1"], ["1", "001", "001"])
 
 
 def _require_tools(*names: str) -> None:

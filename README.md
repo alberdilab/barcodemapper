@@ -8,7 +8,19 @@ Read counts describe marker-matching fragments. They are **not** estimates of or
 
 ## Install
 
-Python 3.12 or newer is required. The provided Conda environment pins the workflow tools and Python dependencies. From a checked-out release tag or source tree:
+Python 3.12 or newer is required. To install the released wheel without cloning the repository, create an environment with the workflow tools and install the wheel:
+
+```sh
+conda create -n barcodemapper --override-channels -c conda-forge -c bioconda \
+  python=3.12 snakemake=8.27.1 fastp bowtie2 samtools \
+  pandas pyyaml biopython pysam plotly pip
+conda activate barcodemapper
+python -m pip install --no-deps \
+  https://github.com/alberdilab/barcodemapper/releases/download/v1.1.0/barcodemapper-1.1.0-py3-none-any.whl
+barcodemapper --version
+```
+
+The provided Conda environment pins all workflow tools and Python dependencies. From a checked-out release tag or source tree, it can also be installed with:
 
 ```sh
 conda env create --file barcodemapper_env.yml
@@ -17,7 +29,7 @@ python -m pip install --no-deps .
 barcodemapper --version
 ```
 
-The pinned environment is intended for Linux x86_64 and macOS x86_64. The pinned fastp 0.23.1 build is unavailable for native macOS arm64; Apple Silicon users can use an x86_64 Conda environment under Rosetta or install compatible workflow executables separately. For a Python-only install, `python -m pip install .` installs the Python dependencies; `snakemake`, `fastp`, `bowtie2`, and `samtools` must also be on `PATH`. Database builds and analyses without a current Bowtie2 index also need `bowtie2-build`. Slurm runs additionally need the Snakemake Slurm executor plugin.
+The pinned environment is intended for Linux x86_64 and macOS x86_64. The pinned fastp 0.23.1 build is unavailable for native macOS arm64; Apple Silicon users can use an x86_64 Conda environment under Rosetta or install compatible workflow executables separately. For a Python-only install, `python -m pip install .` installs the Python dependencies; `snakemake`, `fastp`, `bowtie2`, and `samtools` must also be on `PATH`. Database builds and analyses without a current Bowtie2 index also need `bowtie2-build` (included with Bowtie2). Slurm runs additionally need the Snakemake Slurm executor plugin. The release wheel above is installable with pip now; the short `pip install barcodemapper` and `conda install -c bioconda barcodemapper` commands require publication to PyPI and Bioconda, respectively.
 
 ## Reference database
 

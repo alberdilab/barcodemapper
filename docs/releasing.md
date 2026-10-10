@@ -12,6 +12,7 @@
    ```
 
 4. Inspect the source archive for `LICENSE` and `CITATION.cff`, and the wheel for `LICENSE`, workflow files, profiles, and scripts. Install the wheel in a clean environment and check `barcodemapper --version` and `--help`.
-5. After review, create the matching Git tag `vX.Y.Z`, publish a release from that tag, and upload the built distributions if package-index publication is intended. Verify the published artifact and link it from the repository. Do not bundle BOLD/UNITE derived data without confirming redistribution rights.
+5. After review, create the matching Git tag `vX.Y.Z`, publish a GitHub release from that tag, and upload the built wheel and source distribution. Do not bundle BOLD/UNITE derived data without confirming redistribution rights.
+6. To publish on Bioconda, update `packaging/bioconda/meta.yaml` to the release version and SHA-256 of the uploaded source distribution, then submit it as `recipes/barcodemapper/meta.yaml` in [bioconda-recipes](https://github.com/bioconda/bioconda-recipes). Verify the channel package after the recipe is merged before advertising `conda install -c bioconda barcodemapper`. The recipe includes Snakemake, fastp, Bowtie2, and samtools as runtime dependencies.
 
 `scripts/check_release.py` rejects a proposed tag if its version, citation version, or dated changelog section is inconsistent.

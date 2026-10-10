@@ -1,0 +1,53 @@
+{% set version = "1.1.0" %}
+
+package:
+  name: barcodemapper
+  version: {{ version }}
+
+source:
+  url: https://github.com/alberdilab/barcodemapper/releases/download/v{{ version }}/barcodemapper-{{ version }}.tar.gz
+  sha256: 5257e5133d2d4667c2e404e0104ee7f57c11970083cc0b971664744d422f4c44
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
+  entry_points:
+    - barcodemapper = barcodemapper.cli:main
+
+requirements:
+  host:
+    - python >=3.12
+    - pip
+    - setuptools >=68
+    - wheel
+  run:
+    - python >=3.12
+    - pandas
+    - pyyaml
+    - biopython
+    - pysam
+    - plotly
+    - snakemake >=8.27,<9
+    - fastp
+    - bowtie2
+    - samtools
+
+test:
+  imports:
+    - barcodemapper
+  commands:
+    - barcodemapper --version
+    - barcodemapper --help
+    - snakemake --version
+    - fastp --version
+    - bowtie2 --version
+    - bowtie2-build --version
+    - samtools --version
+    - python -c "from importlib.resources import files; assert (files('barcodemapper') / 'workflow' / 'Snakefile').is_file()"
+
+about:
+  home: https://github.com/alberdilab/barcodemapper
+  summary: Map paired shotgun reads to COI and ITS reference sequences
+  license: MIT
+  license_file: LICENSE

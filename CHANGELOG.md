@@ -4,6 +4,11 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+### Added
+
+- Install instructions for the release wheel without a source checkout.
+- A Bioconda recipe with the workflow executables as runtime dependencies.
+
 ## [1.1.0] - 2026-10-10
 
 The first tagged release. Version 1.0.0 was an untagged development snapshot; its changes are included here.

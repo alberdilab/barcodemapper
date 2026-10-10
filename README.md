@@ -94,6 +94,6 @@ Counts are propagated to every resolved ancestor. A fragment assigned to species
 
 Run `python -m pytest -q` after installing `pytest` and the workflow tools. The two end-to-end tests skip when their external executables are unavailable. [Test details](tests.md) and [validation scope](docs/validation.md) explain what they cover.
 
-The package version is declared once in `pyproject.toml` and exposed through `barcodemapper --version`. Versions follow `MAJOR.MINOR.PATCH`; release tags use `vMAJOR.MINOR.PATCH`. Changes are recorded in [CHANGELOG.md](CHANGELOG.md), citation metadata in [CITATION.cff](CITATION.cff), and release steps in [docs/releasing.md](docs/releasing.md). Version 1.0.0 is currently an untagged source snapshot; no package publication or release tag is implied.
+The package version is declared once in `pyproject.toml` and exposed through `barcodemapper --version`. Versions follow `MAJOR.MINOR.PATCH`; release tags use `vMAJOR.MINOR.PATCH`. Changes are recorded in [CHANGELOG.md](CHANGELOG.md), citation metadata in [CITATION.cff](CITATION.cff), and release steps in [docs/releasing.md](docs/releasing.md). Version 1.1.0 is the first tagged release; 1.0.0 was an untagged development snapshot.
 
 BarcodeMapper source code is available under the [MIT license](LICENSE). Reference databases retain their providers' terms.

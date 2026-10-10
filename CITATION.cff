@@ -6,5 +6,5 @@ authors:
   - family-names: Alberdi
     given-names: Antton
 repository-code: "https://github.com/alberdilab/barcodemapper"
-version: 1.0.0
+version: 1.1.0
 license: MIT

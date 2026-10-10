@@ -8,6 +8,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -33,6 +34,15 @@ PRESETS = {
 INDEX_PARTS = ("1", "2", "3", "4", "rev.1", "rev.2")
 
 
+def _database_base(path: Path) -> Path:
+    """Return the artifact stem for plain and gzip-compressed FASTA paths."""
+    return path.with_suffix("").with_suffix("") if path.suffix.lower() == ".gz" else path.with_suffix("")
+
+
+def _database_artifact(path: Path, suffix: str) -> Path:
+    return Path(f"{_database_base(path)}{suffix}")
+
+
 def _current_files(paths: list[Path], database: Path) -> bool:
     database_mtime = database.stat().st_mtime_ns
     return all(
@@ -43,8 +53,8 @@ def _current_files(paths: list[Path], database: Path) -> bool:
 
 def _database_artifacts(database: Path, work_dir: Path, build: bool) -> tuple[Path, str, bool, Path, bool]:
     """Choose existing artifacts or place generated analysis artifacts in the work directory."""
-    database_index = database.with_suffix("")
-    database_headers = database.with_suffix(".tsv")
+    database_index = _database_base(database)
+    database_headers = _database_artifact(database, ".tsv")
     if build:
         return database_index, "bt2l", True, database_headers, True
 
@@ -54,13 +64,13 @@ def _database_artifacts(database: Path, work_dir: Path, build: bool) -> tuple[Pa
             index_base, generate_index = database_index, False
             break
     else:
-        index_base = work_dir / "reference" / database.stem
+        index_base = work_dir / "reference" / database_index.name
         extension, generate_index = "bt2l", True
 
     if _current_files([database_headers], database):
         headers_path, generate_headers = database_headers, False
     else:
-        headers_path, generate_headers = work_dir / "reference" / f"{database.stem}.tsv", True
+        headers_path, generate_headers = work_dir / "reference" / f"{database_index.name}.tsv", True
     return index_base, extension, generate_index, headers_path, generate_headers
 
 
@@ -212,7 +222,7 @@ def _write_manifest(
 
 
 def _auto_manifest(db_path: Path) -> dict | None:
-    path = db_path.with_suffix(".manifest.json")
+    path = _database_artifact(db_path, ".manifest.json")
     if not path.is_file():
         return None
     try:
@@ -250,10 +260,10 @@ def _build_config(db_path: Path, tmp_dir: Path, args, *, bold: Path | None = Non
         "run": datetime.now(timezone.utc).isoformat(),
         "version": __version__,
         "barcodemapper_db": str(db_path),
-        "barcodemapper_index_base": str(db_path.with_suffix("")),
+        "barcodemapper_index_base": str(_database_base(db_path)),
         "barcodemapper_index_extension": "bt2l",
         "generate_index": generate_index,
-        "barcodemapper_db_headers": str(db_path.with_suffix(".tsv")),
+        "barcodemapper_db_headers": str(_database_artifact(db_path, ".tsv")),
         "generate_headers": generate_headers,
         "tmp_dir": str(tmp_dir),
         "output_file": "no",
@@ -268,10 +278,11 @@ def _build_config(db_path: Path, tmp_dir: Path, args, *, bold: Path | None = Non
 
 def _promote_database(staged: Path, destination: Path) -> None:
     """Replace a previous automatic build after all new artifacts are complete."""
-    names = [staged.name, staged.with_suffix(".tsv").name,
-             staged.with_suffix(".manifest.json").name]
-    names += [f"{staged.stem}.{part}.bt2l" for part in INDEX_PARTS]
-    old_names = names + [f"{staged.stem}.{part}.bt2" for part in INDEX_PARTS]
+    base = _database_base(staged)
+    names = [staged.name, _database_artifact(staged, ".tsv").name,
+             _database_artifact(staged, ".manifest.json").name]
+    names += [f"{base.name}.{part}.bt2l" for part in INDEX_PARTS]
+    old_names = names + [f"{base.name}.{part}.bt2" for part in INDEX_PARTS]
     backup = staged.parent / "previous"
     backup.mkdir()
     moved_old = []
@@ -306,8 +317,8 @@ def _build_latest(args, parser: argparse.ArgumentParser, db_path: Path) -> None:
     ).resolve()
     same = _same_auto_database(db_path, manifest, releases, args)
     if same:
-        index_files = [Path(f"{db_path.with_suffix('')}.{part}.bt2l") for part in INDEX_PARTS]
-        headers = db_path.with_suffix(".tsv")
+        index_files = [Path(f"{_database_base(db_path)}.{part}.bt2l") for part in INDEX_PARTS]
+        headers = _database_artifact(db_path, ".tsv")
         index_current = _current_files(index_files, db_path)
         headers_current = _current_files([headers], db_path)
         if index_current and headers_current:
@@ -331,7 +342,7 @@ def _build_latest(args, parser: argparse.ArgumentParser, db_path: Path) -> None:
         parser.error("required executables are missing from PATH: " + ", ".join(missing))
     db_path.parent.mkdir(parents=True, exist_ok=True)
     tmp_dir.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix=f".{db_path.stem}.build-", dir=db_path.parent) as stage_name:
+    with tempfile.TemporaryDirectory(prefix=f".{_database_base(db_path).name}.build-", dir=db_path.parent) as stage_name:
         stage_dir = Path(stage_name)
         staged_db = stage_dir / db_path.name
         try:
@@ -345,15 +356,15 @@ def _build_latest(args, parser: argparse.ArgumentParser, db_path: Path) -> None:
         run_snakemake(tmp_dir, config_path, "slurm" if args.slurm else "local")
         manifest_config = config.copy()
         manifest_config["barcodemapper_db"] = str(db_path)
-        manifest_config["barcodemapper_index_base"] = str(db_path.with_suffix(""))
-        manifest_config["barcodemapper_db_headers"] = str(db_path.with_suffix(".tsv"))
+        manifest_config["barcodemapper_index_base"] = str(_database_base(db_path))
+        manifest_config["barcodemapper_db_headers"] = str(_database_artifact(db_path, ".tsv"))
         manifest_config.pop("bold_db")
         manifest_config.pop("unite_db")
-        _write_manifest(staged_db.with_suffix(".manifest.json"), staged_db, manifest_config, {}, {},
+        _write_manifest(_database_artifact(staged_db, ".manifest.json"), staged_db, manifest_config, {}, {},
                         source_info=provenance, database_path=db_path, automatic_sources=True)
         _promote_database(staged_db, db_path)
     print(f"Built latest database: {db_path}")
-    print(f"Run manifest: {db_path.with_suffix('.manifest.json')}")
+    print(f"Run manifest: {_database_artifact(db_path, '.manifest.json')}")
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -363,7 +374,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-1", "--read1", help="Comma-separated R1 FASTQ files")
     parser.add_argument("-2", "--read2", help="Comma-separated R2 FASTQ files")
     parser.add_argument("-o", "--output", help="Output taxonomy TSV file")
-    parser.add_argument("-d", "--database", help="Combined BarcodeMapper FASTA path")
+    parser.add_argument("-d", "--database", help="Combined BarcodeMapper FASTA path (.fa.gz for builds)")
     parser.add_argument("-b", "--bold", help="BOLD FASTA for database creation")
     parser.add_argument("-u", "--unite", help="UNITE FASTA for database creation")
     parser.add_argument("-x", "--bold_retain", default="k__Animalia", help="Comma-separated BOLD taxa to retain")
@@ -434,8 +445,20 @@ def main(argv: list[str] | None = None) -> None:
         parser.error("use 'auto' for both adapters or provide both sequences")
 
     db_path = Path(args.database).expanduser().resolve()
-    if db_path.suffix.lower() not in {".fa", ".fasta"}:
-        parser.error("database path must end in .fa or .fasta")
+    if not db_path.name.lower().endswith((".fa", ".fasta", ".fa.gz", ".fasta.gz")):
+        parser.error("database path must end in .fa, .fasta, .fa.gz, or .fasta.gz")
+    if args.build and db_path.suffix.lower() != ".gz":
+        if db_path.exists():
+            parser.error(f"uncompressed database target already exists: {db_path}; choose a new -d path")
+        db_path = Path(f"{db_path}.gz")
+    elif not args.build and not db_path.is_file() and db_path.suffix.lower() != ".gz":
+        compressed_path = Path(f"{db_path}.gz")
+        if compressed_path.is_file():
+            db_path = compressed_path
+    if args.build and db_path.suffix.lower() == ".gz":
+        uncompressed_path = db_path.with_suffix("")
+        if uncompressed_path.exists() and not db_path.exists():
+            parser.error(f"uncompressed database already exists at {uncompressed_path}; choose a new -d basename")
     if args.build and not args.bold:
         _build_latest(args, parser, db_path)
         return
@@ -451,7 +474,7 @@ def main(argv: list[str] | None = None) -> None:
     if not args.bold:
         try:
             validate_database(db_path)
-        except ValueError as exc:
+        except (ValueError, OSError, EOFError) as exc:
             parser.error(f"invalid database FASTA: {exc}")
 
     tmp_dir = Path(args.tmpdir).expanduser().resolve() if args.tmpdir else Path(
@@ -522,7 +545,8 @@ def main(argv: list[str] | None = None) -> None:
             parser.error(str(exc))
     config_path.write_text(yaml.safe_dump(config, sort_keys=True), encoding="utf-8")
     run_snakemake(tmp_dir, config_path, "slurm" if args.slurm else "local")
-    manifest_path = (db_path if args.build else output_path).with_suffix(".manifest.json")
+    manifest_path = (_database_artifact(db_path, ".manifest.json") if args.build
+                     else output_path.with_suffix(".manifest.json"))
     _write_manifest(manifest_path, db_path, config, read1, read2)
     print(f"Run manifest: {manifest_path}")
 

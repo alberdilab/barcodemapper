@@ -1,4 +1,5 @@
 import argparse
+import gzip
 from Bio import SeqIO
 
 if __package__:
@@ -153,7 +154,9 @@ def merge_fasta(bold_records, unite_records, output_fasta, retain_bold, retain_u
     filtered_bold = filter_fasta(bold_records, retain_bold, marker_list)
     filtered_unite = filter_fasta(unite_records, retain_unite, marker_list)
 
-    with open(output_fasta, "w") as output_handle:
+    output_handle = (gzip.open(output_fasta, "wt", compresslevel=9)
+                     if str(output_fasta).lower().endswith(".gz") else open(output_fasta, "w"))
+    with output_handle:
         SeqIO.write(filtered_bold, output_handle, "fasta")
         SeqIO.write(filtered_unite, output_handle, "fasta")
 

@@ -1,6 +1,5 @@
 import re
 import os
-import gzip
 import json
 import shlex
 import pandas as pd
@@ -192,6 +191,8 @@ if GENERATE_HEADERS:
             BARCODEMAPPER_DB_HEADERS
         threads:
             1
+        params:
+            reader="gzip -cd" if BARCODEMAPPER_DB.lower().endswith(".gz") else "cat"
         resources:
             mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
             runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 30) * 2 ** (attempt - 1))
@@ -199,7 +200,7 @@ if GENERATE_HEADERS:
             "Generating taxonomic overview of database"
         shell:
             """
-            grep '^>' {input:q} | cut -d'|' -f3- | sort -u | tr ';' '\t' > {output:q}
+            {params.reader} {input:q} | grep '^>' | cut -d'|' -f3- | sort -u | tr ';' '\t' > {output:q}
             """
 
 ################################################################################

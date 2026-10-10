@@ -21,29 +21,29 @@ The pinned environment is intended for Linux x86_64 and macOS x86_64. The pinned
 
 ## Reference database
 
-BarcodeMapper requires a FASTA whose headers have the form `accession|marker|k__Kingdom;p__Phylum;...`, where `marker` is `COI-5P` or `ITS`. The FASTA and Bowtie2 index are separate from the Python package.
+BarcodeMapper requires a FASTA whose headers have the form `accession|marker|k__Kingdom;p__Phylum;...`, where `marker` is `COI-5P` or `ITS`. The FASTA and Bowtie2 index are separate from the Python package. Database builds write a gzip-compressed FASTA (`.fa.gz` or `.fasta.gz`); analysis also accepts existing uncompressed FASTAs.
 
 An existing March 2025 database snapshot was previously distributed as [barcodemapper_db_202503.tar.gz](https://sid.erda.dk/share_redirect/FGathhqKb5/barcodemapper_db_202503.tar.gz). Its source inputs were BOLD Public (14 March 2025) and UNITE All Eukaryotes (19 February 2025). Confirm its availability and the underlying providers' terms before using or redistributing it. The software's MIT license does not grant rights to third-party reference sequences.
 
 To download the current BOLD Public snapshot and the current UNITE All Eukaryotes general FASTA release (including singletons), then build and index the database:
 
 ```sh
-barcodemapper --build -d references/barcodemapper.fa
+barcodemapper --build -d references/barcodemapper.fa.gz
 ```
 
-This mode checks the providers' current release identifiers every time it runs. If the FASTA checksum, source releases, filters, and index/overview files are already current, it exits without downloading or rebuilding. If only an index or overview file is missing or stale, it regenerates that artifact. If a source release or filter has changed, it downloads the new sources, builds in a temporary directory, and replaces the previous automatic build only after the new build succeeds. It will not replace an existing database without an automatic-build manifest; use a new `-d` path in that case. Source release identifiers, DOIs, download URLs, and FASTA SHA-256 hashes are recorded in the manifest. The BOLD snapshot is several gigabytes, so allow enough disk space for the compressed download, extracted sources, combined FASTA, and Bowtie2 index. Provider access rules and availability can change.
+This mode checks the providers' current release identifiers every time it runs. If the FASTA checksum, source releases, filters, and index/overview files are already current, it exits without downloading or rebuilding. If only an index or overview file is missing or stale, it regenerates that artifact. If a source release or filter has changed, it downloads the new sources, builds in a temporary directory, and replaces the previous automatic build only after the new build succeeds. It will not replace an existing database without an automatic-build manifest; use a new `-d` path in that case. Source release identifiers, DOIs, download URLs, and FASTA SHA-256 hashes are recorded in the manifest. The BOLD snapshot is several gigabytes, so allow enough disk space for the extracted source FASTAs, compressed combined FASTA, and Bowtie2 index during the build. Provider access rules and availability can change.
 
 To use FASTA files you obtained yourself from [BOLD](https://www.boldsystems.org/) and the [UNITE repository](https://unite.ut.ee/repository.php), run:
 
 ```sh
 barcodemapper --build \
   -b BOLD_Public.fa -u UNITE_All_Eukaryotes.fasta \
-  -d references/barcodemapper.fa \
+  -d references/barcodemapper.fa.gz \
   -x k__Animalia \
   -y k__Viridiplantae,c__Agaricomycetes,c__Pezizomycetes
 ```
 
-`-x` and `-y` accept comma-separated taxonomy terms present in the source data. The default filters select Animalia from BOLD and Viridiplantae, Agaricomycetes, and Pezizomycetes from UNITE. The build creates the combined FASTA, six Bowtie2 index files, a taxonomy overview TSV, and a manifest with source and output SHA-256 hashes. It checks reference headers and requires at least one retained record for each marker. For builds from user-supplied FASTAs, use a new `-d` path each time; existing FASTA files are not overwritten. Analysis runs also check the FASTA header format before mapping.
+`-x` and `-y` accept comma-separated taxonomy terms present in the source data. The default filters select Animalia from BOLD and Viridiplantae, Agaricomycetes, and Pezizomycetes from UNITE. The build creates the combined gzip FASTA at compression level 9, six Bowtie2 index files, a taxonomy overview TSV, and a manifest with source and output SHA-256 hashes. Bowtie2 indexes the compressed FASTA directly. If `-d` ends in `.fa` or `.fasta` for a build, `.gz` is appended to the output path. It checks reference headers and requires at least one retained record for each marker. For builds from user-supplied FASTAs, use a new `-d` path each time; existing FASTA files are not overwritten. Analysis runs also check the FASTA header format before mapping.
 
 An analysis reuses a complete, current Bowtie2 index (`.bt2l` or `.bt2`) and taxonomy overview beside the FASTA when available. If either is missing or older than the FASTA, it generates that artifact under the run's working directory instead. Analysis therefore does not create files beside a shared reference FASTA. Reuse `-t work_directory` to reuse an index generated there on a resumed run; separate work directories require their own index unless the database has a prebuilt one.
 
@@ -54,7 +54,7 @@ When reporting results, cite both the software release and the reference provide
 Put one read pair per sample in a directory, named `sample_1.fq.gz` and `sample_2.fq.gz` (or `.fastq.gz`):
 
 ```sh
-barcodemapper -i reads -d references/barcodemapper.fa -o results/taxonomy.tsv
+barcodemapper -i reads -d references/barcodemapper.fa.gz -o results/taxonomy.tsv
 ```
 
 You can instead provide comma-separated R1 and R2 file lists with `-1` and `-2`. Both mates must exist and use matching sample names. Merge lanes before analysis, or name each pair as a separate sample. The names `Taxonomy`, `Phylum`, `Kingdom`, and `color` are reserved for output columns. `-t work_directory` gives the run a stable working directory that Snakemake can resume. The default is a new timestamped directory. Use `--unlock -t work_directory` only if a previous run left a stale Snakemake lock.
@@ -72,7 +72,7 @@ The bundled adapters are `CTGTCTCTTATACACATCT` for both mates. Set `--adapter-r1
 | `--standard` (default) | 80 | 3% |
 | `--permissive` | 60 | 5% |
 
-For example, `barcodemapper -i reads -d references/barcodemapper.fa -o results.tsv --strict`. Bowtie2 reports all alignments it finds, so repetitive sequences and large databases can increase run time and disk use substantially.
+For example, `barcodemapper -i reads -d references/barcodemapper.fa.gz -o results.tsv --strict`. Bowtie2 reports all alignments it finds, so repetitive sequences and large databases can increase run time and disk use substantially.
 
 ### Slurm
 

@@ -1,3 +1,4 @@
+import gzip
 import json
 import os
 from pathlib import Path
@@ -113,6 +114,21 @@ def test_analysis_reuses_complete_current_database_artifacts(tmp_path, extension
     assert chosen[3] == tmp_path / "work/reference/database.tsv"
 
 
+def test_gzipped_database_uses_clean_artifact_names(tmp_path):
+    database = tmp_path / "database.v1.fa.gz"
+    with gzip.open(database, "wt") as handle:
+        handle.write(">ref|ITS|k__Fungi\nACGT\n")
+    base = tmp_path / "database.v1"
+    for part in cli.INDEX_PARTS:
+        Path(f"{base}.{part}.bt2l").write_text("index")
+    headers = Path(f"{base}.tsv")
+    headers.write_text("k__Fungi\n")
+    assert cli._database_artifact(database, ".manifest.json") == tmp_path / "database.v1.manifest.json"
+    assert cli._database_artifacts(database, tmp_path / "work", False) == (
+        base, "bt2l", False, headers, False
+    )
+
+
 def test_preindexed_analysis_does_not_require_bowtie2_build(monkeypatch, tmp_path):
     database = _db(tmp_path)
     index_base = database.with_suffix("")
@@ -152,7 +168,8 @@ def test_analysis_rejects_malformed_database_before_mapping(tmp_path, capsys):
 
 
 def test_latest_build_skips_current_repairs_index_and_replaces_stale(monkeypatch, tmp_path):
-    database = tmp_path / "latest.fa"
+    requested_database = tmp_path / "latest.fa"
+    database = tmp_path / "latest.fa.gz"
     work = tmp_path / "work"
     release_id = ["BOLD_Public.09-Oct-2026"]
     downloads = []
@@ -185,21 +202,24 @@ def test_latest_build_skips_current_repairs_index_and_replaces_stale(monkeypatch
             raise RuntimeError("build failed")
         db = Path(config["barcodemapper_db"])
         if "bold_db" in config:
-            db.write_text(f">{release_id[0]}|COI-5P|k__Animalia\nACGT\n>U1|ITS|k__Fungi\nTGCA\n")
+            with gzip.open(db, "wt") as handle:
+                handle.write(f">{release_id[0]}|COI-5P|k__Animalia\nACGT\n>U1|ITS|k__Fungi\nTGCA\n")
+        base = cli._database_base(db)
         if config["generate_index"]:
             for part in cli.INDEX_PARTS:
-                Path(f"{db.with_suffix('')}.{part}.bt2l").write_text("index")
+                Path(f"{base}.{part}.bt2l").write_text("index")
         if config["generate_headers"]:
-            db.with_suffix(".tsv").write_text("k__Animalia\nk__Fungi\n")
+            base.with_suffix(".tsv").write_text("k__Animalia\nk__Fungi\n")
 
     monkeypatch.setattr(cli, "discover_latest", discover)
     monkeypatch.setattr(cli, "download_sources", download)
     monkeypatch.setattr(cli, "run_snakemake", run)
     monkeypatch.setattr(cli.shutil, "which", lambda name: f"/mock/{name}")
-    command = ["--build", "-d", str(database), "-t", str(work)]
+    command = ["--build", "-d", str(requested_database), "-t", str(work)]
     cli.main(command)
+    assert not requested_database.exists()
     first = database.read_bytes()
-    manifest = json.loads(database.with_suffix(".manifest.json").read_text())
+    manifest = json.loads(cli._database_base(database).with_suffix(".manifest.json").read_text())
     assert manifest["automatic_sources"] is True
     assert manifest["sources"]["bold"]["release"] == release_id[0]
     assert manifest["parameters"]["barcodemapper_db"] == str(database)
@@ -209,21 +229,22 @@ def test_latest_build_skips_current_repairs_index_and_replaces_stale(monkeypatch
     cli.main(command)
     assert len(downloads) == len(runs) == 1
 
-    database.with_suffix(".rev.2.bt2l").unlink()
+    cli._database_base(database).with_suffix(".rev.2.bt2l").unlink()
     cli.main(command)
     assert database.read_bytes() == first
     assert len(downloads) == 1 and len(runs) == 2
-    assert database.with_suffix(".rev.2.bt2l").is_file()
+    assert cli._database_base(database).with_suffix(".rev.2.bt2l").is_file()
 
     release_id[0] = "BOLD_Public.16-Oct-2026"
     fail_next[0] = True
     with pytest.raises(RuntimeError, match="build failed"):
         cli.main(command)
     assert database.read_bytes() == first
-    assert json.loads(database.with_suffix(".manifest.json").read_text())["sources"]["bold"]["release"] == "BOLD_Public.09-Oct-2026"
+    assert json.loads(cli._database_base(database).with_suffix(".manifest.json").read_text())["sources"]["bold"]["release"] == "BOLD_Public.09-Oct-2026"
     cli.main(command)
     assert len(downloads) == 3 and len(runs) == 4
-    assert release_id[0] in database.read_text()
+    with gzip.open(database, "rt") as handle:
+        assert release_id[0] in handle.read()
     assert list(tmp_path.glob(".latest.build-*")) == []
 
 

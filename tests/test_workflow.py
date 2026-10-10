@@ -1,5 +1,6 @@
 """Small end-to-end checks using real workflow executables."""
 
+import gzip
 import json
 import shutil
 import subprocess
@@ -101,17 +102,18 @@ def test_build_records_source_checksums_and_conflicting_taxa(tmp_path, monkeypat
         + "TGCA" * 40 + "\n",
         encoding="utf-8",
     )
-    database = tmp_path / "combined.fa"
+    database = tmp_path / "combined.fa.gz"
     cli.main([
         "--build", "-b", str(bold), "-u", str(unite), "-d", str(database),
         "-t", str(tmp_path / "work"), "-y", "k__Fungi",
     ])
 
-    fasta = database.read_text()
+    with gzip.open(database, "rt") as handle:
+        fasta = handle.read()
     assert fasta.count(">") == 3
     assert "s__one" in fasta and "s__two" in fasta
     assert "U1|ITS|k__Fungi" in fasta
-    assert database.with_suffix(".1.bt2l").is_file()
-    manifest = json.loads(database.with_suffix(".manifest.json").read_text())
+    assert cli._database_base(database).with_suffix(".1.bt2l").is_file()
+    manifest = json.loads(cli._database_base(database).with_suffix(".manifest.json").read_text())
     assert len(manifest["sources"]["bold"]["sha256"]) == 64
     assert len(manifest["sources"]["unite"]["sha256"]) == 64

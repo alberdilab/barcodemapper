@@ -1,6 +1,7 @@
 """Validation of the reference FASTA consumed by Bowtie2 and taxonomy assignment."""
 
 import argparse
+import gzip
 import re
 from pathlib import Path
 
@@ -18,7 +19,8 @@ def validate_database(path: str | Path) -> dict[str, int]:
     counts = {"COI-5P": 0, "ITS": 0}
     records = 0
     sequence_bases = 0
-    with Path(path).open(encoding="utf-8") as handle:
+    opener = gzip.open if str(path).lower().endswith(".gz") else open
+    with opener(path, "rt", encoding="utf-8") as handle:
         for line_number, raw_line in enumerate(handle, 1):
             line = raw_line.strip()
             if not line:

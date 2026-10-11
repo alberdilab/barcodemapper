@@ -1,5 +1,6 @@
 executor: slurm
 jobs: 50
+cores: 8
 latency-wait: 60
 scheduler: greedy
 use-conda: true

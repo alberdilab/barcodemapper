@@ -5,6 +5,7 @@ import hashlib
 import json
 import math
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -277,13 +278,15 @@ def _build_config(db_path: Path, tmp_dir: Path, args, *, bold: Path | None = Non
 
 
 def _promote_database(staged: Path, destination: Path) -> None:
-    """Replace a previous automatic build after all new artifacts are complete."""
+    """Replace database artifacts after all new artifacts are complete."""
     base = _database_base(staged)
-    names = [staged.name, _database_artifact(staged, ".tsv").name,
-             _database_artifact(staged, ".manifest.json").name]
+    names = [staged.name, _database_artifact(staged, ".tsv").name]
     names += [f"{base.name}.{part}.bt2l" for part in INDEX_PARTS]
+    names.append(_database_artifact(staged, ".manifest.json").name)
     old_names = names + [f"{base.name}.{part}.bt2" for part in INDEX_PARTS]
     backup = staged.parent / "previous"
+    if backup.exists():
+        shutil.rmtree(backup)
     backup.mkdir()
     moved_old = []
     moved_new = []
@@ -296,12 +299,119 @@ def _promote_database(staged: Path, destination: Path) -> None:
         for name in names:
             (staged.parent / name).replace(destination.parent / name)
             moved_new.append(name)
-    except OSError:
-        for name in reversed(moved_new):
-            (destination.parent / name).replace(staged.parent / name)
-        for name in reversed(moved_old):
-            (backup / name).replace(destination.parent / name)
+    except OSError as exc:
+        rollback_failed = False
+        try:
+            for name in reversed(moved_new):
+                (destination.parent / name).replace(staged.parent / name)
+            for name in reversed(moved_old):
+                (backup / name).replace(destination.parent / name)
+        except OSError as rollback_exc:
+            rollback_failed = True
+            exc.add_note(f"database promotion rollback failed: {rollback_exc}")
+        finally:
+            if not rollback_failed:
+                try:
+                    shutil.rmtree(backup)
+                except OSError as cleanup_exc:
+                    exc.add_note(f"database promotion cleanup failed: {cleanup_exc}")
         raise
+    shutil.rmtree(backup)
+
+
+def _build_outputs(db_path: Path) -> list[Path]:
+    base = _database_base(db_path)
+    return [db_path, _database_artifact(db_path, ".tsv")] + [
+        Path(f"{base}.{part}.bt2l") for part in INDEX_PARTS
+    ]
+
+
+def _manual_target_guard(parser: argparse.ArgumentParser, db_path: Path) -> None:
+    manifest = _database_artifact(db_path, ".manifest.json")
+    base = _database_base(db_path)
+    artifacts = [manifest, _database_artifact(db_path, ".tsv")] + [
+        Path(f"{base}.{part}.{extension}")
+        for extension in ("bt2l", "bt2") for part in INDEX_PARTS
+    ]
+    if any(path.exists() for path in artifacts):
+        parser.error(f"database artifacts already exist for {db_path}; choose a new -d path")
+    if db_path.exists():
+        parser.error(
+            f"{db_path} exists without a manifest or index; if it is a failed earlier build, "
+            "remove it, otherwise choose a new -d path"
+        )
+
+
+def _final_build_config(config: dict, db_path: Path) -> dict:
+    final = config.copy()
+    final["barcodemapper_db"] = str(db_path)
+    final["barcodemapper_index_base"] = str(_database_base(db_path))
+    final["barcodemapper_db_headers"] = str(_database_artifact(db_path, ".tsv"))
+    return final
+
+
+def _build_manual(args, parser: argparse.ArgumentParser, db_path: Path) -> None:
+    _manual_target_guard(parser, db_path)
+    missing = [tool for tool in ("snakemake", "bowtie2-build") if shutil.which(tool) is None]
+    if missing:
+        parser.error("required executables are missing from PATH: " + ", ".join(missing))
+
+    bold = Path(args.bold).expanduser().resolve()
+    unite = Path(args.unite).expanduser().resolve()
+    stage_dir = db_path.parent / f".{db_path.name}.build"
+    stage_path = stage_dir / "stage.json"
+    tmp_dir = Path(args.tmpdir).expanduser().resolve() if args.tmpdir else stage_dir / "work"
+    stage_key = {
+        "bold_sha256": _sha256(bold),
+        "unite_sha256": _sha256(unite),
+        "bold_retain": args.bold_retain,
+        "unite_retain": args.unite_retain,
+        "version": __version__,
+        "tmp_dir": str(tmp_dir),
+    }
+    reused = False
+    if stage_dir.exists():
+        try:
+            previous_key = json.loads(stage_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            previous_key = None
+        if previous_key != stage_key:
+            shutil.rmtree(stage_dir)
+        else:
+            reused = True
+    stage_dir.mkdir(parents=True, exist_ok=True)
+    stage_path.write_text(json.dumps(stage_key, indent=2) + "\n", encoding="utf-8")
+
+    staged_db = stage_dir / db_path.name
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    config = _build_config(staged_db, tmp_dir, args, bold=bold, unite=unite)
+    config_path = tmp_dir / "data" / "config.yaml"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(yaml.safe_dump(config, sort_keys=True), encoding="utf-8")
+    try:
+        run_snakemake(tmp_dir, config_path, "slurm" if args.slurm else "local")
+    except subprocess.CalledProcessError:
+        if reused:
+            unlock_command = ["barcodemapper", "--unlock", "-t", str(tmp_dir)]
+            if args.slurm:
+                unlock_command.append("--slurm")
+            print(f"If a stale Snakemake lock blocks the resumed build, run: {shlex.join(unlock_command)}",
+                  file=sys.stderr)
+        raise
+
+    incomplete = [path for path in _build_outputs(staged_db) if not path.is_file() or path.stat().st_size == 0]
+    if incomplete:
+        raise RuntimeError("database build is missing staged artifacts: " + ", ".join(map(str, incomplete)))
+    _write_manifest(_database_artifact(staged_db, ".manifest.json"), staged_db,
+                    _final_build_config(config, db_path), {}, {}, database_path=db_path,
+                    source_info={
+                        "bold": {"path": str(bold), "sha256": stage_key["bold_sha256"]},
+                        "unite": {"path": str(unite), "sha256": stage_key["unite_sha256"]},
+                    }, automatic_sources=False)
+    _promote_database(staged_db, db_path)
+    shutil.rmtree(stage_dir)
+    print(f"Built database: {db_path}")
+    print(f"Run manifest: {_database_artifact(db_path, '.manifest.json')}")
 
 
 def _build_latest(args, parser: argparse.ArgumentParser, db_path: Path) -> None:
@@ -354,10 +464,7 @@ def _build_latest(args, parser: argparse.ArgumentParser, db_path: Path) -> None:
         config_path.parent.mkdir(parents=True, exist_ok=True)
         config_path.write_text(yaml.safe_dump(config, sort_keys=True), encoding="utf-8")
         run_snakemake(tmp_dir, config_path, "slurm" if args.slurm else "local")
-        manifest_config = config.copy()
-        manifest_config["barcodemapper_db"] = str(db_path)
-        manifest_config["barcodemapper_index_base"] = str(_database_base(db_path))
-        manifest_config["barcodemapper_db_headers"] = str(_database_artifact(db_path, ".tsv"))
+        manifest_config = _final_build_config(config, db_path)
         manifest_config.pop("bold_db")
         manifest_config.pop("unite_db")
         _write_manifest(_database_artifact(staged_db, ".manifest.json"), staged_db, manifest_config, {}, {},
@@ -449,6 +556,8 @@ def main(argv: list[str] | None = None) -> None:
         parser.error("database path must end in .fa, .fasta, .fa.gz, or .fasta.gz")
     if args.build and db_path.suffix.lower() != ".gz":
         if db_path.exists():
+            if args.bold:
+                _manual_target_guard(parser, db_path)
             parser.error(f"uncompressed database target already exists: {db_path}; choose a new -d path")
         db_path = Path(f"{db_path}.gz")
     elif not args.build and not db_path.is_file() and db_path.suffix.lower() != ".gz":
@@ -458,6 +567,8 @@ def main(argv: list[str] | None = None) -> None:
     if args.build and db_path.suffix.lower() == ".gz":
         uncompressed_path = db_path.with_suffix("")
         if uncompressed_path.exists() and not db_path.exists():
+            if args.bold:
+                _manual_target_guard(parser, uncompressed_path)
             parser.error(f"uncompressed database already exists at {uncompressed_path}; choose a new -d basename")
     if args.build and not args.bold:
         _build_latest(args, parser, db_path)
@@ -466,6 +577,10 @@ def main(argv: list[str] | None = None) -> None:
         for label, value in (("BOLD", args.bold), ("UNITE", args.unite)):
             if not Path(value).expanduser().is_file():
                 parser.error(f"{label} FASTA does not exist: {value}")
+        if args.build:
+            db_path.parent.mkdir(parents=True, exist_ok=True)
+            _build_manual(args, parser, db_path)
+            return
         if db_path.exists():
             parser.error(f"database target already exists: {db_path}; choose a new -d path")
         db_path.parent.mkdir(parents=True, exist_ok=True)

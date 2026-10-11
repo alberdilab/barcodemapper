@@ -4,10 +4,26 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-10-11
+
+### Fixed
+
+- Manual `--build` with `-b` and `-u` now builds in a hidden staging directory beside the target and promotes the FASTA, Bowtie2 index, headers, and manifest only when all are complete, so a failed build no longer leaves a partial database.
+- A failed manual build keeps its stage and resumes on rerun with the same inputs and work directory; the stage is discarded if the BOLD/UNITE checksums, retain options, version, or work directory change. A stale Snakemake lock can be cleared with `barcodemapper --unlock -t <work directory>`.
+- Builds into a target that already holds database artifacts stop with a clear message to choose a new `-d` path; a lone FASTA asks for review before removal or reuse of that path.
+
+## [1.1.1] - 2026-10-10
+
 ### Added
 
 - Install instructions for the release wheel without a source checkout.
 - A Bioconda recipe with the workflow executables as runtime dependencies.
+- Reproducible Mjolnir benchmark plans for mock communities, reference novelty, method comparisons, and scaling.
+
+### Fixed
+
+- Slurm workflows no longer cap rule threads at the controller's CPU count; the Slurm profile now sets `cores: 8`, so `index_db` and read mapping run with their intended threads.
+- `index_db` memory and runtime are sized from the uncompressed database rather than the gzipped file, so large reference builds no longer exhaust their retries with out-of-memory and timeout failures.
 
 ## [1.1.0] - 2026-10-10
 

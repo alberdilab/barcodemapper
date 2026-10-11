@@ -168,8 +168,10 @@ if GENERATE_INDEX:
         threads:
             24
         resources:
-            mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
-            runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 30) * 2 ** (attempt - 1))
+            # The input is gzipped FASTA (~7x compression for DNA) and bowtie2-build
+            # peaks at roughly 3-4 bytes per uncompressed base, so scale from size_mb * 28
+            mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 28) * 2 ** (attempt - 1)),
+            runtime=lambda wildcards, input, attempt: max(60, int(input.size_mb / 1024 * 180)) * 2 ** (attempt - 1)
         message:
             "Indexing BarcodeMapper database with Bowtie2"
         shell:

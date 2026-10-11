@@ -16,7 +16,7 @@ conda create -n barcodemapper --override-channels -c conda-forge -c bioconda \
   pandas pyyaml biopython pysam plotly pip
 conda activate barcodemapper
 python -m pip install --no-deps \
-  https://github.com/alberdilab/barcodemapper/releases/download/v1.1.0/barcodemapper-1.1.0-py3-none-any.whl
+  https://github.com/alberdilab/barcodemapper/releases/download/v1.1.2/barcodemapper-1.1.2-py3-none-any.whl
 barcodemapper --version
 ```
 
@@ -55,7 +55,9 @@ barcodemapper --build \
   -y k__Viridiplantae,c__Agaricomycetes,c__Pezizomycetes
 ```
 
-`-x` and `-y` accept comma-separated taxonomy terms present in the source data. The default filters select Animalia from BOLD and Viridiplantae, Agaricomycetes, and Pezizomycetes from UNITE. The build creates the combined gzip FASTA at compression level 9, six Bowtie2 index files, a taxonomy overview TSV, and a manifest with source and output SHA-256 hashes. Bowtie2 indexes the compressed FASTA directly. If `-d` ends in `.fa` or `.fasta` for a build, `.gz` is appended to the output path. It checks reference headers and requires at least one retained record for each marker. For builds from user-supplied FASTAs, use a new `-d` path each time; existing FASTA files are not overwritten. Analysis runs also check the FASTA header format before mapping.
+`-x` and `-y` accept comma-separated taxonomy terms present in the source data. The default filters select Animalia from BOLD and Viridiplantae, Agaricomycetes, and Pezizomycetes from UNITE. The build creates the combined gzip FASTA at compression level 9, six Bowtie2 index files, a taxonomy overview TSV, and a manifest with source and output SHA-256 hashes. Bowtie2 indexes the compressed FASTA directly. If `-d` ends in `.fa` or `.fasta` for a build, `.gz` is appended to the output path. It checks reference headers and requires at least one retained record for each marker. For builds from user-supplied FASTAs, use a new `-d` path each time; a target that already holds a database is refused, while a lone FASTA without an index or manifest must be reviewed before removal or reuse of that path.
+
+Manual builds are staged and resumable. Work happens in a hidden directory `.<database filename>.build/` next to the target (for example `references/.barcodemapper.fa.gz.build/` for `-d references/barcodemapper.fa.gz`), and `--tmpdir` defaults to its `work/` subdirectory. The FASTA, Bowtie2 index, headers overview, and manifest are moved into place only when all are complete, and the stage is then removed. If a build fails, the stage is kept; rerun the same command to resume from it. The stage is keyed on the BOLD and UNITE SHA-256 hashes, the retain options, the BarcodeMapper version, and the work directory, and is discarded and rebuilt if any of them change. If a stale Snakemake lock blocks a resumed build, run `barcodemapper --unlock -t references/.barcodemapper.fa.gz.build/work` (add `--slurm` if the build used it, or give the same `-t` path used for the build). Analysis runs also check the FASTA header format before mapping.
 
 An analysis reuses a complete, current Bowtie2 index (`.bt2l` or `.bt2`) and taxonomy overview beside the FASTA when available. If either is missing or older than the FASTA, it generates that artifact under the run's working directory instead. Analysis therefore does not create files beside a shared reference FASTA. Reuse `-t work_directory` to reuse an index generated there on a resumed run; separate work directories require their own index unless the database has a prebuilt one.
 
@@ -103,6 +105,10 @@ For `-o results/taxonomy.tsv`, BarcodeMapper writes:
 Counts are propagated to every resolved ancestor. A fragment assigned to species therefore also appears in its genus, family, and higher-rank rows. **Do not sum all taxonomy rows** to obtain a total. A fragment with no shared named taxon is `Unclassified`; a sample with no accepted alignments has a zero column. The report's relative bars use assigned fragments at the phylum level plus unresolved and unclassified fragments as the denominator, and are labelled as a fraction of marker-matching fragments.
 
 ## Tests and releases
+
+Publication benchmark protocols for Mjolnir, including a dedicated Conda
+environment, frozen-reference procedure, and four study plans, are in
+[benchmarks/mjolnir](benchmarks/mjolnir/README.md).
 
 Run `python -m pytest -q` after installing `pytest` and the workflow tools. The two end-to-end tests skip when their external executables are unavailable. [Test details](tests.md) and [validation scope](docs/validation.md) explain what they cover.
 

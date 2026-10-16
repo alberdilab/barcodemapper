@@ -4,6 +4,10 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-10-16
+
+This release also ships 1.1.1 and 1.1.2, which were never tagged or published.
+
 ### Fixed
 
 - Read mapping now requests resources sized from a measured run instead of the previous guess: 3 times the input size in memory (peak use was about 2.3 times) and 12 minutes per GB of input (about 3 hours with the default database), doubled on each retry. The old 5 minutes per GB (about 74 minutes) made every 100,000-pair run against the default database time out on its first attempt, and the 5 times memory request was about twice what mapping used once `samtools collate` was removed.

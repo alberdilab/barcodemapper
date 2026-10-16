@@ -27,6 +27,7 @@ BUILD_ONLY = config.get("build_only", None)
 REPORT_FILE = config.get("report_file", None)
 MAX_EDIT_PERCENT = config.get("max_edit_percent", 3.0)
 MIN_COVERAGE = config.get("min_coverage", None)
+MAX_HITS = config.get("max_hits", None)
 MIN_READ_LENGTH = config.get("min_read_length", 100)
 COMPLEXITY_THRESHOLD = config.get("complexity_threshold", 30)
 COMPLEXITY_ARGS = (
@@ -221,7 +222,8 @@ rule bowtie2_mapping:
     output:
         bam = f"{TMP_DIR}/bowtie/{{sample}}.bam"
     params:
-        database = BARCODEMAPPER_BASE
+        database = BARCODEMAPPER_BASE,
+        hits_arg = "-a" if MAX_HITS is None else f"-k {MAX_HITS}"
     threads:
         20
     resources:
@@ -242,7 +244,7 @@ rule bowtie2_mapping:
             -x {params.database:q} \
             -1 {input.r1:q} \
             -2 {input.r2:q} \
-            -a \
+            {params.hits_arg} \
             --seed 1337 \
         | samtools view -b -@ {threads} -o {output.bam:q} -
         """

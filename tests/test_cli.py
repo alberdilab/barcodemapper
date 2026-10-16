@@ -89,6 +89,40 @@ def test_numeric_options_and_paths_with_spaces(monkeypatch, tmp_path):
     assert json.loads((work / "data/sample_to_reads1.json").read_text()) == {"sample": [str(reads / "sample_1.fq.gz")]}
 
 
+@pytest.mark.parametrize(("option", "expected"), [([], None), (["-k", "50"], 50)])
+def test_max_hits_is_recorded_in_config_and_manifest(monkeypatch, tmp_path, option, expected):
+    database = _db(tmp_path)
+    reads = tmp_path / "reads"
+    reads.mkdir()
+    (reads / "sample_1.fq.gz").touch()
+    (reads / "sample_2.fq.gz").touch()
+    work = tmp_path / "work"
+    output = tmp_path / "result.tsv"
+    monkeypatch.setattr(cli.shutil, "which", lambda name: f"/mock/{name}")
+    monkeypatch.setattr(cli, "run_snakemake", lambda *args: None)
+    monkeypatch.setattr(cli, "_tool_version", lambda name: "test")
+
+    cli.main(["-d", str(database), "-i", str(reads), "-o", str(output), "-t", str(work), *option])
+
+    config = yaml.safe_load((work / "data/config.yaml").read_text())
+    manifest = json.loads(output.with_suffix(".manifest.json").read_text())
+    assert config["max_hits"] == expected
+    assert manifest["parameters"]["max_hits"] == expected
+
+
+@pytest.mark.parametrize(("option", "message"), [
+    (["-k", "0"], "-k/--max-hits must be positive"),
+    (["-k=-3"], "-k/--max-hits must be positive"),
+    (["-k", "-3"], "argument -k/--max-hits: expected one argument"),
+])
+def test_max_hits_must_be_positive(tmp_path, capsys, option, message):
+    database = _db(tmp_path)
+    with pytest.raises(SystemExit) as error:
+        cli.main(["-d", str(database), "-i", str(tmp_path), "-o", str(tmp_path / "out.tsv"), *option])
+    assert error.value.code == 2
+    assert message in capsys.readouterr().err
+
+
 @pytest.mark.parametrize("extension", ["bt2l", "bt2"])
 def test_analysis_reuses_complete_current_database_artifacts(tmp_path, extension):
     database = _db(tmp_path)

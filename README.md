@@ -88,6 +88,8 @@ The bundled adapters are `CTGTCTCTTATACACATCT` for both mates. Set `--adapter-r1
 
 For example, `barcodemapper -i reads -d references/barcodemapper.fa.gz -o results.tsv --strict`. Bowtie2 reports all alignments it finds, so repetitive sequences and large databases can increase run time and disk use substantially.
 
+Use `-k` / `--max-hits N` to cap the alignments Bowtie2 reports per read; the default remains all hits (`-a`). Bowtie2 `-k` stops after finding N valid alignments, which are not necessarily the best N, so for reads with more than N equally good hits the shared taxonomy can be assigned from a subset; whether to cap by default will be decided by benchmarks.
+
 ### Slurm
 
 Use `--slurm` on a cluster with the Snakemake Slurm executor plugin installed. Adjust `barcodemapper/profile/slurm/config.yaml` for site resources before running large datasets; the provided profile submits up to 50 jobs and caps threads per job at 8.

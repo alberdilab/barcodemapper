@@ -4,6 +4,10 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+### Added
+
+- Add `-k` / `--max-hits N` to cap Bowtie2 alignments per read when requested. Runs still report all hits by default.
+
 ## [1.1.3] - 2026-10-16
 
 This release also ships 1.1.1 and 1.1.2, which were never tagged or published.

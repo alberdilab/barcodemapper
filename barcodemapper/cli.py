@@ -494,6 +494,8 @@ def _parser() -> argparse.ArgumentParser:
                         help="Maximum NM edit distance as a percent of aligned bases (default: 3)")
     parser.add_argument("-c", "--min_coverage", "--min-coverage", type=int, default=80,
                         help="Minimum aligned bases (default: 80)")
+    parser.add_argument("-k", "--max-hits", type=int, default=None,
+                        help="Maximum alignments Bowtie2 reports per read (default: all, -a)")
     parser.add_argument("--adapter-r1", default=DEFAULT_ADAPTER, help="R1 adapter sequence, or 'auto'")
     parser.add_argument("--adapter-r2", default=DEFAULT_ADAPTER, help="R2 adapter sequence, or 'auto'")
     parser.add_argument("--min-read-length", type=int, default=100, help="Minimum read length after fastp (default: 100)")
@@ -543,6 +545,8 @@ def main(argv: list[str] | None = None) -> None:
         parser.error("-m/--max-mismatches must be between 0 and 100")
     if args.min_coverage < 1 or args.min_read_length < 1:
         parser.error("coverage and read length must be positive")
+    if args.max_hits is not None and args.max_hits < 1:
+        parser.error("-k/--max-hits must be positive")
     if not 0 <= args.complexity_threshold <= 100:
         parser.error("--complexity-threshold must be between 0 and 100")
     for label, adapter in (("--adapter-r1", args.adapter_r1), ("--adapter-r2", args.adapter_r2)):
@@ -634,6 +638,7 @@ def main(argv: list[str] | None = None) -> None:
         "report_file": str(report_path) if report_path else "none",
         "max_edit_percent": args.max_mismatches,
         "min_coverage": args.min_coverage,
+        "max_hits": args.max_hits,
         "adapter_r1": args.adapter_r1,
         "adapter_r2": args.adapter_r2,
         "min_read_length": args.min_read_length,

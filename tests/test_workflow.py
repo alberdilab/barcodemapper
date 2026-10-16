@@ -3,6 +3,7 @@
 import gzip
 import importlib.util
 import json
+import re
 import shutil
 import subprocess
 from itertools import groupby
@@ -11,6 +12,7 @@ from pathlib import Path
 import pandas as pd
 import pysam
 import pytest
+import yaml
 
 from barcodemapper import cli
 from tests.make_fixture import TAXON_PREFIX, make_fixture
@@ -65,6 +67,55 @@ def _use_local_storage(monkeypatch, root: Path) -> None:
         ]
 
     monkeypatch.setattr(cli, "_snakemake_command", command)
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(("max_hits", "expected", "excluded"), [
+    (None, "-a", "-k 50"),
+    (50, "-k 50", "-a"),
+])
+def test_bowtie2_mapping_renders_hit_limit_without_bowtie2(tmp_path, max_hits, expected, excluded):
+    _require_tools("snakemake")
+    database, reads = make_fixture(tmp_path)
+    work = tmp_path / "work"
+    (work / "data").mkdir(parents=True)
+    (work / "fastp").mkdir()
+    index_base = database.with_suffix("")
+    for part in cli.INDEX_PARTS:
+        Path(f"{index_base}.{part}.bt2l").touch()
+    for mate in (1, 2):
+        (work / "fastp" / f"positive_{mate}.fq.gz").touch()
+        (work / "data" / f"sample_to_reads{mate}.json").write_text(
+            json.dumps({"positive": [str(reads / f"positive_{mate}.fq.gz")]})
+        )
+    config_path = work / "data/config.yaml"
+    config_path.write_text(yaml.safe_dump({
+        "package_dir": str(cli.PACKAGE_DIR),
+        "barcodemapper_db": str(database),
+        "barcodemapper_index_base": str(index_base),
+        "generate_index": False,
+        "generate_headers": False,
+        "barcodemapper_db_headers": str(tmp_path / "headers.tsv"),
+        "tmp_dir": str(work),
+        "output_file": str(tmp_path / "results.tsv"),
+        "report_file": str(tmp_path / "results.html"),
+        "build_only": "no",
+        "max_hits": max_hits,
+    }))
+    bam = work / "bowtie/positive.bam"
+    result = subprocess.run([
+        "snakemake", "-s", str(cli.PACKAGE_DIR / "workflow/Snakefile"),
+        "--directory", str(work), "--configfile", str(config_path),
+        "--local-storage-prefix", str(tmp_path / "snakemake-storage"),
+        "--shared-fs-usage", "input-output", "persistence", "software-deployment",
+        "sources", "storage-local-copies",
+        "--cores", "1", "-n", "-p", str(bam),
+    ], capture_output=True, text=True)
+    command = result.stdout + result.stderr
+    assert result.returncode == 0, command
+    assert "bowtie2" in command and "--seed 1337" in command
+    assert re.search(r"(?<!\S)" + re.escape(expected) + r"(?!\S)", command)
+    assert not re.search(r"(?<!\S)" + re.escape(excluded) + r"(?!\S)", command)
 
 
 @pytest.mark.integration

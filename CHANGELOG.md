@@ -4,6 +4,10 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+### Fixed
+
+- Read mapping now requests resources sized from a measured run instead of the previous guess: 3 times the input size in memory (peak use was about 2.3 times) and 12 minutes per GB of input (about 3 hours with the default database), doubled on each retry. The old 5 minutes per GB (about 74 minutes) made every 100,000-pair run against the default database time out on its first attempt, and the 5 times memory request was about twice what mapping used once `samtools collate` was removed.
+
 ### Changed
 
 - Read mapping no longer pipes Bowtie2 through `samtools collate`. With a large reference (for example 10.5 million sequences, a 1.2 GB `@SQ` header) collate copied the full header into each of its 64 temporary shards, so mapping needed about 100 GB of memory and 15 GB of temporary files even for 10,000 read pairs. The alignments now stream straight to BAM with `samtools view -b`, and the filtered extraction table is sorted by read ID in the extract rule so each fragment's alignments stay adjacent for taxonomy assignment. Results are unchanged.

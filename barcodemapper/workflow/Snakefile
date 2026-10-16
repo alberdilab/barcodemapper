@@ -225,8 +225,12 @@ rule bowtie2_mapping:
     threads:
         20
     resources:
-        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 5) * 2 ** (attempt - 1)),
-        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
+        # Measured on the default database (~15 GB of index plus 100k read pairs):
+        # peak memory about 36 GB (2.3x the input) and 1 h 50 min on 8 threads, with
+        # bowtie2 -a dominating the time. Request 3x the input in memory and 12
+        # minutes per GB of input (about 3 h for that case); retries double both.
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 3) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 12)) * 2 ** (attempt - 1)
     message:
         "Mapping {wildcards.sample} to BarcodeMapper database with Bowtie2"
     shell:

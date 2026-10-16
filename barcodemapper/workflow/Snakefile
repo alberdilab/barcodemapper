@@ -240,7 +240,7 @@ rule bowtie2_mapping:
             -2 {input.r2:q} \
             -a \
             --seed 1337 \
-        | samtools collate -@ {threads} -o {output.bam:q} -
+        | samtools view -b -@ {threads} -o {output.bam:q} -
         """
 
 ################################################################################
@@ -264,7 +264,9 @@ rule bowtie2_extracting:
         "Extracting taxonomy from bam file of {wildcards.sample}"
     shell:
         """
-        python {params.package_dir:q}/workflow/scripts/extract_taxonomy.py --input {input:q} --output {output:q} --max-edit-percent {params.max_edit_percent} --min-covered {params.min_coverage}
+        trap 'rm -f {output:q}.unsorted' EXIT
+        python {params.package_dir:q}/workflow/scripts/extract_taxonomy.py --input {input:q} --output {output:q}.unsorted --max-edit-percent {params.max_edit_percent} --min-covered {params.min_coverage}
+        LC_ALL=C sort -s -t $'\\t' -k1,1 -o {output:q} {output:q}.unsorted
         """
 
 ################################################################################

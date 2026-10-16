@@ -4,6 +4,10 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+### Changed
+
+- Read mapping no longer pipes Bowtie2 through `samtools collate`. With a large reference (for example 10.5 million sequences, a 1.2 GB `@SQ` header) collate copied the full header into each of its 64 temporary shards, so mapping needed about 100 GB of memory and 15 GB of temporary files even for 10,000 read pairs. The alignments now stream straight to BAM with `samtools view -b`, and the filtered extraction table is sorted by read ID in the extract rule so each fragment's alignments stay adjacent for taxonomy assignment. Results are unchanged.
+
 ## [1.1.2] - 2026-10-11
 
 ### Fixed

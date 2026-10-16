@@ -14,8 +14,8 @@ def common_taxonomy(first: str, second: str) -> str:
 
 
 def assign_file(input_file: str, output_file: str) -> None:
-    # The input BAM is query-name collated, so every alignment for a fragment is
-    # adjacent in the extracted TSV. Process one fragment at a time.
+    # The extracted TSV is sorted by read ID in the extract rule, so every
+    # alignment for a fragment is adjacent. Process one fragment at a time.
     with open(input_file, newline="", encoding="utf-8") as source, open(
         output_file, "w", newline="", encoding="utf-8"
     ) as destination:

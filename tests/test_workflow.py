@@ -1,9 +1,11 @@
 """Small end-to-end checks using real workflow executables."""
 
 import gzip
+import importlib.util
 import json
 import shutil
 import subprocess
+from itertools import groupby
 from pathlib import Path
 
 import pandas as pd
@@ -14,13 +16,12 @@ from barcodemapper import cli
 from tests.make_fixture import TAXON_PREFIX, make_fixture
 
 
-@pytest.mark.integration
-def test_collation_keeps_numeric_looking_read_ids_together(tmp_path):
-    _require_tools("samtools")
-    unsorted = tmp_path / "unsorted.bam"
-    collated = tmp_path / "collated.bam"
+def test_extracted_rows_group_numeric_looking_read_ids(tmp_path):
+    bam = tmp_path / "unsorted.bam"
+    unsorted = tmp_path / "hits.tsv.unsorted"
+    sorted_tsv = tmp_path / "hits.tsv"
     header = {"HD": {"VN": "1.6"}, "SQ": [{"SN": "ref|ITS|k__Fungi", "LN": 100}]}
-    with pysam.AlignmentFile(unsorted, "wb", header=header) as handle:
+    with pysam.AlignmentFile(bam, "wb", header=header) as handle:
         for name in ("001", "1", "001"):
             read = pysam.AlignedSegment()
             read.query_name = name
@@ -31,11 +32,20 @@ def test_collation_keeps_numeric_looking_read_ids_together(tmp_path):
             read.mapping_quality = 60
             read.cigar = [(0, 100)]
             read.query_qualities = pysam.qualitystring_to_array("I" * 100)
+            read.set_tag("NM", 0)
             handle.write(read)
-    subprocess.run(["samtools", "collate", "-o", str(collated), "-"], input=unsorted.read_bytes(), check=True)
-    with pysam.AlignmentFile(collated, "rb") as handle:
-        names = [read.query_name for read in handle]
-    assert names in (["001", "001", "1"], ["1", "001", "001"])
+    script = Path(__file__).resolve().parents[1] / "barcodemapper/workflow/scripts/extract_taxonomy.py"
+    spec = importlib.util.spec_from_file_location("extract_taxonomy", script)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.process_bam(bam, unsorted)
+    assert [line.split("\t", 1)[0] for line in unsorted.read_text().splitlines()] == ["001", "1", "001"]
+    subprocess.run(
+        ["bash", "-c", "set -euo pipefail; LC_ALL=C sort -s -t $'\\t' -k1,1 \"$1\" > \"$2\"", "bash", str(unsorted), str(sorted_tsv)],
+        check=True,
+    )
+    names = [line.split("\t", 1)[0] for line in sorted_tsv.read_text().splitlines()]
+    assert [(name, len(list(rows))) for name, rows in groupby(names)] == [("001", 2), ("1", 1)]
 
 
 def _require_tools(*names: str) -> None:

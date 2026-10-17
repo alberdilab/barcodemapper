@@ -1,0 +1,35 @@
+{
+  "run": "ERR6001161",
+  "artifacts": [
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/results/ERR6001161-pilot-standard.tsv",
+      "bytes": 3541,
+      "sha256": "89705798190db8b217f3db8522c72c907685298a80cec7eaef3b0379c883f324"
+    },
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/results/ERR6001161-pilot-standard.html",
+      "bytes": 4670186,
+      "sha256": "b89073946c3c96a2f7d7d358d45d6f4920fec3a4f44cff48ee2c577d19121ed2"
+    },
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/results/ERR6001161-pilot-standard.manifest.json",
+      "bytes": 2544,
+      "sha256": "bdb4a44022cdcd11f9d999841e0e72ccd8a2b727174b5346555aa885ee951f4e"
+    },
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/work/ERR6001161-pilot-standard/taxonomy/ERR6001161.tsv",
+      "bytes": 2371,
+      "sha256": "1bb4adf39f2ca5ed2fb97982edccf8d68d38d5732901b48c353d25404e529c63"
+    },
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/work/ERR6001161-pilot-standard/fastp/ERR6001161.json",
+      "bytes": 123211,
+      "sha256": "23729889005c15499eb07dd452e20671a0edf80945aa20bc0c7fe5feaa6ec53a"
+    },
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/tasks/pilot-animal-clean/controller-45899213.out",
+      "bytes": 15287,
+      "sha256": "528077b59545b85226b1184d08e792dca2714764f4e16497ae895f5a4ce950b5"
+    }
+  ]
+}

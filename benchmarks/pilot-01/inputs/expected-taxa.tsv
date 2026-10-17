@@ -1,0 +1,413 @@
+study	run_accession	sample_alias	role	marker	reference	expected_species	paper_rows	strain_groups	source_families	exact_species_reference_records	genus_reference_records	family_reference_records	coverage_status	synonym_status
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Acrobeloides nanus	4		Cephalobidae	1	6	121	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Atropacarus striculus	23		Phthiracaridae	75	104	1287	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Chamobates voigtsi	22		Chamobatidae	3	537	543	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Desoria trispinata	12		Isotomidae	102	460	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Deuterosminthurus bicinctus	14			0	148	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Enchytraeus albidus	31		Enchytraeidae	50	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Enchytraeus bigeminus	33		Enchytraeidae	3	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Enchytraeus bulbosus	30		Enchytraeidae	4	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Enchytraeus crypticus	34		Enchytraeidae	5	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Enchytraeus luxuriosus	32		Enchytraeidae	1	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Eupelops occultus	25		Phenopelopidae	31	221	713	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Folsomia fimetaria	16		Isotomidae	6	646	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Gaeolaelaps aculeifer	28		Laelapidae	21	142	1904	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Isotomurus plumosus	13		Isotomidae	145	595	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Liebstadia similis	24		Scheloribatidae	78	204	3217	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Minunthozetes semirufus	19		Punctoribatidae	4	4	486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Oribatella quadricornuta	26		Oribatellidae	10	367	489	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Panagrellus redivivus	6		Panagrolaimidae	4	4	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Panagrolaimus detritophagus	5		Panagrolaimidae	3	19	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Pantelozetes paolii	20		Thyrisomidae	13	61	95	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Paramacrobiotus richtersi	2		Macrobiotidae	11	78	870	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Podura aquatica	11		Poduridae	10	50	83	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Poikilolaimus oxycerca	7			0	3	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Proisotoma minuta	10		Isotomidae	7	39	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Sinella curviseta	15		Entomobryidae	3	12	57425	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Sphaeridia pumilis	9		Sminthurididae	11	22	1158	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Tectocepheus velatus	18		Tectocepheidae	90	793	807	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001163	MC1_3	animal_mock	COI-5P	default	Zygoribatula exilis	21		Oribatulidae	12	214	3437	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Acrobeloides nanus	4		Cephalobidae	1	6	121	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Atropacarus striculus	23		Phthiracaridae	75	104	1287	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Chamobates voigtsi	22		Chamobatidae	3	537	543	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Desoria trispinata	12		Isotomidae	102	460	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Deuterosminthurus bicinctus	14			0	148	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Enchytraeus albidus	31		Enchytraeidae	50	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Enchytraeus bigeminus	33		Enchytraeidae	3	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Enchytraeus bulbosus	30		Enchytraeidae	4	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Enchytraeus crypticus	34		Enchytraeidae	5	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Enchytraeus luxuriosus	32		Enchytraeidae	1	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Eupelops occultus	25		Phenopelopidae	31	221	713	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Folsomia fimetaria	16		Isotomidae	6	646	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Gaeolaelaps aculeifer	28		Laelapidae	21	142	1904	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Isotomurus plumosus	13		Isotomidae	145	595	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Liebstadia similis	24		Scheloribatidae	78	204	3217	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Minunthozetes semirufus	19		Punctoribatidae	4	4	486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Oribatella quadricornuta	26		Oribatellidae	10	367	489	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Panagrellus redivivus	6		Panagrolaimidae	4	4	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Panagrolaimus detritophagus	5		Panagrolaimidae	3	19	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Pantelozetes paolii	20		Thyrisomidae	13	61	95	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Paramacrobiotus richtersi	2		Macrobiotidae	11	78	870	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Podura aquatica	11		Poduridae	10	50	83	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Poikilolaimus oxycerca	7			0	3	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Proisotoma minuta	10		Isotomidae	7	39	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Sinella curviseta	15		Entomobryidae	3	12	57425	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Sphaeridia pumilis	9		Sminthurididae	11	22	1158	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Tectocepheus velatus	18		Tectocepheidae	90	793	807	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001166	MC2_3	animal_mock	COI-5P	default	Zygoribatula exilis	21		Oribatulidae	12	214	3437	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Acrobeloides nanus	4		Cephalobidae	1	6	121	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Atropacarus striculus	23		Phthiracaridae	75	104	1287	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Chamobates voigtsi	22		Chamobatidae	3	537	543	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Desoria trispinata	12		Isotomidae	102	460	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Deuterosminthurus bicinctus	14			0	148	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Enchytraeus albidus	31		Enchytraeidae	50	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Enchytraeus bigeminus	33		Enchytraeidae	3	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Enchytraeus bulbosus	30		Enchytraeidae	4	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Enchytraeus crypticus	34		Enchytraeidae	5	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Enchytraeus luxuriosus	32		Enchytraeidae	1	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Eupelops occultus	25		Phenopelopidae	31	221	713	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Folsomia fimetaria	16		Isotomidae	6	646	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Gaeolaelaps aculeifer	28		Laelapidae	21	142	1904	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Isotomurus plumosus	13		Isotomidae	145	595	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Liebstadia similis	24		Scheloribatidae	78	204	3217	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Minunthozetes semirufus	19		Punctoribatidae	4	4	486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Oribatella quadricornuta	26		Oribatellidae	10	367	489	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Panagrellus redivivus	6		Panagrolaimidae	4	4	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Panagrolaimus detritophagus	5		Panagrolaimidae	3	19	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Pantelozetes paolii	20		Thyrisomidae	13	61	95	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Paramacrobiotus richtersi	2		Macrobiotidae	11	78	870	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Podura aquatica	11		Poduridae	10	50	83	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Poikilolaimus oxycerca	7			0	3	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Proisotoma minuta	10		Isotomidae	7	39	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Sinella curviseta	15		Entomobryidae	3	12	57425	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Sphaeridia pumilis	9		Sminthurididae	11	22	1158	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Tectocepheus velatus	18		Tectocepheidae	90	793	807	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001168	MC3_2	animal_mock	COI-5P	default	Zygoribatula exilis	21		Oribatulidae	12	214	3437	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Acrobeloides nanus	4		Cephalobidae	1	6	121	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Atropacarus striculus	23		Phthiracaridae	75	104	1287	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Chamobates voigtsi	22		Chamobatidae	3	537	543	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Desoria trispinata	12		Isotomidae	102	460	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Deuterosminthurus bicinctus	14			0	148	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Enchytraeus albidus	31		Enchytraeidae	50	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Enchytraeus bigeminus	33		Enchytraeidae	3	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Enchytraeus bulbosus	30		Enchytraeidae	4	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Enchytraeus crypticus	34		Enchytraeidae	5	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Enchytraeus luxuriosus	32		Enchytraeidae	1	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Eupelops occultus	25		Phenopelopidae	31	221	713	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Folsomia fimetaria	16		Isotomidae	6	646	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Gaeolaelaps aculeifer	28		Laelapidae	21	142	1904	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Isotomurus plumosus	13		Isotomidae	145	595	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Liebstadia similis	24		Scheloribatidae	78	204	3217	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Minunthozetes semirufus	19		Punctoribatidae	4	4	486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Oribatella quadricornuta	26		Oribatellidae	10	367	489	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Panagrellus redivivus	6		Panagrolaimidae	4	4	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Panagrolaimus detritophagus	5		Panagrolaimidae	3	19	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Pantelozetes paolii	20		Thyrisomidae	13	61	95	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Paramacrobiotus richtersi	2		Macrobiotidae	11	78	870	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Podura aquatica	11		Poduridae	10	50	83	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Poikilolaimus oxycerca	7			0	3	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Proisotoma minuta	10		Isotomidae	7	39	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Sinella curviseta	15		Entomobryidae	3	12	57425	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Sphaeridia pumilis	9		Sminthurididae	11	22	1158	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Tectocepheus velatus	18		Tectocepheidae	90	793	807	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001161	MC1_1	animal_mock	COI-5P	default	Zygoribatula exilis	21		Oribatulidae	12	214	3437	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Acrobeloides nanus	4		Cephalobidae	1	6	121	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Atropacarus striculus	23		Phthiracaridae	75	104	1287	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Chamobates voigtsi	22		Chamobatidae	3	537	543	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Desoria trispinata	12		Isotomidae	102	460	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Deuterosminthurus bicinctus	14			0	148	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Enchytraeus albidus	31		Enchytraeidae	50	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Enchytraeus bigeminus	33		Enchytraeidae	3	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Enchytraeus bulbosus	30		Enchytraeidae	4	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Enchytraeus crypticus	34		Enchytraeidae	5	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Enchytraeus luxuriosus	32		Enchytraeidae	1	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Eupelops occultus	25		Phenopelopidae	31	221	713	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Folsomia fimetaria	16		Isotomidae	6	646	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Gaeolaelaps aculeifer	28		Laelapidae	21	142	1904	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Isotomurus plumosus	13		Isotomidae	145	595	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Liebstadia similis	24		Scheloribatidae	78	204	3217	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Minunthozetes semirufus	19		Punctoribatidae	4	4	486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Oribatella quadricornuta	26		Oribatellidae	10	367	489	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Panagrellus redivivus	6		Panagrolaimidae	4	4	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Panagrolaimus detritophagus	5		Panagrolaimidae	3	19	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Pantelozetes paolii	20		Thyrisomidae	13	61	95	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Paramacrobiotus richtersi	2		Macrobiotidae	11	78	870	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Podura aquatica	11		Poduridae	10	50	83	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Poikilolaimus oxycerca	7			0	3	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Proisotoma minuta	10		Isotomidae	7	39	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Sinella curviseta	15		Entomobryidae	3	12	57425	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Sphaeridia pumilis	9		Sminthurididae	11	22	1158	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Tectocepheus velatus	18		Tectocepheidae	90	793	807	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001164	MC2_1	animal_mock	COI-5P	default	Zygoribatula exilis	21		Oribatulidae	12	214	3437	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Acrobeloides nanus	4		Cephalobidae	1	6	121	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Atropacarus striculus	23		Phthiracaridae	75	104	1287	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Chamobates voigtsi	22		Chamobatidae	3	537	543	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Desoria trispinata	12		Isotomidae	102	460	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Deuterosminthurus bicinctus	14			0	148	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Enchytraeus albidus	31		Enchytraeidae	50	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Enchytraeus bigeminus	33		Enchytraeidae	3	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Enchytraeus bulbosus	30		Enchytraeidae	4	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Enchytraeus crypticus	34		Enchytraeidae	5	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Enchytraeus luxuriosus	32		Enchytraeidae	1	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Eupelops occultus	25		Phenopelopidae	31	221	713	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Folsomia fimetaria	16		Isotomidae	6	646	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Gaeolaelaps aculeifer	28		Laelapidae	21	142	1904	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Isotomurus plumosus	13		Isotomidae	145	595	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Liebstadia similis	24		Scheloribatidae	78	204	3217	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Minunthozetes semirufus	19		Punctoribatidae	4	4	486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Oribatella quadricornuta	26		Oribatellidae	10	367	489	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Panagrellus redivivus	6		Panagrolaimidae	4	4	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Panagrolaimus detritophagus	5		Panagrolaimidae	3	19	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Pantelozetes paolii	20		Thyrisomidae	13	61	95	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Paramacrobiotus richtersi	2		Macrobiotidae	11	78	870	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Podura aquatica	11		Poduridae	10	50	83	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Poikilolaimus oxycerca	7			0	3	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Proisotoma minuta	10		Isotomidae	7	39	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Sinella curviseta	15		Entomobryidae	3	12	57425	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Sphaeridia pumilis	9		Sminthurididae	11	22	1158	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Tectocepheus velatus	18		Tectocepheidae	90	793	807	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001165	MC2_2	animal_mock	COI-5P	default	Zygoribatula exilis	21		Oribatulidae	12	214	3437	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Acrobeloides nanus	4		Cephalobidae	1	6	121	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Atropacarus striculus	23		Phthiracaridae	75	104	1287	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Chamobates voigtsi	22		Chamobatidae	3	537	543	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Desoria trispinata	12		Isotomidae	102	460	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Deuterosminthurus bicinctus	14			0	148	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Enchytraeus albidus	31		Enchytraeidae	50	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Enchytraeus bigeminus	33		Enchytraeidae	3	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Enchytraeus bulbosus	30		Enchytraeidae	4	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Enchytraeus crypticus	34		Enchytraeidae	5	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Enchytraeus luxuriosus	32		Enchytraeidae	1	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Eupelops occultus	25		Phenopelopidae	31	221	713	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Folsomia fimetaria	16		Isotomidae	6	646	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Gaeolaelaps aculeifer	28		Laelapidae	21	142	1904	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Isotomurus plumosus	13		Isotomidae	145	595	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Liebstadia similis	24		Scheloribatidae	78	204	3217	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Minunthozetes semirufus	19		Punctoribatidae	4	4	486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Oribatella quadricornuta	26		Oribatellidae	10	367	489	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Panagrellus redivivus	6		Panagrolaimidae	4	4	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Panagrolaimus detritophagus	5		Panagrolaimidae	3	19	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Pantelozetes paolii	20		Thyrisomidae	13	61	95	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Paramacrobiotus richtersi	2		Macrobiotidae	11	78	870	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Podura aquatica	11		Poduridae	10	50	83	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Poikilolaimus oxycerca	7			0	3	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Proisotoma minuta	10		Isotomidae	7	39	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Sinella curviseta	15		Entomobryidae	3	12	57425	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Sphaeridia pumilis	9		Sminthurididae	11	22	1158	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Tectocepheus velatus	18		Tectocepheidae	90	793	807	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001170	MC4_1	animal_mock	COI-5P	default	Zygoribatula exilis	21		Oribatulidae	12	214	3437	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Acrobeloides nanus	4		Cephalobidae	1	6	121	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Atropacarus striculus	23		Phthiracaridae	75	104	1287	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Chamobates voigtsi	22		Chamobatidae	3	537	543	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Desoria trispinata	12		Isotomidae	102	460	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Deuterosminthurus bicinctus	14			0	148	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Enchytraeus albidus	31		Enchytraeidae	50	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Enchytraeus bigeminus	33		Enchytraeidae	3	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Enchytraeus bulbosus	30		Enchytraeidae	4	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Enchytraeus crypticus	34		Enchytraeidae	5	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Enchytraeus luxuriosus	32		Enchytraeidae	1	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Eupelops occultus	25		Phenopelopidae	31	221	713	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Folsomia fimetaria	16		Isotomidae	6	646	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Gaeolaelaps aculeifer	28		Laelapidae	21	142	1904	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Isotomurus plumosus	13		Isotomidae	145	595	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Liebstadia similis	24		Scheloribatidae	78	204	3217	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Minunthozetes semirufus	19		Punctoribatidae	4	4	486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Oribatella quadricornuta	26		Oribatellidae	10	367	489	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Panagrellus redivivus	6		Panagrolaimidae	4	4	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Panagrolaimus detritophagus	5		Panagrolaimidae	3	19	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Pantelozetes paolii	20		Thyrisomidae	13	61	95	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Paramacrobiotus richtersi	2		Macrobiotidae	11	78	870	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Podura aquatica	11		Poduridae	10	50	83	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Poikilolaimus oxycerca	7			0	3	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Proisotoma minuta	10		Isotomidae	7	39	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Sinella curviseta	15		Entomobryidae	3	12	57425	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Sphaeridia pumilis	9		Sminthurididae	11	22	1158	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Tectocepheus velatus	18		Tectocepheidae	90	793	807	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001171	MC4_2	animal_mock	COI-5P	default	Zygoribatula exilis	21		Oribatulidae	12	214	3437	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Acrobeloides nanus	4		Cephalobidae	1	6	121	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Atropacarus striculus	23		Phthiracaridae	75	104	1287	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Chamobates voigtsi	22		Chamobatidae	3	537	543	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Desoria trispinata	12		Isotomidae	102	460	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Deuterosminthurus bicinctus	14			0	148	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Enchytraeus albidus	31		Enchytraeidae	50	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Enchytraeus bigeminus	33		Enchytraeidae	3	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Enchytraeus bulbosus	30		Enchytraeidae	4	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Enchytraeus crypticus	34		Enchytraeidae	5	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Enchytraeus luxuriosus	32		Enchytraeidae	1	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Eupelops occultus	25		Phenopelopidae	31	221	713	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Folsomia fimetaria	16		Isotomidae	6	646	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Gaeolaelaps aculeifer	28		Laelapidae	21	142	1904	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Isotomurus plumosus	13		Isotomidae	145	595	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Liebstadia similis	24		Scheloribatidae	78	204	3217	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Minunthozetes semirufus	19		Punctoribatidae	4	4	486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Oribatella quadricornuta	26		Oribatellidae	10	367	489	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Panagrellus redivivus	6		Panagrolaimidae	4	4	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Panagrolaimus detritophagus	5		Panagrolaimidae	3	19	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Pantelozetes paolii	20		Thyrisomidae	13	61	95	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Paramacrobiotus richtersi	2		Macrobiotidae	11	78	870	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Podura aquatica	11		Poduridae	10	50	83	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Poikilolaimus oxycerca	7			0	3	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Proisotoma minuta	10		Isotomidae	7	39	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Sinella curviseta	15		Entomobryidae	3	12	57425	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Sphaeridia pumilis	9		Sminthurididae	11	22	1158	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Tectocepheus velatus	18		Tectocepheidae	90	793	807	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001162	MC1_2	animal_mock	COI-5P	default	Zygoribatula exilis	21		Oribatulidae	12	214	3437	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Acrobeloides nanus	4		Cephalobidae	1	6	121	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Atropacarus striculus	23		Phthiracaridae	75	104	1287	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Chamobates voigtsi	22		Chamobatidae	3	537	543	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Desoria trispinata	12		Isotomidae	102	460	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Deuterosminthurus bicinctus	14			0	148	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Enchytraeus albidus	31		Enchytraeidae	50	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Enchytraeus bigeminus	33		Enchytraeidae	3	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Enchytraeus bulbosus	30		Enchytraeidae	4	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Enchytraeus crypticus	34		Enchytraeidae	5	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Enchytraeus luxuriosus	32		Enchytraeidae	1	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Eupelops occultus	25		Phenopelopidae	31	221	713	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Folsomia fimetaria	16		Isotomidae	6	646	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Gaeolaelaps aculeifer	28		Laelapidae	21	142	1904	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Isotomurus plumosus	13		Isotomidae	145	595	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Liebstadia similis	24		Scheloribatidae	78	204	3217	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Minunthozetes semirufus	19		Punctoribatidae	4	4	486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Oribatella quadricornuta	26		Oribatellidae	10	367	489	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Panagrellus redivivus	6		Panagrolaimidae	4	4	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Panagrolaimus detritophagus	5		Panagrolaimidae	3	19	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Pantelozetes paolii	20		Thyrisomidae	13	61	95	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Paramacrobiotus richtersi	2		Macrobiotidae	11	78	870	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Podura aquatica	11		Poduridae	10	50	83	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Poikilolaimus oxycerca	7			0	3	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Proisotoma minuta	10		Isotomidae	7	39	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Sinella curviseta	15		Entomobryidae	3	12	57425	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Sphaeridia pumilis	9		Sminthurididae	11	22	1158	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Tectocepheus velatus	18		Tectocepheidae	90	793	807	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001167	MC3_1	animal_mock	COI-5P	default	Zygoribatula exilis	21		Oribatulidae	12	214	3437	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Acrobeloides nanus	4		Cephalobidae	1	6	121	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Atropacarus striculus	23		Phthiracaridae	75	104	1287	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Chamobates voigtsi	22		Chamobatidae	3	537	543	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Desoria trispinata	12		Isotomidae	102	460	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Deuterosminthurus bicinctus	14			0	148	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Enchytraeus albidus	31		Enchytraeidae	50	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Enchytraeus bigeminus	33		Enchytraeidae	3	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Enchytraeus bulbosus	30		Enchytraeidae	4	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Enchytraeus crypticus	34		Enchytraeidae	5	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Enchytraeus luxuriosus	32		Enchytraeidae	1	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Eupelops occultus	25		Phenopelopidae	31	221	713	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Folsomia fimetaria	16		Isotomidae	6	646	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Gaeolaelaps aculeifer	28		Laelapidae	21	142	1904	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Isotomurus plumosus	13		Isotomidae	145	595	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Liebstadia similis	24		Scheloribatidae	78	204	3217	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Minunthozetes semirufus	19		Punctoribatidae	4	4	486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Oribatella quadricornuta	26		Oribatellidae	10	367	489	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Panagrellus redivivus	6		Panagrolaimidae	4	4	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Panagrolaimus detritophagus	5		Panagrolaimidae	3	19	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Pantelozetes paolii	20		Thyrisomidae	13	61	95	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Paramacrobiotus richtersi	2		Macrobiotidae	11	78	870	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Podura aquatica	11		Poduridae	10	50	83	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Poikilolaimus oxycerca	7			0	3	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Proisotoma minuta	10		Isotomidae	7	39	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Sinella curviseta	15		Entomobryidae	3	12	57425	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Sphaeridia pumilis	9		Sminthurididae	11	22	1158	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Tectocepheus velatus	18		Tectocepheidae	90	793	807	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001169	MC3_3	animal_mock	COI-5P	default	Zygoribatula exilis	21		Oribatulidae	12	214	3437	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Acrobeloides nanus	4		Cephalobidae	1	6	121	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Atropacarus striculus	23		Phthiracaridae	75	104	1287	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Chamobates voigtsi	22		Chamobatidae	3	537	543	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Desoria trispinata	12		Isotomidae	102	460	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Deuterosminthurus bicinctus	14			0	148	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Enchytraeus albidus	31		Enchytraeidae	50	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Enchytraeus bigeminus	33		Enchytraeidae	3	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Enchytraeus bulbosus	30		Enchytraeidae	4	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Enchytraeus crypticus	34		Enchytraeidae	5	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Enchytraeus luxuriosus	32		Enchytraeidae	1	462	3486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Eupelops occultus	25		Phenopelopidae	31	221	713	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Folsomia fimetaria	16		Isotomidae	6	646	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Gaeolaelaps aculeifer	28		Laelapidae	21	142	1904	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Isotomurus plumosus	13		Isotomidae	145	595	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Liebstadia similis	24		Scheloribatidae	78	204	3217	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Minunthozetes semirufus	19		Punctoribatidae	4	4	486	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Oribatella quadricornuta	26		Oribatellidae	10	367	489	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Panagrellus redivivus	6		Panagrolaimidae	4	4	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Panagrolaimus detritophagus	5		Panagrolaimidae	3	19	43	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Pantelozetes paolii	20		Thyrisomidae	13	61	95	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Paramacrobiotus richtersi	2		Macrobiotidae	11	78	870	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Podura aquatica	11		Poduridae	10	50	83	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Poikilolaimus oxycerca	7			0	3	0	genus_only	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Proisotoma minuta	10		Isotomidae	7	39	10915	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Sinella curviseta	15		Entomobryidae	3	12	57425	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Sphaeridia pumilis	9		Sminthurididae	11	22	1158	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Tectocepheus velatus	18		Tectocepheidae	90	793	807	exact_species	unreviewed; exact paper binomial only
+PRJEB45431	ERR6001172	MC4_3	animal_mock	COI-5P	default	Zygoribatula exilis	21		Oribatulidae	12	214	3437	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Aspergillus flavus	1		Aspergillaceae	171	1034	2414	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Aspergillus fumigatus	2		Aspergillaceae	42	1034	2414	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Blastobotrys proliferans	3		Trichomonascaceae	4	49	336	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Candida albicans	4			96	497	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Candida dubliniensis	5			6	497	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Candida glabrata	6			0	497	0	genus_only	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Candida haemulonis	7			0	497	0	genus_only	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Candida parapsilosis	8			22	497	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Candida tropicalis	9			0	497	0	genus_only	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Clavispora lusitaniae	10		Metschnikowiaceae	17	64	304	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Cryptococcus gattii	12,13,14,15	VGI,VGII	Cryptococcaceae	1	68	114	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Cryptococcus neoformans	17,18,19	VNI,VNII,VNIV	Cryptococcaceae	5	68	114	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Cutaneotrichosporon dermatis	41		Trichosporonaceae	1	30	113	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Cyberlindnera jadinii	20		Phaffomycetaceae	4	69	198	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Debaryomyces hansenii	21		Debaryomycetaceae	4	24	331	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Diutina catenulata	22			3	28	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Diutina mesorugosa	23			2	28	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Diutina rugosa	24			7	28	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Filobasidium magnum	16		Filobasidiaceae	3	33	124	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Geotrichum candidum	25		Dipodascaceae	54	95	207	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Geotrichum fermentans	26			0	95	0	genus_only	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Kluyveromyces marxianus	27		Saccharomycetaceae	4	13	423	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Kodamaea ohmeri	28		Metschnikowiaceae	14	36	304	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Lomentospora prolificans	29			0	0	0	unresolved_source_family	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Meyerozyma caribbica	30		Debaryomycetaceae	4	37	331	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Meyerozyma guilliermondii	31		Debaryomycetaceae	20	37	331	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Naganishia albida	11		Filobasidiaceae	8	42	124	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Pichia kudriavzevii	32		Pichiaceae	36	169	311	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Pichia membranifaciens	33		Pichiaceae	26	169	311	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Pichia norvegensis	34		Pichiaceae	4	169	311	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Rhodotorula mucilaginosa	36		Sporidiobolaceae	8	116	212	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Scedosporium aurantiacum	37		Microascaceae	5	28	202	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Scedosporium boydii	38		Microascaceae	5	28	202	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Trichophyton rubrum	39		Arthrodermataceae	8	45	167	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Trichosporon asahii	40		Trichosporonaceae	6	22	113	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Wickerhamomyces anomalus	42		Phaffomycetaceae	14	89	198	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Yarrowia lipolytica	43			10	26	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA	ITS	all-fungi	Zygoascus hellenicus	44		Trichomonascaceae	1	16	336	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Aspergillus flavus	1		Aspergillaceae	171	1034	2414	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Aspergillus fumigatus	2		Aspergillaceae	42	1034	2414	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Blastobotrys proliferans	3		Trichomonascaceae	4	49	336	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Candida albicans	4			96	497	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Candida dubliniensis	5			6	497	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Candida glabrata	6			0	497	0	genus_only	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Candida haemulonis	7			0	497	0	genus_only	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Candida parapsilosis	8			22	497	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Candida tropicalis	9			0	497	0	genus_only	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Clavispora lusitaniae	10		Metschnikowiaceae	17	64	304	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Cryptococcus gattii	12,13,14,15	VGI,VGII	Cryptococcaceae	1	68	114	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Cryptococcus neoformans	17,18,19	VNI,VNII,VNIV	Cryptococcaceae	5	68	114	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Cutaneotrichosporon dermatis	41		Trichosporonaceae	1	30	113	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Cyberlindnera jadinii	20		Phaffomycetaceae	4	69	198	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Debaryomyces hansenii	21		Debaryomycetaceae	4	24	331	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Diutina catenulata	22			3	28	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Diutina mesorugosa	23			2	28	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Diutina rugosa	24			7	28	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Filobasidium magnum	16		Filobasidiaceae	3	33	124	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Geotrichum candidum	25		Dipodascaceae	54	95	207	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Geotrichum fermentans	26			0	95	0	genus_only	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Kluyveromyces marxianus	27		Saccharomycetaceae	4	13	423	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Kodamaea ohmeri	28		Metschnikowiaceae	14	36	304	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Lomentospora prolificans	29			0	0	0	unresolved_source_family	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Meyerozyma caribbica	30		Debaryomycetaceae	4	37	331	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Meyerozyma guilliermondii	31		Debaryomycetaceae	20	37	331	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Naganishia albida	11		Filobasidiaceae	8	42	124	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Pichia kudriavzevii	32		Pichiaceae	36	169	311	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Pichia membranifaciens	33		Pichiaceae	26	169	311	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Pichia norvegensis	34		Pichiaceae	4	169	311	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Rhodotorula mucilaginosa	36		Sporidiobolaceae	8	116	212	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Scedosporium aurantiacum	37		Microascaceae	5	28	202	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Scedosporium boydii	38		Microascaceae	5	28	202	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Trichophyton rubrum	39		Arthrodermataceae	8	45	167	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Trichosporon asahii	40		Trichosporonaceae	6	22	113	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Wickerhamomyces anomalus	42		Phaffomycetaceae	14	89	198	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Yarrowia lipolytica	43			10	26	0	exact_species	unreviewed; exact paper binomial only
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass	ITS	all-fungi	Zygoascus hellenicus	44		Trichomonascaceae	1	16	336	exact_species	unreviewed; exact paper binomial only

@@ -1,0 +1,6 @@
+variant	lines	identical_to_truth
+truth	24057	yes
+bam_pysam	24057	yes
+sam_py	24057	yes
+sam_pysam	24057	yes
+sam_awk	24057	yes

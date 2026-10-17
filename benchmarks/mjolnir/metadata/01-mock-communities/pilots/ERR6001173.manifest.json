@@ -1,0 +1,19 @@
+{
+  "run_accession": "ERR6001173",
+  "created_utc": "2026-10-10T07:39:29.846560+00:00",
+  "selection": "first 100000 synchronized pairs from ENA FASTQs",
+  "pairs": 100000,
+  "raw_manifest_sha256": "e3fec2724cecca3591cf0dc423c459bcbf4de8c0dc4851b24627301c0bc33f8f",
+  "mates": [
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/inputs/pilot/ERR6001173_1.fastq.gz",
+      "bytes": 6753267,
+      "sha256": "b1187719b3bca7e2195f0435d2761f9a8de08ba98e6ed993cb4be40cec642e3f"
+    },
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/inputs/pilot/ERR6001173_2.fastq.gz",
+      "bytes": 7068821,
+      "sha256": "70047e2459775e50f9fd076ede629f8fb8f7b84a79e38817ebaae22246908a4d"
+    }
+  ]
+}

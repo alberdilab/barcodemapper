@@ -1,0 +1,25 @@
+project: null
+run_id: null
+run_utc: null
+software:
+  barcodemapper_version: '1.1.1'
+  barcodemapper_wheel_sha256: 67f31651097153ba7310ae26e08c3486876635e303d5c19b7b7386d56c967a67
+  release_commit: 893040ff24eb85a706ce2b4bf97d12e55619a11d
+  conda_explicit_lock_sha256: null
+reference:
+  name: null
+  fasta_sha256: null
+  source_release_record: null
+inputs_manifest: null
+input_manifest_sha256: null
+random_seed: null
+command: null
+slurm_job_ids: []
+slurm_partition: null
+compute_node: null
+threads_or_cpus: null
+memory_limit_gb: null
+wall_time_limit: null
+results_manifest: null
+results_sha256_manifest: null
+notes: null

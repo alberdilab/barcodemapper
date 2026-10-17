@@ -1,0 +1,23 @@
+{
+  "created_utc": "2026-10-10T07:14:36.633629+00:00",
+  "sources": [
+    {
+      "study": "PRJEB45431",
+      "paper": "PMC9170594",
+      "doi": "10.1002/ece3.8991",
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9170594/fullTextXML",
+      "xml_sha256": "d350b87310b020d3bfe7d7bcea270acee08f759c895c2580f35f3d6b31d93c11",
+      "member_rows": 28
+    },
+    {
+      "study": "PRJNA725368",
+      "paper": "PMC9040722",
+      "doi": "10.1128/mbio.02444-21",
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9040722/fullTextXML",
+      "xml_sha256": "4419ca80163fee886616ac64cd33458bc5070c628d3692757af54284b89114ca",
+      "member_rows": 44
+    }
+  ],
+  "expected_members_sha256": "973c36c40819c045e8ce805da94b73b30028aec1f57dd8d193eea2bbe021a32d",
+  "interpretation": "Purpureocillium lilacinum is a possible contaminant in the paper and is excluded from the primary expected-taxon denominator. Cryptococcus strain variants remain separate rows, but share a species-level name."
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "study": "PRJEB45431",
+    "retrieved_utc": "2026-10-10T06:58:17.047659+00:00",
+    "url": "https://www.ebi.ac.uk/ena/portal/api/filereport?accession=PRJEB45431&result=read_run&fields=run_accession%2Cstudy_accession%2Csample_accession%2Csample_title%2Cexperiment_title%2Clibrary_strategy%2Clibrary_layout%2Cinstrument_model%2Cfastq_ftp%2Cfastq_md5%2Cfastq_bytes&format=tsv",
+    "rows": 13,
+    "sha256": "6a69e92c87fb8e1447b63e89252b2edb4473c435a252aebebae71c0700a34bba",
+    "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/inputs/ena-PRJEB45431.tsv"
+  },
+  {
+    "study": "PRJNA725368",
+    "retrieved_utc": "2026-10-10T06:58:17.272628+00:00",
+    "url": "https://www.ebi.ac.uk/ena/portal/api/filereport?accession=PRJNA725368&result=read_run&fields=run_accession%2Cstudy_accession%2Csample_accession%2Csample_title%2Cexperiment_title%2Clibrary_strategy%2Clibrary_layout%2Cinstrument_model%2Cfastq_ftp%2Cfastq_md5%2Cfastq_bytes&format=tsv",
+    "rows": 8,
+    "sha256": "e3979ef8310de293effc3a7bed8e0d86a2877820b998def5e759765016cfcd83",
+    "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/inputs/ena-PRJNA725368.tsv"
+  }
+]

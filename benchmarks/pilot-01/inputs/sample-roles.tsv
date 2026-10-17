@@ -1,0 +1,16 @@
+study	run_accession	sample_alias	role	community	replicate	expected_member_set	role_basis
+PRJEB45431	ERR6001163	MC1_3	animal_mock	1	3	28 Table 1 animal species	ENA sample alias matches 4 mock types x 3 replicates in Schmidt et al.
+PRJEB45431	ERR6001166	MC2_3	animal_mock	2	3	28 Table 1 animal species	ENA sample alias matches 4 mock types x 3 replicates in Schmidt et al.
+PRJEB45431	ERR6001168	MC3_2	animal_mock	3	2	28 Table 1 animal species	ENA sample alias matches 4 mock types x 3 replicates in Schmidt et al.
+PRJEB45431	ERR6001161	MC1_1	animal_mock	1	1	28 Table 1 animal species	ENA sample alias matches 4 mock types x 3 replicates in Schmidt et al.
+PRJEB45431	ERR6001164	MC2_1	animal_mock	2	1	28 Table 1 animal species	ENA sample alias matches 4 mock types x 3 replicates in Schmidt et al.
+PRJEB45431	ERR6001165	MC2_2	animal_mock	2	2	28 Table 1 animal species	ENA sample alias matches 4 mock types x 3 replicates in Schmidt et al.
+PRJEB45431	ERR6001170	MC4_1	animal_mock	4	1	28 Table 1 animal species	ENA sample alias matches 4 mock types x 3 replicates in Schmidt et al.
+PRJEB45431	ERR6001171	MC4_2	animal_mock	4	2	28 Table 1 animal species	ENA sample alias matches 4 mock types x 3 replicates in Schmidt et al.
+PRJEB45431	ERR6001162	MC1_2	animal_mock	1	2	28 Table 1 animal species	ENA sample alias matches 4 mock types x 3 replicates in Schmidt et al.
+PRJEB45431	ERR6001167	MC3_1	animal_mock	3	1	28 Table 1 animal species	ENA sample alias matches 4 mock types x 3 replicates in Schmidt et al.
+PRJEB45431	ERR6001169	MC3_3	animal_mock	3	3	28 Table 1 animal species	ENA sample alias matches 4 mock types x 3 replicates in Schmidt et al.
+PRJEB45431	ERR6001173	MC_C1	extraction_blank			none	Inference: sole extra run, control alias, smaller file, and paper reports one extraction blank
+PRJEB45431	ERR6001172	MC4_3	animal_mock	4	3	28 Table 1 animal species	ENA sample alias matches 4 mock types x 3 replicates in Schmidt et al.
+PRJNA725368	SRR14351851	Pooled_DNA_illumina_metagenome	fungal_pooled_DNA			43 Table 1 fungal rows; Purpureocillium flagged as possible contaminant	ENA sample alias and Hu et al. methods
+PRJNA725368	SRR14351849	Pooled_biomass_illumina_metagenome	fungal_pooled_biomass			43 Table 1 fungal rows; Purpureocillium flagged as possible contaminant	ENA sample alias and Hu et al. methods

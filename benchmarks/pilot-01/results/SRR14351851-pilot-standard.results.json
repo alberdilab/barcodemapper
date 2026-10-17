@@ -1,0 +1,35 @@
+{
+  "run": "SRR14351851",
+  "artifacts": [
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/results/SRR14351851-pilot-standard.tsv",
+      "bytes": 5752,
+      "sha256": "695d8c102f6400fdfbf0595e9b3ddea7b6fb835ba509d97ec2f7c1262415cf96"
+    },
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/results/SRR14351851-pilot-standard.html",
+      "bytes": 4675329,
+      "sha256": "15140fd598af45807b3ebf054feb95cf1cda6a2163151d3a8d3ceb13a0d2726d"
+    },
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/results/SRR14351851-pilot-standard.manifest.json",
+      "bytes": 2559,
+      "sha256": "b3d5d4d2b0f064090796da3e562dffa141bc1fc4f0904397432664a0fde8cd7f"
+    },
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/work/SRR14351851-pilot-standard/taxonomy/SRR14351851.tsv",
+      "bytes": 22754,
+      "sha256": "02ddca0c9a1b00eea036e676c75578f5d51188a45d88f606d2b67290207bab8a"
+    },
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/work/SRR14351851-pilot-standard/fastp/SRR14351851.json",
+      "bytes": 175478,
+      "sha256": "f0b5d5089185c0c115b6e50e68b8835539563f68e4e0462b0293d37ac7cd79a3"
+    },
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/tasks/pilot-fungal-clean/controller-45899211.out",
+      "bytes": 15413,
+      "sha256": "fb4af7790bcd4fc540e64146cedef22f6cf41f7be2c0b3ca277ecc90c287dd32"
+    }
+  ]
+}

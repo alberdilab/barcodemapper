@@ -1,0 +1,18 @@
+{
+  "barcodemapper_version": "1.1.0",
+  "downloaded_utc": "2026-10-10T07:26:29.031031+00:00",
+  "sources": {
+    "bold": {
+      "doi": "https://doi.org/10.5883/DP-Latest",
+      "release": "BOLD_Public.09-Oct-2026",
+      "sha256": "0f19723fd048ea07ee12ac4d7f69b5d9e980860009bc89219425d5cc26050eed",
+      "url": "https://bench.boldsystems.org/index.php/API_Datapackage/fasta?id=BOLD_Public.09-Oct-2026"
+    },
+    "unite": {
+      "doi": "https://doi.org/10.15156/BIO/3301232",
+      "release": "2025-02-19",
+      "sha256": "8acda2ed660766fbd1d9912435f54d94a4728bc5dcce70a36294f831314a7fb3",
+      "url": "https://s3.hpc.ut.ee/plutof-public/original/b02db549-5f04-43fc-afb6-02888b594d10.tgz"
+    }
+  }
+}

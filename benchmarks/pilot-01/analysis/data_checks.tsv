@@ -1,0 +1,4 @@
+run	nodes	parents_with_children	parents_ge_children_sum	parents_lt_children_sum	parents_equal_children_sum	parents_with_own_remainder	root_sum_plus_unclassified	manifest_assigned_read_ids	interpretation
+ERR6001161	51	38	38	0	37	1	21	21	cumulative
+ERR6001173	10	7	7	0	7	0	4	4	cumulative
+SRR14351851	71	50	50	0	37	13	226	226	cumulative

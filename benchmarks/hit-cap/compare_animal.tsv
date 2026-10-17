@@ -1,0 +1,7 @@
+sample	run	reads_baseline	reads_run	lost	gained	identical	less_specific	more_specific	different_branch	base_resolved_species	base_resolved_genus	base_resolved_family	run_resolved_species	run_resolved_genus	run_resolved_family	elapsed_seconds	max_rss_mb
+animal	all	155	155	0	0	155	0	0	0	110	14	14	110	14	14	11103	52788
+animal	k1	155	137	18	0	108	0	29	0	110	14	14	118	1	16	232	23204
+animal	k5	155	149	6	0	138	0	11	0	110	14	14	111	16	14	92	21792
+animal	k10	155	151	4	0	141	0	10	0	110	14	14	111	15	15	127	23221
+animal	k50	155	153	2	0	153	0	0	0	110	14	14	108	14	14	149	22062
+animal	k200	155	154	1	0	154	0	0	0	110	14	14	109	14	14	94	22004

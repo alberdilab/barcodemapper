@@ -1,0 +1,147 @@
+run	rank	taxon	in_exact_species_db	in_rank_db	fragments
+ERR6001161	species	Acrobeloides nanus	True	True	0
+ERR6001161	species	Atropacarus striculus	True	True	0
+ERR6001161	species	Chamobates voigtsi	True	True	0
+ERR6001161	species	Desoria trispinata	True	True	0
+ERR6001161	species	Deuterosminthurus bicinctus	False	False	0
+ERR6001161	species	Enchytraeus albidus	True	True	0
+ERR6001161	species	Enchytraeus bigeminus	True	True	0
+ERR6001161	species	Enchytraeus bulbosus	True	True	0
+ERR6001161	species	Enchytraeus crypticus	True	True	0
+ERR6001161	species	Enchytraeus luxuriosus	True	True	0
+ERR6001161	species	Eupelops occultus	True	True	0
+ERR6001161	species	Folsomia fimetaria	True	True	0
+ERR6001161	species	Gaeolaelaps aculeifer	True	True	0
+ERR6001161	species	Isotomurus plumosus	True	True	0
+ERR6001161	species	Liebstadia similis	True	True	0
+ERR6001161	species	Minunthozetes semirufus	True	True	2
+ERR6001161	species	Oribatella quadricornuta	True	True	0
+ERR6001161	species	Panagrellus redivivus	True	True	1
+ERR6001161	species	Panagrolaimus detritophagus	True	True	0
+ERR6001161	species	Pantelozetes paolii	True	True	0
+ERR6001161	species	Paramacrobiotus richtersi	True	True	0
+ERR6001161	species	Podura aquatica	True	True	1
+ERR6001161	species	Poikilolaimus oxycerca	False	False	0
+ERR6001161	species	Proisotoma minuta	True	True	1
+ERR6001161	species	Sinella curviseta	True	True	2
+ERR6001161	species	Sphaeridia pumilis	True	True	0
+ERR6001161	species	Tectocepheus velatus	True	True	0
+ERR6001161	species	Zygoribatula exilis	True	True	0
+ERR6001161	genus	Acrobeloides	True	True	0
+ERR6001161	genus	Atropacarus	True	True	0
+ERR6001161	genus	Chamobates	True	True	0
+ERR6001161	genus	Desoria	True	True	0
+ERR6001161	genus	Deuterosminthurus	False	True	0
+ERR6001161	genus	Enchytraeus	True	True	1
+ERR6001161	genus	Eupelops	True	True	3
+ERR6001161	genus	Folsomia	True	True	0
+ERR6001161	genus	Gaeolaelaps	True	True	0
+ERR6001161	genus	Isotomurus	True	True	0
+ERR6001161	genus	Liebstadia	True	True	0
+ERR6001161	genus	Minunthozetes	True	True	2
+ERR6001161	genus	Oribatella	True	True	0
+ERR6001161	genus	Panagrellus	True	True	1
+ERR6001161	genus	Panagrolaimus	True	True	0
+ERR6001161	genus	Pantelozetes	True	True	0
+ERR6001161	genus	Paramacrobiotus	True	True	0
+ERR6001161	genus	Podura	True	True	1
+ERR6001161	genus	Poikilolaimus	False	True	2
+ERR6001161	genus	Proisotoma	True	True	1
+ERR6001161	genus	Sinella	True	True	2
+ERR6001161	genus	Sphaeridia	True	True	0
+ERR6001161	genus	Tectocepheus	True	True	0
+ERR6001161	genus	Zygoribatula	True	True	0
+ERR6001161	family	Cephalobidae	True	True	0
+ERR6001161	family	Phthiracaridae	True	True	1
+ERR6001161	family	Chamobatidae	True	True	0
+ERR6001161	family	Isotomidae	True	True	1
+ERR6001161	family	Enchytraeidae	True	True	1
+ERR6001161	family	Phenopelopidae	True	True	3
+ERR6001161	family	Laelapidae	True	True	0
+ERR6001161	family	Scheloribatidae	True	True	0
+ERR6001161	family	Punctoribatidae	True	True	2
+ERR6001161	family	Oribatellidae	True	True	0
+ERR6001161	family	Panagrolaimidae	True	True	1
+ERR6001161	family	Thyrisomidae	True	True	0
+ERR6001161	family	Macrobiotidae	True	True	0
+ERR6001161	family	Poduridae	True	True	1
+ERR6001161	family	Entomobryidae	True	True	2
+ERR6001161	family	Sminthurididae	True	True	0
+ERR6001161	family	Tectocepheidae	True	True	0
+ERR6001161	family	Oribatulidae	True	True	0
+SRR14351851	species	Aspergillus flavus	True	True	0
+SRR14351851	species	Aspergillus fumigatus	True	True	0
+SRR14351851	species	Blastobotrys proliferans	True	True	0
+SRR14351851	species	Candida albicans	True	True	0
+SRR14351851	species	Candida dubliniensis	True	True	0
+SRR14351851	species	Candida glabrata	False	False	0
+SRR14351851	species	Candida haemulonis	False	False	0
+SRR14351851	species	Candida parapsilosis	True	True	0
+SRR14351851	species	Candida tropicalis	False	False	0
+SRR14351851	species	Clavispora lusitaniae	True	True	0
+SRR14351851	species	Cryptococcus gattii	True	True	0
+SRR14351851	species	Cryptococcus neoformans	True	True	1
+SRR14351851	species	Cutaneotrichosporon dermatis	True	True	0
+SRR14351851	species	Cyberlindnera jadinii	True	True	0
+SRR14351851	species	Debaryomyces hansenii	True	True	0
+SRR14351851	species	Diutina catenulata	True	True	0
+SRR14351851	species	Diutina mesorugosa	True	True	0
+SRR14351851	species	Diutina rugosa	True	True	0
+SRR14351851	species	Filobasidium magnum	True	True	0
+SRR14351851	species	Geotrichum candidum	True	True	0
+SRR14351851	species	Geotrichum fermentans	False	False	0
+SRR14351851	species	Kluyveromyces marxianus	True	True	5
+SRR14351851	species	Kodamaea ohmeri	True	True	1
+SRR14351851	species	Lomentospora prolificans	False	False	0
+SRR14351851	species	Meyerozyma caribbica	True	True	0
+SRR14351851	species	Meyerozyma guilliermondii	True	True	1
+SRR14351851	species	Naganishia albida	True	True	0
+SRR14351851	species	Pichia kudriavzevii	True	True	0
+SRR14351851	species	Pichia membranifaciens	True	True	0
+SRR14351851	species	Pichia norvegensis	True	True	0
+SRR14351851	species	Rhodotorula mucilaginosa	True	True	0
+SRR14351851	species	Scedosporium aurantiacum	True	True	3
+SRR14351851	species	Scedosporium boydii	True	True	0
+SRR14351851	species	Trichophyton rubrum	True	True	0
+SRR14351851	species	Trichosporon asahii	True	True	0
+SRR14351851	species	Wickerhamomyces anomalus	True	True	0
+SRR14351851	species	Yarrowia lipolytica	True	True	0
+SRR14351851	species	Zygoascus hellenicus	True	True	0
+SRR14351851	genus	Aspergillus	True	True	1
+SRR14351851	genus	Blastobotrys	True	True	0
+SRR14351851	genus	Candida	True	True	0
+SRR14351851	genus	Clavispora	True	True	0
+SRR14351851	genus	Cryptococcus	True	True	1
+SRR14351851	genus	Cutaneotrichosporon	True	True	4
+SRR14351851	genus	Cyberlindnera	True	True	0
+SRR14351851	genus	Debaryomyces	True	True	0
+SRR14351851	genus	Diutina	True	True	0
+SRR14351851	genus	Filobasidium	True	True	0
+SRR14351851	genus	Geotrichum	True	True	0
+SRR14351851	genus	Kluyveromyces	True	True	5
+SRR14351851	genus	Kodamaea	True	True	1
+SRR14351851	genus	Lomentospora	False	False	0
+SRR14351851	genus	Meyerozyma	True	True	1
+SRR14351851	genus	Naganishia	True	True	1
+SRR14351851	genus	Pichia	True	True	0
+SRR14351851	genus	Rhodotorula	True	True	1
+SRR14351851	genus	Scedosporium	True	True	7
+SRR14351851	genus	Trichophyton	True	True	0
+SRR14351851	genus	Trichosporon	True	True	0
+SRR14351851	genus	Wickerhamomyces	True	True	0
+SRR14351851	genus	Yarrowia	True	True	0
+SRR14351851	genus	Zygoascus	True	True	0
+SRR14351851	family	Aspergillaceae	True	True	2
+SRR14351851	family	Trichomonascaceae	True	True	0
+SRR14351851	family	Metschnikowiaceae	True	True	1
+SRR14351851	family	Cryptococcaceae	True	True	1
+SRR14351851	family	Trichosporonaceae	True	True	4
+SRR14351851	family	Phaffomycetaceae	True	True	0
+SRR14351851	family	Debaryomycetaceae	True	True	1
+SRR14351851	family	Filobasidiaceae	True	True	1
+SRR14351851	family	Dipodascaceae	True	True	1
+SRR14351851	family	Saccharomycetaceae	True	True	67
+SRR14351851	family	Pichiaceae	True	True	0
+SRR14351851	family	Sporidiobolaceae	True	True	1
+SRR14351851	family	Microascaceae	True	True	10
+SRR14351851	family	Arthrodermataceae	True	True	0

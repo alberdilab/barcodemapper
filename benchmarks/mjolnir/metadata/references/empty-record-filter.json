@@ -1,0 +1,32 @@
+{
+  "created_utc": "2026-10-10T08:02:20.597872+00:00",
+  "script": "drop_empty_source_records.py",
+  "script_sha256": "5ac0a857d1d43984a6f75f60bf243f8bdd2efabf77b120f2e8e963f11a5f7eaa",
+  "operation": "Remove only FASTA records with no sequence bases; retain all bytes of every other record",
+  "excluded_records_path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/references/cleaned-sources/excluded-empty-records.tsv",
+  "excluded_records_sha256": "820c64f4ff7467bb3302849a18abcc09f56034017ddf255090ebaeefb8469c6e",
+  "sources": {
+    "bold": {
+      "source_path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/references/sources/bold.fasta",
+      "source_bytes": 16981910548,
+      "source_sha256": "0f19723fd048ea07ee12ac4d7f69b5d9e980860009bc89219425d5cc26050eed",
+      "cleaned_bytes": 16756256697,
+      "cleaned_sha256": "977dc18b9df86e47f35cd5fd3c36562a05d56ee1aa8ba830752032ec1f9db18b",
+      "records_seen": 24491027,
+      "records_kept": 22154462,
+      "records_dropped_empty": 2336565,
+      "cleaned_path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/references/cleaned-sources/bold.fasta"
+    },
+    "unite": {
+      "source_path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/references/sources/unite.fasta",
+      "source_bytes": 202353058,
+      "source_sha256": "8acda2ed660766fbd1d9912435f54d94a4728bc5dcce70a36294f831314a7fb3",
+      "cleaned_bytes": 202353058,
+      "cleaned_sha256": "8acda2ed660766fbd1d9912435f54d94a4728bc5dcce70a36294f831314a7fb3",
+      "records_seen": 266589,
+      "records_kept": 266589,
+      "records_dropped_empty": 0,
+      "cleaned_path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/references/cleaned-sources/unite.fasta"
+    }
+  }
+}

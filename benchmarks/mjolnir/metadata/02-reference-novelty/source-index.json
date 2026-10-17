@@ -1,0 +1,20 @@
+{
+  "created_utc": "2026-10-10T08:05:18.870908+00:00",
+  "source_release_record": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/references/sources/source-releases.json",
+  "source_release_record_sha256": "e9ecb4f1f67a4b16d5bc8357e327029b354f0b728b786532af53fe1b33805297",
+  "records_by_marker": {
+    "COI-5P": 20408974,
+    "ITS": 168030
+  },
+  "eligible_pe150_by_marker": {
+    "COI-5P": 6443241,
+    "ITS": 49979
+  },
+  "excluded_empty_accession_or_sequence_by_marker": {
+    "COI-5P": 69374
+  },
+  "eligibility": "family, genus and species named; sequence length >=350 bases",
+  "sqlite_path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/02-reference-novelty/inputs/source-index.sqlite",
+  "sqlite_bytes": 7820021760,
+  "sqlite_sha256": "24d06d5b8d38d9aba9c8139c79a2f61b9ae2a8139cfba79c8bab30b6233b0692"
+}

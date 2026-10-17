@@ -1,0 +1,11 @@
+run	Taxonomy	rank	name	kingdom	depth	count	excl	unclassified_run_total	in_animal_mock_expected_family
+ERR6001173	k__Animalia	kingdom	Animalia	Animalia	1	3	0	0	
+ERR6001173	k__Animalia;p__Arthropoda	phylum	Arthropoda	Animalia	2	3	0	0	
+ERR6001173	k__Animalia;p__Arthropoda;c__Collembola	class	Collembola	Animalia	3	1	0	0	
+ERR6001173	k__Animalia;p__Arthropoda;c__Collembola;o__Symphypleona	order	Symphypleona	Animalia	4	1	0	0	
+ERR6001173	k__Animalia;p__Arthropoda;c__Collembola;o__Symphypleona;f__Sminthurididae	family	Sminthurididae	Animalia	5	1	1	0	True
+ERR6001173	k__Animalia;p__Arthropoda;c__Insecta	class	Insecta	Animalia	3	2	0	0	
+ERR6001173	k__Animalia;p__Arthropoda;c__Insecta;o__Hymenoptera	order	Hymenoptera	Animalia	4	2	2	0	
+ERR6001173	k__Viridiplantae	kingdom	Viridiplantae	Viridiplantae	1	1	0	0	
+ERR6001173	k__Viridiplantae;p__Chlorophyta	phylum	Chlorophyta	Viridiplantae	2	1	0	0	
+ERR6001173	k__Viridiplantae;p__Chlorophyta;c__Trebouxiophyceae	class	Trebouxiophyceae	Viridiplantae	3	1	1	0	

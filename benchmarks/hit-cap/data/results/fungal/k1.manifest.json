@@ -1,0 +1,50 @@
+{
+  "created_utc": "2026-10-16T18:56:13.015656+00:00",
+  "barcodemapper_version": "1.1.2",
+  "database": {
+    "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/references/all-fungi.fa.gz",
+    "sha256": "418132e6430918b83214e37c1abda11918e25db750fa0964b2edd23e1fad9f38"
+  },
+  "parameters": {
+    "run": "2026-10-16T18:46:09.348453+00:00",
+    "version": "1.1.2",
+    "barcodemapper_db": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/references/all-fungi.fa.gz",
+    "barcodemapper_index_base": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/references/all-fungi",
+    "barcodemapper_index_extension": "bt2l",
+    "generate_index": false,
+    "barcodemapper_db_headers": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/references/all-fungi.tsv",
+    "generate_headers": false,
+    "tmp_dir": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/05-hit-cap/work/fungal/k1",
+    "output_file": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/05-hit-cap/results/fungal/k1.tsv",
+    "build_only": "no",
+    "report_file": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/05-hit-cap/results/fungal/k1.html",
+    "max_edit_percent": 3.0,
+    "min_coverage": 80,
+    "max_hits": 1,
+    "adapter_r1": "auto",
+    "adapter_r2": "auto",
+    "min_read_length": 100,
+    "complexity_threshold": 30,
+    "low_complexity_filter": true
+  },
+  "samples": {
+    "SRR14351851": {
+      "read1": [
+        "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/05-hit-cap/inputs/SRR14351851_1.fastq.gz"
+      ],
+      "read2": [
+        "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/05-hit-cap/inputs/SRR14351851_2.fastq.gz"
+      ],
+      "fastp_reads_before": 2000000,
+      "fastp_reads_after": 1872204,
+      "assigned_read_ids": 2155
+    }
+  },
+  "tools": {
+    "snakemake": "8.27.1",
+    "fastp": "fastp 0.23.1",
+    "bowtie2": "/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/04-scaling/software/env/bin/bowtie2-align-s version 2.5.4",
+    "bowtie2-build": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/04-scaling/software/env/bin/bowtie2-build-s version 2.5.4",
+    "samtools": "samtools 1.21"
+  }
+}

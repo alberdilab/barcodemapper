@@ -1,0 +1,7 @@
+sample	run	reads_baseline	reads_run	lost	gained	identical	less_specific	more_specific	different_branch	base_resolved_species	base_resolved_genus	base_resolved_family	run_resolved_species	run_resolved_genus	run_resolved_family	elapsed_seconds	max_rss_mb
+fungal	all	2335	2335	0	0	2335	0	0	0	1099	170	257	1099	170	257	10762	38794
+fungal	k1	2335	2155	182	2	1423	0	726	4	1099	170	257	1566	36	301	228	23327
+fungal	k5	2335	2316	22	3	2121	0	192	0	1099	170	257	1184	189	255	128	23341
+fungal	k10	2335	2335	2	2	2251	0	82	0	1099	170	257	1128	186	259	116	23303
+fungal	k50	2335	2335	1	1	2324	0	10	0	1099	170	257	1099	174	257	127	23415
+fungal	k200	2335	2336	0	1	2331	0	4	0	1099	170	257	1100	171	257	153	23543

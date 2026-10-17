@@ -1,0 +1,25 @@
+{
+  "run_accession": "SRR14351851",
+  "study_accession": "PRJNA725368",
+  "sample_accession": "SAMN18877149",
+  "retrieved_utc": "2026-10-10T07:50:23.757911+00:00",
+  "ena_report_sha256": "e3979ef8310de293effc3a7bed8e0d86a2877820b998def5e759765016cfcd83",
+  "files": [
+    {
+      "mate": 1,
+      "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR143/051/SRR14351851/SRR14351851_1.fastq.gz",
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/inputs/raw/SRR14351851_1.fastq.gz",
+      "bytes": 2243684373,
+      "ena_md5": "fc37f6507ed2f7f56aeb46734d1afbe8",
+      "sha256": "89c7ddcd5a9830f8b44f40ea05e2ddd125a411ce3e4fac15a6179226d5d7b07d"
+    },
+    {
+      "mate": 2,
+      "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR143/051/SRR14351851/SRR14351851_2.fastq.gz",
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/inputs/raw/SRR14351851_2.fastq.gz",
+      "bytes": 2675507905,
+      "ena_md5": "282e925170046ab73c7ed4ee9a88dccd",
+      "sha256": "85c8244be9d086d5aa3de677664dc2b18ca76c9f0a7f81f9f0d2415d50dcc6d0"
+    }
+  ]
+}

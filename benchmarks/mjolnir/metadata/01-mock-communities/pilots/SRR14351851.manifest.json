@@ -1,0 +1,19 @@
+{
+  "run_accession": "SRR14351851",
+  "created_utc": "2026-10-10T07:51:28.969069+00:00",
+  "selection": "first 100000 synchronized pairs from ENA FASTQs",
+  "pairs": 100000,
+  "raw_manifest_sha256": "7e92ccfc318041561391d1fe4f4727ca6fd80c13908942785de7cc7fc3d7091a",
+  "mates": [
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/inputs/pilot/SRR14351851_1.fastq.gz",
+      "bytes": 20810778,
+      "sha256": "c90599153ae09ef54b697040ac23c8945ad739501902adf6ec94a5a7b0e68f5e"
+    },
+    {
+      "path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/inputs/pilot/SRR14351851_2.fastq.gz",
+      "bytes": 24034328,
+      "sha256": "3d7e26656d2b6f1f704bc60863b3aa57d160a9f9c4406cb00a66d3913f2ded52"
+    }
+  ]
+}

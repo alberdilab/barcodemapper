@@ -1,0 +1,25 @@
+{
+  "created_utc": "2026-10-11T13:22:04.555394+00:00",
+  "script_sha256": "89cb1f6a3a393239524c3b878277cc420626984322d037ccea8c480d9337db55",
+  "expected_members_sha256": "973c36c40819c045e8ce805da94b73b30028aec1f57dd8d193eea2bbe021a32d",
+  "sample_roles_sha256": "07347d500962b6efdc7048adcf89739431926d692bf9d9a1fb18986bbf74ab44",
+  "source_index_summary_sha256": "4884bdb0adff2e42a280f9f21d0dac0225efe15682eb82d28fb67fe19b8ed4ef",
+  "reference_audits": {
+    "default": {
+      "summary_path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/references/audits/default/summary.json",
+      "summary_sha256": "6ce7cfd4393ba3e5341811b73633192eddfb2098383612e6ae2a47a1d15abf5d"
+    },
+    "all-fungi": {
+      "summary_path": "/maps/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/references/audits/all-fungi/summary.json",
+      "summary_sha256": "d30bfaa80ccaef7fab607d2b9175a67934cc18d0a2184a876d9794583d8d0bde"
+    }
+  },
+  "expected_taxa_sha256": "656facbb46ad06f47af526b14c4d12f6012a2d14e7483411f9430caf97ea8b19",
+  "rows": 412,
+  "rows_by_coverage_status": {
+    "exact_species": 378,
+    "genus_only": 32,
+    "unresolved_source_family": 2
+  },
+  "interpretation": "One row per distinct expected binomial per nonblank run. Strain rows with the same binomial are collapsed. Synonyms are not yet adjudicated; exact misses need manual review before computing recall."
+}

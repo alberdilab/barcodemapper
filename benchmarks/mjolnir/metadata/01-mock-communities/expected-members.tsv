@@ -1,0 +1,73 @@
+study	paper_row	paper_label	species	animal_group	strain_group	expected_in_mock	note	paper_doi	paper_table
+PRJEB45431	2	Paramacrobiotus richtersi (Murray, 1911)	Paramacrobiotus richtersi	Tardigrada		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	4	Acrobeloides nanus (de Man, 1880)	Acrobeloides nanus	Nematoda		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	5	Panagrolaimus detritophagus (Fuchs, 1930)	Panagrolaimus detritophagus	Nematoda		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	6	Panagrellus redivivus (Linnaeus, 1767)	Panagrellus redivivus	Nematoda		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	7	Poikilolaimus oxycerca (de Man, 1895)	Poikilolaimus oxycerca	Nematoda		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	9	Sphaeridia pumilis (Krausbauer, 1898)	Sphaeridia pumilis	Collembola		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	10	Proisotoma minuta (Tullberg, 1871)	Proisotoma minuta	Collembola		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	11	Podura aquatica (Linnaeus, 1758)	Podura aquatica	Collembola		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	12	Desoria trispinata (MacGillivray, 1896)	Desoria trispinata	Collembola		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	13	Isotomurus plumosus (Bagnall, 1940)	Isotomurus plumosus	Collembola		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	14	Deuterosminthurus bicinctus (Koch, 1840)	Deuterosminthurus bicinctus	Collembola		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	15	Sinella curviseta (Brook, 1882)	Sinella curviseta	Collembola		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	16	Folsomia fimetaria (Linnaeus, 1758)	Folsomia fimetaria	Collembola		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	18	Tectocepheus velatus (Michael, 1880)	Tectocepheus velatus	Oribatida		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	19	Minunthozetes semirufus (C. L. Koch, 1841)	Minunthozetes semirufus	Oribatida		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	20	Pantelozetes paolii (Oudemans, 1913)	Pantelozetes paolii	Oribatida		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	21	Zygoribatula exilis (Nicolet, 1855)	Zygoribatula exilis	Oribatida		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	22	Chamobates voigtsi (Oudemans, 1902)	Chamobates voigtsi	Oribatida		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	23	Atropacarus striculus (C. L. Koch, 1835)	Atropacarus striculus	Oribatida		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	24	Liebstadia similis (Michael, 1888)	Liebstadia similis	Oribatida		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	25	Eupelops occultus (C. L. Koch, 1835)	Eupelops occultus	Oribatida		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	26	Oribatella quadricornuta (Michael, 1880)	Oribatella quadricornuta	Oribatida		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	28	Gaeolaelaps aculeifer (Canestrini, 1883)	Gaeolaelaps aculeifer	Gamasida		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	30	Enchytraeus bulbosus (Nielsen & Christensen, 1963)	Enchytraeus bulbosus	Enchytraeidae		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	31	Enchytraeus albidus (Henle, 1837)	Enchytraeus albidus	Enchytraeidae		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	32	Enchytraeus luxuriosus (Schmelz & Collado, 1999)	Enchytraeus luxuriosus	Enchytraeidae		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	33	Enchytraeus bigeminus (Nielsen & Christensen, 1963)	Enchytraeus bigeminus	Enchytraeidae		yes		10.1002/ece3.8991	Table 1
+PRJEB45431	34	Enchytraeus crypticus (Westheide & Graefe, 1992)	Enchytraeus crypticus	Enchytraeidae		yes		10.1002/ece3.8991	Table 1
+PRJNA725368	1	Aspergillus flavus	Aspergillus flavus			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	2	Aspergillus fumigatus	Aspergillus fumigatus			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	3	Blastobotrys proliferans	Blastobotrys proliferans			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	4	Candida albicans	Candida albicans			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	5	Candida dubliniensis	Candida dubliniensis			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	6	Candida glabrata	Candida glabrata			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	7	Candida haemulonis	Candida haemulonis			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	8	Candida parapsilosis	Candida parapsilosis			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	9	Candida tropicalis	Candida tropicalis			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	10	Clavispora lusitaniae	Clavispora lusitaniae			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	11	Naganishia albida (former Cryptococcus albidus)	Naganishia albida			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	12	Cryptococcus gattii VGI	Cryptococcus gattii		VGI	yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	13	Cryptococcus gattii VGII	Cryptococcus gattii		VGII	yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	14	Cryptococcus gattii VGIIIa	Cryptococcus gattii			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	15	Cryptococcus gattii VGIVa	Cryptococcus gattii			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	16	Filobasidium magnum (former Cryptococcus magnus)b	Filobasidium magnum			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	17	Cryptococcus neoformans VNI	Cryptococcus neoformans		VNI	yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	18	Cryptococcus neoformans VNII	Cryptococcus neoformans		VNII	yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	19	Cryptococcus neoformans VNIV	Cryptococcus neoformans		VNIV	yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	20	Cyberlindnera jadinii	Cyberlindnera jadinii			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	21	Debaryomyces hansenii	Debaryomyces hansenii			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	22	Diutina catenulata (former Candida catenulata)b	Diutina catenulata			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	23	Diutina mesorugosa (former Candida mesorugosa) b	Diutina mesorugosa			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	24	Diutina rugosa (former Candida rugosa) b	Diutina rugosa			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	25	Geotrichum candidum	Geotrichum candidum			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	26	Geotrichum fermentans	Geotrichum fermentans			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	27	Kluyveromyces marxianus	Kluyveromyces marxianus			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	28	Kodamaea ohmeri	Kodamaea ohmeri			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	29	Lomentospora prolificans	Lomentospora prolificans			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	30	Meyerozyma caribbica	Meyerozyma caribbica			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	31	Meyerozyma guilliermondii	Meyerozyma guilliermondii			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	32	Pichia kudriavzevii	Pichia kudriavzevii			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	33	Pichia membranifaciens	Pichia membranifaciens			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	34	Pichia norvegensis	Pichia norvegensis			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	35	Purpureocillium lilacinum c	Purpureocillium lilacinum			no	paper marks possible contamination	10.1128/mbio.02444-21	Table 1
+PRJNA725368	36	Rhodotorula mucilaginosa	Rhodotorula mucilaginosa			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	37	Scedosporium aurantiacum	Scedosporium aurantiacum			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	38	Scedosporium boydii (former Pseudallescheria boydii)	Scedosporium boydii			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	39	Trichophyton rubrum	Trichophyton rubrum			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	40	Trichosporon asahii	Trichosporon asahii			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	41	Cutaneotrichosporon dermatis (former Trichosporon dermatis)	Cutaneotrichosporon dermatis			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	42	Wickerhamomyces anomalus	Wickerhamomyces anomalus			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	43	Yarrowia lipolytica	Yarrowia lipolytica			yes		10.1128/mbio.02444-21	Table 1
+PRJNA725368	44	Zygoascus hellenicus d	Zygoascus hellenicus			yes		10.1128/mbio.02444-21	Table 1

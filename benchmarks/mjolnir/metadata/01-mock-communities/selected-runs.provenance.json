@@ -1,0 +1,116 @@
+{
+  "created_utc": "2026-10-10T07:01:15.518824+00:00",
+  "selection_rule": "library_strategy=WGS, layout=PAIRED, Illumina instrument",
+  "sample_xml": [
+    {
+      "sample": "SAMEA8898636",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898636",
+      "sha256": "de98f3248e96926e99aefe6a4270df62e0bd85d46c7c85893d6f6740565c48f0"
+    },
+    {
+      "sample": "SAMEA8898639",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898639",
+      "sha256": "6dd32b725e00579793f5c705c8e344e1d9378a04a812791aee3202cb1426ea9d"
+    },
+    {
+      "sample": "SAMEA8898641",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898641",
+      "sha256": "0cbeab5c1664a0b9fca3031c586b79aa00f719a1f2169eca8483fbd49357f173"
+    },
+    {
+      "sample": "SAMEA8898634",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898634",
+      "sha256": "756eb992ff8c4123bbda2a6811d0142e4babb27594b3e103523697cab814c171"
+    },
+    {
+      "sample": "SAMEA8898637",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898637",
+      "sha256": "c78213eba2e107153571a45dd71c472db567d2450a6a348603fc1a93eaa94ffe"
+    },
+    {
+      "sample": "SAMEA8898638",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898638",
+      "sha256": "63fa066204587ffecd175c69e8e96980961c148079c5c489327f2c8264f9ea1d"
+    },
+    {
+      "sample": "SAMEA8898643",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898643",
+      "sha256": "5db6019466461a8e768fcc85095ba14e9148594714f675cf7f460f5e0a35b2b6"
+    },
+    {
+      "sample": "SAMEA8898644",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898644",
+      "sha256": "1f3bdb83d5be60215f99622723005b557bf6514fc2a907ddd913019850ab0ca9"
+    },
+    {
+      "sample": "SAMEA8898635",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898635",
+      "sha256": "5e2e3c6bd1ff7575878b385fe554e79e4f12d873a54d007bd7634ffec8ef9f18"
+    },
+    {
+      "sample": "SAMEA8898640",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898640",
+      "sha256": "870ddfe37cd0b35178c4c3fa26c396fd31e19f5f7b373067c529dbf00a2a2530"
+    },
+    {
+      "sample": "SAMEA8898642",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898642",
+      "sha256": "34248ddf431d50f84cd2427813e7db42e7ba0aeff5d08f55f279adee9fdd260c"
+    },
+    {
+      "sample": "SAMEA8898646",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898646",
+      "sha256": "a80c0037eed3d91a7d642d6c80fe5b40109c761ef3b13fc40912432cb0b91514"
+    },
+    {
+      "sample": "SAMEA8898645",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMEA8898645",
+      "sha256": "3e1b2d56b52d82d9cb0ae2b8a338411cc63b9c933d9d899b0f864f8c0a5be06d"
+    },
+    {
+      "sample": "SAMN18877325",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMN18877325",
+      "sha256": "0b5789a6bc996280ea68ff7fc667d6ae953fbac8f46e54f396effa75e1836674"
+    },
+    {
+      "sample": "SAMN18877150",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMN18877150",
+      "sha256": "40f111cec7e3ab9e5bd875a83230bec4caba6072951c9cbdb72aaf2383cad44d"
+    },
+    {
+      "sample": "SAMN18877149",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMN18877149",
+      "sha256": "91cf1c6871baacde80ffc30b66e0cf270d41a5913ec1e699121091c3d7440c93"
+    },
+    {
+      "sample": "SAMN18877324",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMN18877324",
+      "sha256": "89e3e56c408698f4e2a15d86105478ac5e1ab521d0f49ac259dd4a298df816ff"
+    },
+    {
+      "sample": "SAMN18877152",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMN18877152",
+      "sha256": "92123fc0f8db3dc55b68646b8622e90fd7e6a82bcb1a96c01ca3f3fce063313c"
+    },
+    {
+      "sample": "SAMN18877151",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMN18877151",
+      "sha256": "e86579fc95add2f19e43e2c1c96e3b0f324df210b74f1f66ab11583c96863548"
+    },
+    {
+      "sample": "SAMN18877326",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMN18877326",
+      "sha256": "60becd465d490556558530ae6ec6e2019dec1e002b652c3a855f56ae20d412fa"
+    },
+    {
+      "sample": "SAMN18877323",
+      "url": "https://www.ebi.ac.uk/ena/browser/api/xml/SAMN18877323",
+      "sha256": "ba9d27845bbbad1a417d1337c33892ce6669ddf24db0dc1bc49be6f0f8abd2c4"
+    }
+  ],
+  "ena_report_sha256": {
+    "PRJEB45431": "6a69e92c87fb8e1447b63e89252b2edb4473c435a252aebebae71c0700a34bba",
+    "PRJNA725368": "e3979ef8310de293effc3a7bed8e0d86a2877820b998def5e759765016cfcd83"
+  },
+  "selected_runs_sha256": "ba147ec8cc543c3c1a05cfc2ec61175fa3394319d396d56c867003afe5f56385"
+}

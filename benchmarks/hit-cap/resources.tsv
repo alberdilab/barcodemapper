@@ -1,0 +1,13 @@
+sample	label	elapsed_seconds	max_rss_mb	attempts	req_mem_mb
+animal	all	11103	52788	2	91870
+animal	k1	232	23204	1	45935
+animal	k10	127	23221	1	45935
+animal	k200	94	22004	1	45935
+animal	k5	92	21792	1	45935
+animal	k50	149	22062	1	45935
+fungal	all	10762	38794	1	46746
+fungal	k1	228	23327	1	46746
+fungal	k10	116	23303	1	46746
+fungal	k200	153	23543	1	46746
+fungal	k5	128	23341	1	46746
+fungal	k50	127	23415	1	46746

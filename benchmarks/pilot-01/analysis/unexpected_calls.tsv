@@ -1,0 +1,33 @@
+run	marker	taxon	rank	fragments	kingdom	cross_kingdom	genus_expected	family_expected	placeholder_name	lineage
+ERR6001161	COI	Cecidomyiidae	family	2	Animalia	False		False	False	k__Animalia;p__Arthropoda;c__Insecta;o__Diptera;f__Cecidomyiidae
+ERR6001161	COI	Myolaimidae	family	2	Animalia	False		False	False	k__Animalia;p__Nematoda;c__Chromadorea;o__Rhabditida;f__Myolaimidae
+ERR6001161	COI	Seinuridae	family	2	Animalia	False		False	False	k__Animalia;p__Nematoda;c__Chromadorea;o__Rhabditida;f__Seinuridae
+ERR6001161	COI	Polyporaceae	family	1	Fungi	True		False	False	k__Fungi;p__Basidiomycota;c__Agaricomycetes;o__Polyporales;f__Polyporaceae
+ERR6001161	COI	Seinura	genus	2	Animalia	False	False	False	False	k__Animalia;p__Nematoda;c__Chromadorea;o__Rhabditida;f__Seinuridae;g__Seinura
+ERR6001161	COI	Steganacarus	genus	1	Animalia	False	False	True	False	k__Animalia;p__Arthropoda;c__Arachnida;o__Sarcoptiformes;f__Phthiracaridae;g__Steganacarus
+ERR6001161	COI	Fungi	kingdom	1	Fungi	True			False	k__Fungi
+ERR6001161	COI	Eupelops_sp._SFH2024_01	species	3	Animalia	False	True	True	True	k__Animalia;p__Arthropoda;c__Arachnida;o__Sarcoptiformes;f__Phenopelopidae;g__Eupelops;s__Eupelops_sp._SFH2024_01
+ERR6001161	COI	Seinura_italiensis	species	2	Animalia	False	False	False	False	k__Animalia;p__Nematoda;c__Chromadorea;o__Rhabditida;f__Seinuridae;g__Seinura;s__Seinura_italiensis
+ERR6001161	COI	Steganacarus_spinosus	species	1	Animalia	False	False	True	False	k__Animalia;p__Arthropoda;c__Arachnida;o__Sarcoptiformes;f__Phthiracaridae;g__Steganacarus;s__Steganacarus_spinosus
+SRR14351851	ITS	Cecidomyiidae	family	21	Animalia	True		False	False	k__Animalia;p__Arthropoda;c__Insecta;o__Diptera;f__Cecidomyiidae
+SRR14351851	ITS	Cordycipitaceae	family	17	Fungi	False		False	False	k__Fungi;p__Ascomycota;c__Sordariomycetes;o__Hypocreales;f__Cordycipitaceae
+SRR14351851	ITS	Bulleribasidiaceae	family	7	Fungi	False		False	False	k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Bulleribasidiaceae
+SRR14351851	ITS	Holtermanniaceae	family	2	Fungi	False		False	False	k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Holtermanniales;f__Holtermanniaceae
+SRR14351851	ITS	Dipodidae	family	1	Animalia	True		False	False	k__Animalia;p__Chordata;c__Mammalia;o__Rodentia;f__Dipodidae
+SRR14351851	ITS	Elaphomycetaceae	family	1	Fungi	False		False	False	k__Fungi;p__Ascomycota;c__Eurotiomycetes;o__Eurotiales;f__Elaphomycetaceae
+SRR14351851	ITS	Zygotorulaspora	genus	58	Fungi	False	False	True	False	k__Fungi;p__Ascomycota;c__Saccharomycetes;o__Saccharomycetales;f__Saccharomycetaceae;g__Zygotorulaspora
+SRR14351851	ITS	Cordyceps	genus	17	Fungi	False	False	False	False	k__Fungi;p__Ascomycota;c__Sordariomycetes;o__Hypocreales;f__Cordycipitaceae;g__Cordyceps
+SRR14351851	ITS	Nakaseomyces	genus	4	Fungi	False	False	True	False	k__Fungi;p__Ascomycota;c__Saccharomycetes;o__Saccharomycetales;f__Saccharomycetaceae;g__Nakaseomyces
+SRR14351851	ITS	Vishniacozyma	genus	3	Fungi	False	False	False	False	k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Bulleribasidiaceae;g__Vishniacozyma
+SRR14351851	ITS	Holtermannia	genus	2	Fungi	False	False	False	False	k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Holtermanniales;f__Holtermanniaceae;g__Holtermannia
+SRR14351851	ITS	Elaphomyces	genus	1	Fungi	False	False	False	False	k__Fungi;p__Ascomycota;c__Eurotiomycetes;o__Eurotiales;f__Elaphomycetaceae;g__Elaphomyces
+SRR14351851	ITS	Dipodascus	genus	1	Fungi	False	False	True	False	k__Fungi;p__Ascomycota;c__Saccharomycetes;o__Saccharomycetales;f__Dipodascaceae;g__Dipodascus
+SRR14351851	ITS	Derxomyces	genus	1	Fungi	False	False	False	False	k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Bulleribasidiaceae;g__Derxomyces
+SRR14351851	ITS	Animalia	kingdom	26	Animalia	True			False	k__Animalia
+SRR14351851	ITS	Zygotorulaspora_dagestanica	species	58	Fungi	False	False	True	False	k__Fungi;p__Ascomycota;c__Saccharomycetes;o__Saccharomycetales;f__Saccharomycetaceae;g__Zygotorulaspora;s__Zygotorulaspora_dagestanica
+SRR14351851	ITS	Cordyceps_fumosorosea	species	17	Fungi	False	False	False	False	k__Fungi;p__Ascomycota;c__Sordariomycetes;o__Hypocreales;f__Cordycipitaceae;g__Cordyceps;s__Cordyceps_fumosorosea
+SRR14351851	ITS	Nakaseomyces_glabratus	species	3	Fungi	False	False	True	False	k__Fungi;p__Ascomycota;c__Saccharomycetes;o__Saccharomycetales;f__Saccharomycetaceae;g__Nakaseomyces;s__Nakaseomyces_glabratus
+SRR14351851	ITS	Scedosporium_prolificans	species	3	Fungi	False	True	True	False	k__Fungi;p__Ascomycota;c__Sordariomycetes;o__Microascales;f__Microascaceae;g__Scedosporium;s__Scedosporium_prolificans
+SRR14351851	ITS	Vishniacozyma_pseudopenaeus	species	3	Fungi	False	False	False	False	k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Tremellales;f__Bulleribasidiaceae;g__Vishniacozyma;s__Vishniacozyma_pseudopenaeus
+SRR14351851	ITS	Holtermannia_saccardoi	species	2	Fungi	False	False	False	False	k__Fungi;p__Basidiomycota;c__Tremellomycetes;o__Holtermanniales;f__Holtermanniaceae;g__Holtermannia;s__Holtermannia_saccardoi
+SRR14351851	ITS	Dipodascus_capitatus	species	1	Fungi	False	False	True	False	k__Fungi;p__Ascomycota;c__Saccharomycetes;o__Saccharomycetales;f__Dipodascaceae;g__Dipodascus;s__Dipodascus_capitatus

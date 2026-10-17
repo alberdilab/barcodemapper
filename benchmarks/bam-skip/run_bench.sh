@@ -22,7 +22,6 @@ mkdir -p "$OUT" "$WORK"
 trap 'rm -rf "$WORK"' EXIT
 BAM=$(ls "$W"/bowtie/*.bam | grep -v collated)
 TRUTH=$(ls "$W"/extract/*.tsv)
-TIME=$(command -v gtime || echo /usr/bin/time)
 
 samtools view -h -@ "$THREADS" "$BAM" > "$WORK/in.sam"
 ALN=$(samtools view -c -@ "$THREADS" "$BAM")
@@ -37,7 +36,7 @@ AWK='BEGIN{FS=OFS="\t"} /^@/{next} int($2/4)%2==1{next} $6=="*"{next}
 printf 'variant\trep\telapsed_s\tuser_s\tsys_s\tmax_rss_kb\n' > "$OUT/timings.tsv"
 run() {  # variant rep command
   local v=$1 r=$2; shift 2
-  "$TIME" -f "$v\t$r\t%e\t%U\t%S\t%M" -a -o "$OUT/timings.tsv" bash -c "$*"
+  python "$HERE/timeit.py" "$OUT/timings.tsv" "$v" "$r" "$*"
 }
 for rep in $(seq "$REPS"); do
   run bam_pysam "$rep" "samtools view -b -@ $THREADS $WORK/in.sam -o $WORK/x.bam && python $PKG/extract_taxonomy.py --input $WORK/x.bam --output $WORK/bam_pysam.tsv --max-edit-percent 3 --min-covered 80; rm -f $WORK/x.bam"

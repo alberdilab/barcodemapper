@@ -220,10 +220,13 @@ rule bowtie2_mapping:
         r1 = f"{TMP_DIR}/fastp/{{sample}}_1.fq.gz",
         r2 = f"{TMP_DIR}/fastp/{{sample}}_2.fq.gz",
     output:
-        bam = f"{TMP_DIR}/bowtie/{{sample}}.bam"
+        f"{TMP_DIR}/extract/{{sample}}.tsv"
     params:
         database = BARCODEMAPPER_BASE,
-        hits_arg = "-a" if MAX_HITS is None else f"-k {MAX_HITS}"
+        hits_arg = "-a" if MAX_HITS is None else f"-k {MAX_HITS}",
+        package_dir=PACKAGE_DIR,
+        max_edit_percent=MAX_EDIT_PERCENT,
+        min_coverage=MIN_COVERAGE
     threads:
         20
     resources:
@@ -238,6 +241,7 @@ rule bowtie2_mapping:
     shell:
         """
         set -o pipefail
+        trap 'rm -f {output:q}.unsorted' EXIT
         bowtie2 \
             --time \
             --threads {threads} \
@@ -246,32 +250,7 @@ rule bowtie2_mapping:
             -2 {input.r2:q} \
             {params.hits_arg} \
             --seed 1337 \
-        | samtools view -b -@ {threads} -o {output.bam:q} -
-        """
-
-################################################################################
-### Extract mapping information from bam file
-
-rule bowtie2_extracting:
-    input:
-        f"{TMP_DIR}/bowtie/{{sample}}.bam"
-    output:
-        f"{TMP_DIR}/extract/{{sample}}.tsv"
-    params:
-        package_dir=PACKAGE_DIR,
-        max_edit_percent=MAX_EDIT_PERCENT,
-        min_coverage=MIN_COVERAGE
-    threads:
-        1
-    resources:
-        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 2) * 2 ** (attempt - 1)),
-        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
-    message:
-        "Extracting taxonomy from bam file of {wildcards.sample}"
-    shell:
-        """
-        trap 'rm -f {output:q}.unsorted' EXIT
-        python {params.package_dir:q}/workflow/scripts/extract_taxonomy.py --input {input:q} --output {output:q}.unsorted --max-edit-percent {params.max_edit_percent} --min-covered {params.min_coverage}
+        | python {params.package_dir:q}/workflow/scripts/stream_extract_taxonomy.py --output {output:q}.unsorted --max-edit-percent {params.max_edit_percent} --min-covered {params.min_coverage}
         LC_ALL=C sort -s -t $'\\t' -k1,1 -o {output:q} {output:q}.unsorted
         """
 

@@ -6,6 +6,7 @@ import json
 import re
 import shutil
 import subprocess
+import sys
 from itertools import groupby
 from pathlib import Path
 
@@ -48,6 +49,58 @@ def test_extracted_rows_group_numeric_looking_read_ids(tmp_path):
     )
     names = [line.split("\t", 1)[0] for line in sorted_tsv.read_text().splitlines()]
     assert [(name, len(list(rows))) for name, rows in groupby(names)] == [("001", 2), ("1", 1)]
+
+
+def test_stream_extraction_matches_bam_extraction(tmp_path):
+    refs = ["ref1|ITS|k__Fungi;p__A", "ref2|COI|k__Animalia", "bare", "two|parts"]
+    header = "@HD\tVN:1.6\n" + "".join(f"@SQ\tSN:{name}\tLN:1000\n" for name in refs)
+    seq = "A" * 120
+    qual = "I" * 120
+    rows = [
+        # name, flag, ref, cigar, tags
+        ("keep", 0, "ref1|ITS|k__Fungi;p__A", "120M", "NM:i:0"),
+        ("mixed", 0, "ref2|COI|k__Animalia", "10S100M5I5M", "NM:i:3"),
+        ("eqx", 0, "ref2|COI|k__Animalia", "50=2X68=", "NM:i:2"),
+        ("unmapped", 4, "*", "*", "YT:Z:UP"),
+        ("nocigar", 0, "ref1|ITS|k__Fungi;p__A", "*", "NM:i:0"),
+        ("short", 0, "ref1|ITS|k__Fungi;p__A", "70M50S", "NM:i:0"),
+        ("noedit", 0, "ref1|ITS|k__Fungi;p__A", "120M", "AS:i:0"),
+        ("toomany", 0, "ref1|ITS|k__Fungi;p__A", "120M", "NM:i:4"),
+        ("edge", 0, "ref1|ITS|k__Fungi;p__A", "120M", "NM:i:3"),
+        ("bare", 0, "bare", "120M", "NM:i:0"),
+        ("two", 16, "two|parts", "120M", "NM:i:1"),
+        ("secondary", 256, "ref2|COI|k__Animalia", "120M", "NM:i:0"),
+        ("001", 0, "ref1|ITS|k__Fungi;p__A", "120M", "AS:i:0\tNM:i:0"),
+        ("1", 0, "ref1|ITS|k__Fungi;p__A", "120M", "NM:i:0"),
+        ("001", 0, "ref2|COI|k__Animalia", "120M", "NM:i:0"),
+    ]
+    lines = []
+    for name, flag, ref, cigar, tags in rows:
+        pos = 0 if ref == "*" else 1
+        lines.append("\t".join([name, str(flag), ref, str(pos), "60" if flag != 4 else "0", cigar,
+                               "*", "0", "0", seq, qual, tags]))
+    sam = tmp_path / "in.sam"
+    sam.write_text(header + "\n".join(lines) + "\n")
+    bam = tmp_path / "in.bam"
+    with pysam.AlignmentFile(sam, "r") as source, pysam.AlignmentFile(bam, "wb", template=source) as target:
+        for read in source:
+            target.write(read)
+    scripts = Path(__file__).resolve().parents[1] / "barcodemapper/workflow/scripts"
+    spec = importlib.util.spec_from_file_location("extract_taxonomy", scripts / "extract_taxonomy.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    for edit, covered in ((3.0, 80), (1.0, 50), (0.0, 30)):
+        expected = tmp_path / "bam.tsv"
+        module.process_bam(bam, expected, max_edit_percent=edit, min_covered=covered)
+        streamed = tmp_path / "stream.tsv"
+        with open(sam) as handle:
+            subprocess.run(
+                [sys.executable, str(scripts / "stream_extract_taxonomy.py"), "--output", str(streamed),
+                 "--max-edit-percent", str(edit), "--min-covered", str(covered)],
+                stdin=handle, check=True,
+            )
+        assert streamed.read_text().splitlines() == expected.read_text().splitlines()
+        assert expected.read_text()  # not vacuous
 
 
 def _require_tools(*names: str) -> None:

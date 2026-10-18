@@ -1,19 +1,25 @@
-{% set version = "1.1.3" %}
+{% set name = "barcodemapper" %}
+{% set version = "1.2.3" %}
 
 package:
-  name: barcodemapper
+  name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://github.com/alberdilab/barcodemapper/releases/download/v{{ version }}/barcodemapper-{{ version }}.tar.gz
-  sha256: 5257e5133d2d4667c2e404e0104ee7f57c11970083cc0b971664744d422f4c44
+  # GitHub tag archive: exists as soon as tag v{{ version }} is pushed (barcodemapper is not on PyPI).
+  url: https://github.com/alberdilab/barcodemapper/archive/refs/tags/v{{ version }}.tar.gz
+  # PLACEHOLDER: fill in after tag v{{ version }} is pushed. Do not submit with this value:
+  #   curl -sL https://github.com/alberdilab/barcodemapper/archive/refs/tags/v1.2.3.tar.gz | shasum -a 256
+  sha256: REPLACE_WITH_SHA256_AFTER_RELEASE_TAG
 
 build:
   number: 0
   noarch: python
-  script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
+  script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vvv
   entry_points:
     - barcodemapper = barcodemapper.cli:main
+  run_exports:
+    - {{ pin_subpackage(name, max_pin="x") }}
 
 requirements:
   host:
@@ -28,7 +34,7 @@ requirements:
     - biopython
     - pysam
     - plotly
-    - snakemake >=8.27,<9
+    - snakemake >=8.27,<10
     - fastp
     - bowtie2
     - samtools
@@ -48,6 +54,13 @@ test:
 
 about:
   home: https://github.com/alberdilab/barcodemapper
+  dev_url: https://github.com/alberdilab/barcodemapper
+  doc_url: https://barcodemapper.readthedocs.io
   summary: Map paired shotgun reads to COI and ITS reference sequences
   license: MIT
+  license_family: MIT
   license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - anttonalberdi

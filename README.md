@@ -26,7 +26,7 @@ Full documentation is at **<https://barcodemapper.readthedocs.io>**:
 
 ```sh
 conda create -n barcodemapper --override-channels -c conda-forge -c bioconda \
-  python=3.12 snakemake=8.27.1 fastp bowtie2 samtools \
+  python=3.12 snakemake=9.27.0 fastp bowtie2 samtools \
   pandas pyyaml biopython pysam plotly pip
 conda activate barcodemapper
 python -m pip install --no-deps \

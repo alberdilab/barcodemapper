@@ -8,7 +8,7 @@ Create an environment with the workflow tools and install the wheel:
 
 ```sh
 conda create -n barcodemapper --override-channels -c conda-forge -c bioconda \
-  python=3.12 snakemake=8.27.1 fastp bowtie2 samtools \
+  python=3.12 snakemake=9.27.0 fastp bowtie2 samtools \
   pandas pyyaml biopython pysam plotly pip
 conda activate barcodemapper
 python -m pip install --no-deps \
@@ -27,7 +27,7 @@ python -m pip install --no-deps .
 barcodemapper --version
 ```
 
-The pinned environment is intended for Linux x86_64 and macOS x86_64. The pinned fastp 0.23.1 build is unavailable for native macOS arm64; Apple Silicon users can use an x86_64 Conda environment under Rosetta or install compatible workflow executables separately.
+The pinned environment is tested on Linux x86_64 (Mjolnir). fastp 1.4.0, Bowtie2 and samtools also publish native macOS builds, but other platforms are untested.
 
 ## Python-only install
 

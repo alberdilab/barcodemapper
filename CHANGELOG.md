@@ -10,6 +10,8 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ### Changed
 
+- Update the pinned environment to the newest compatible releases, verified on Mjolnir to give a taxonomy table identical to the golden regression table: snakemake 9.27.0, snakemake-executor-plugin-slurm 2.8.0, fastp 1.4.0, samtools 1.24, Bowtie2 2.5.5, numpy 2.5.4, pandas 2.3.3, plotly 7.1.0, Biopython 1.88, pysam 0.24.1, PyYAML 6.0.3. The Bioconda recipe now allows Snakemake below 10.
+
 - `--update` says "No local database found" instead of reporting newer sources when there is nothing to compare with.
 - When the dated database folder already exists (for example a second build on the same day), the error suggests `-n/--name` for a differently named database.
 

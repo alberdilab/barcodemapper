@@ -4,6 +4,10 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+### Added
+
+- Dependency check at release time: `scripts/check_dependencies.py` compares the pinned dependencies with the latest releases, `tests/regression/` and `scripts/regression_check.py` verify that a small dataset still gives an identical taxonomy table, `scripts/release_dependency_check.sh` runs both with the newer versions on Mjolnir, and a weekly GitHub Actions workflow repeats the check.
+
 ### Changed
 
 - `--update` says "No local database found" instead of reporting newer sources when there is nothing to compare with.

@@ -12,6 +12,16 @@ The unit tests check input validation, reference header validation, exact read I
 
 These checks verify software behavior on synthetic data. They do not establish sensitivity, specificity, or abundance accuracy on biological samples; see [](limitations.md).
 
+## Dependency and regression checks
+
+`tests/regression/` holds a small synthetic dataset and the taxonomy table it must produce. `scripts/regression_check.py` runs the installed pipeline on it and fails on any difference, and prints the tool versions used:
+
+```sh
+python scripts/regression_check.py
+```
+
+`scripts/check_dependencies.py` lists the pins in `barcodemapper_env.yml` next to the latest released versions and can write an environment file with the latest versions (`--write-candidate`). `scripts/release_dependency_check.sh` combines the two on Mjolnir; see [](releasing.md). A scheduled GitHub Actions workflow repeats the check weekly. Adopting new pins stays a manual edit of `barcodemapper_env.yml` after a passing check.
+
 ## Building these docs
 
 ```sh

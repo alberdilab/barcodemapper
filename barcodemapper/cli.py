@@ -482,7 +482,10 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-1", "--read1", help="Comma-separated R1 FASTQ files")
     parser.add_argument("-2", "--read2", help="Comma-separated R2 FASTQ files")
     parser.add_argument("-o", "--output", help="Output taxonomy TSV file")
-    parser.add_argument("-d", "--database", help="Combined BarcodeMapper FASTA path (.fa.gz for builds)")
+    parser.add_argument("-d", "--database", help="Combined BarcodeMapper FASTA path (.fa.gz for builds; with --build, "
+                             "defaults to bmdb_<YYYYMMDD>/bmdb_<YYYYMMDD>.fa.gz)")
+    parser.add_argument("--db-dir", help="With --build and no -d: directory in which to create bmdb_<YYYYMMDD>/ "
+                                         "(default: current directory)")
     parser.add_argument("-b", "--bold", help="BOLD FASTA for database creation")
     parser.add_argument("-u", "--unite", help="UNITE FASTA for database creation")
     parser.add_argument("-x", "--bold_retain", default="k__Animalia", help="Comma-separated BOLD taxa to retain")
@@ -544,8 +547,13 @@ def main(argv: list[str] | None = None) -> None:
             parser.error(f"no existing run configuration found at {config_path}")
         unlock_snakemake(tmp_dir, config_path, "slurm" if args.slurm else "local")
         return
+    if args.db_dir and (not args.build or args.database):
+        parser.error("--db-dir only applies to --build without -d/--database")
     if not args.database:
-        parser.error("-d/--database is required")
+        if not args.build:
+            parser.error("-d/--database is required")
+        stamp = "bmdb_" + datetime.now().strftime("%Y%m%d")
+        args.database = str(Path(args.db_dir or ".").expanduser().resolve() / stamp / f"{stamp}.fa.gz")
     if bool(args.bold) != bool(args.unite):
         parser.error("provide both BOLD and UNITE FASTA files, or neither")
     if not math.isfinite(args.max_mismatches) or args.max_mismatches < 0 or args.max_mismatches > 100:

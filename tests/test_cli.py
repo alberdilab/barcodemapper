@@ -678,3 +678,17 @@ def test_promote_database_clears_stale_previous_and_moves_manifest_last(monkeypa
                           cli._database_artifact(destination, ".manifest.json"))
     assert not previous.exists()
     assert all(path.is_file() for path in cli._build_outputs(destination))
+
+
+def test_build_without_database_uses_dated_folder(monkeypatch, tmp_path):
+    seen = []
+    monkeypatch.setattr(cli, "_build_latest", lambda args, parser, db_path: seen.append(db_path))
+    cli.main(["--build", "--db-dir", str(tmp_path / "refs")])
+    stamp = cli.datetime.now().strftime("bmdb_%Y%m%d")
+    assert seen == [(tmp_path / "refs" / stamp / f"{stamp}.fa.gz").resolve()]
+
+
+def test_db_dir_conflicts_with_explicit_database(tmp_path):
+    with pytest.raises(SystemExit) as exc:
+        cli.main(["--build", "-d", str(tmp_path / "x.fa.gz"), "--db-dir", str(tmp_path)])
+    assert exc.value.code == 2

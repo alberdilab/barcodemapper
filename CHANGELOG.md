@@ -4,6 +4,10 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+### Added
+
+- `--build` without `-d` now creates `bmdb_<YYYYMMDD>/bmdb_<YYYYMMDD>.fa.gz` plus its Bowtie2 index, headers and manifest in one folder; `--db-dir` chooses where that folder is created (default: current directory).
+
 ## [1.2.1] - 2026-10-18
 
 ### Fixed

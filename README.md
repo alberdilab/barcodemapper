@@ -33,10 +33,10 @@ python -m pip install --no-deps \
   https://github.com/alberdilab/barcodemapper/releases/download/v1.2.1/barcodemapper-1.2.1-py3-none-any.whl
 
 # Build the reference database (once)
-barcodemapper --build -d references/barcodemapper.fa.gz
+barcodemapper --build --db-dir references   # creates references/bmdb_<YYYYMMDD>/
 
 # Analyse a directory of paired reads (sample_1.fq.gz / sample_2.fq.gz)
-barcodemapper -i reads -d references/barcodemapper.fa.gz -o results/taxonomy.tsv
+barcodemapper -i reads -d references/bmdb_<YYYYMMDD>/bmdb_<YYYYMMDD>.fa.gz -o results/taxonomy.tsv
 ```
 
 This writes `results/taxonomy.tsv`, `results/taxonomy.html` and `results/taxonomy.manifest.json`.

@@ -28,6 +28,8 @@ bmdb_20261018/
 | `-n, --name NAME` | Label the database: `bmdb_<YYYYMMDD>_<NAME>`. Letters, digits, `.`, `_` and `-` only. |
 | `-d, --database FILE` | Use an explicit FASTA path instead (for builds, `.fa.gz`). Cannot be combined with `--db-dir`. |
 
+A second build on the same day would reuse the same folder, so a build whose target already holds a different database is refused; give it a different `-n NAME` to keep both.
+
 ## Automatic build
 
 Download the current BOLD Public snapshot and the current UNITE All Eukaryotes general FASTA release (including singletons), then build and index the database:

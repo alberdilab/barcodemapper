@@ -825,3 +825,14 @@ def test_run_manifest_records_database_provenance(tmp_path):
     cli._write_manifest(out, fasta, {"tmp_dir": str(tmp_path)}, {}, {})
     database = json.loads(out.read_text())["database"]
     assert database["name"] == "bmdb_20261018" and database["bold"] == "BOLD_1"
+
+
+def test_update_message_without_local_database_and_same_day_hint(monkeypatch, tmp_path, capsys):
+    monkeypatch.setattr(cli, "discover_latest", lambda: _releases())
+    with pytest.raises(SystemExit) as exc:
+        cli.main(["--update", "--check", "--db-dir", str(tmp_path)])
+    assert exc.value.code == 10
+    out = capsys.readouterr().out
+    assert "No local database found" in out and "Newer sources" not in out
+    assert "-n/--name" in cli._new_target_hint(tmp_path / "bmdb_20261018" / "bmdb_20261018.fa.gz")
+    assert cli._new_target_hint(tmp_path / "x.fa.gz") == "choose a new -d path"

@@ -348,6 +348,14 @@ def _build_outputs(db_path: Path) -> list[Path]:
     ]
 
 
+def _new_target_hint(db_path: Path) -> str:
+    """Advice for a database target that is already taken."""
+    stem = _database_base(db_path).name
+    if BMDB_DIR.fullmatch(stem) and db_path.parent.name == stem:
+        return "use -n/--name to build a differently named database, or -d for an explicit path"
+    return "choose a new -d path"
+
+
 def _manual_target_guard(parser: argparse.ArgumentParser, db_path: Path) -> None:
     manifest = _database_artifact(db_path, ".manifest.json")
     base = _database_base(db_path)
@@ -356,7 +364,7 @@ def _manual_target_guard(parser: argparse.ArgumentParser, db_path: Path) -> None
         for extension in ("bt2l", "bt2") for part in INDEX_PARTS
     ]
     if any(path.exists() for path in artifacts):
-        parser.error(f"database artifacts already exist for {db_path}; choose a new -d path")
+        parser.error(f"database artifacts already exist for {db_path}; {_new_target_hint(db_path)}")
     if db_path.exists():
         parser.error(
             f"{db_path} exists without a manifest or index; if it is a failed earlier build, "
@@ -448,7 +456,7 @@ def _build_latest(args, parser: argparse.ArgumentParser, db_path: Path,
     releases = releases or _discover(parser)
     manifest = _auto_manifest(db_path)
     if db_path.exists() and manifest is None:
-        parser.error(f"{db_path} has no automatic-build manifest; choose a new -d path")
+        parser.error(f"{db_path} has no automatic-build manifest; {_new_target_hint(db_path)}")
     tmp_dir = Path(args.tmpdir).expanduser().resolve() if args.tmpdir else Path(
         "barcodemapper_" + datetime.now().strftime("%Y%m%d%H%M%S%f")
     ).resolve()
@@ -679,7 +687,10 @@ def main(argv: list[str] | None = None) -> None:
             if newest is not None and not is_outdated(newest, releases, args.bold_retain, args.unite_retain):
                 print(f"Database is up to date: {newest}")
                 return
-            print(f"Newer sources available (latest: {newest or 'none found'})")
+            if newest is None:
+                print(f"No local database found in {build_root}" + (" to compare with" if args.check else "; building one"))
+            else:
+                print(f"Newer sources available than {newest.parent.name}")
             if args.check:
                 sys.exit(10)
             _build_latest(args, parser, db_path, releases)

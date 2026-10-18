@@ -4,6 +4,11 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+### Changed
+
+- `--update` says "No local database found" instead of reporting newer sources when there is nothing to compare with.
+- When the dated database folder already exists (for example a second build on the same day), the error suggests `-n/--name` for a differently named database.
+
 ## [1.2.2] - 2026-10-18
 
 ### Added

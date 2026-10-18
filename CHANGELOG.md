@@ -4,6 +4,8 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-18
+
 ### Added
 
 - Add `-k` / `--max-hits N` to cap Bowtie2 alignments per read.
@@ -13,6 +15,7 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ### Changed
 
+- Add Read the Docs documentation (user guide, database, analysis, outputs, limitations, development) and shorten the README to point to it.
 - Bowtie2 now reports at most 200 alignments per read by default (`-k 200`). Benchmarks showed 0-1.1% of read assignments changing, unchanged detected taxa, and a much faster, lighter mapping step. Use `--all-hits` for the previous behaviour; results can differ slightly from 1.1.x otherwise.
 - The mapping step requests more memory (6x instead of 3x the input size) and time (3x) under `--all-hits`, since uncapped runs ran out of memory or time at the capped request.
 

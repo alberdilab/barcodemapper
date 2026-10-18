@@ -1,0 +1,6 @@
+variant	lines	identical_to_truth
+truth	1782	yes
+bam_pysam	1782	yes
+sam_py	1782	yes
+sam_pysam	1782	yes
+sam_awk	1782	yes

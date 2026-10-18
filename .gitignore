@@ -5,3 +5,12 @@ __pycache__/
 .pytest_cache/
 build/
 dist/
+
+# Codeome agent jobs
+.codeome/jobs/
+.codeome/worktrees/
+.codeome/plans/
+
+# Codeome agent jobs
+.codeome/context/
+docs/_build/

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "barcodemapper"
-version = "1.1.3"
+version = "1.2.0"
 description = "Map paired shotgun reads to COI and ITS reference sequences"
 readme = "README.md"
 license = "MIT"
@@ -31,6 +31,7 @@ dependencies = [
 barcodemapper = "barcodemapper.cli:main"
 
 [project.urls]
+Documentation = "https://barcodemapper.readthedocs.io"
 Repository = "https://github.com/alberdilab/barcodemapper"
 Issues = "https://github.com/alberdilab/barcodemapper/issues"
 

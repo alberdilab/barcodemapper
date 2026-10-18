@@ -36,7 +36,7 @@ python -m pip install --no-deps \
 barcodemapper --build --db-dir references   # creates references/bmdb_<YYYYMMDD>/
 
 # Analyse a directory of paired reads (sample_1.fq.gz / sample_2.fq.gz)
-barcodemapper -i reads -d references/bmdb_<YYYYMMDD>/bmdb_<YYYYMMDD>.fa.gz -o results/taxonomy.tsv
+barcodemapper -i reads --db-dir references -o results/taxonomy.tsv
 ```
 
 This writes `results/taxonomy.tsv`, `results/taxonomy.html` and `results/taxonomy.manifest.json`.

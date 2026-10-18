@@ -692,3 +692,26 @@ def test_db_dir_conflicts_with_explicit_database(tmp_path):
     with pytest.raises(SystemExit) as exc:
         cli.main(["--build", "-d", str(tmp_path / "x.fa.gz"), "--db-dir", str(tmp_path)])
     assert exc.value.code == 2
+
+
+def _bmdb(root: Path, stamp: str) -> Path:
+    folder = root / f"bmdb_{stamp}"
+    folder.mkdir(parents=True)
+    fasta = folder / f"bmdb_{stamp}.fa.gz"
+    fasta.write_bytes(b"")
+    return fasta
+
+
+def test_find_database_picks_latest_and_accepts_both_dir_forms(tmp_path):
+    _bmdb(tmp_path, "20260101")
+    newest = _bmdb(tmp_path, "20261018")
+    parser = cli._parser()
+    assert cli._find_database(parser, str(tmp_path)) == newest
+    assert cli._find_database(parser, str(newest.parent)) == newest
+
+
+def test_find_database_fails_with_hint(tmp_path, capsys):
+    with pytest.raises(SystemExit) as exc:
+        cli.main(["-i", str(tmp_path), "-o", "out.tsv", "--db-dir", str(tmp_path)])
+    assert exc.value.code == 2
+    assert "-d/--database or --db-dir" in capsys.readouterr().err

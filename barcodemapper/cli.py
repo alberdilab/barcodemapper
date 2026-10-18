@@ -45,6 +45,38 @@ def _database_artifact(path: Path, suffix: str) -> Path:
     return Path(f"{_database_base(path)}{suffix}")
 
 
+BMDB_DIR = re.compile(r"bmdb_\d{8}")
+
+
+def _bmdb_fasta(folder: Path) -> Path | None:
+    """Return the FASTA inside a bmdb_<YYYYMMDD> folder, if it has one."""
+    for suffix in (".fa.gz", ".fa", ".fasta.gz", ".fasta"):
+        candidate = folder / f"{folder.name}{suffix}"
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def _find_database(parser: argparse.ArgumentParser, db_dir: str | None) -> Path:
+    """Locate the newest bmdb_<YYYYMMDD> database in db_dir (default: launch directory).
+
+    db_dir may be the folder that contains bmdb_* folders or a bmdb_* folder itself.
+    """
+    root = Path(db_dir or ".").expanduser().resolve()
+    hint = "provide -d/--database or --db-dir"
+    if not root.is_dir():
+        parser.error(f"database directory does not exist: {root}; {hint}")
+    if BMDB_DIR.fullmatch(root.name) and (fasta := _bmdb_fasta(root)):
+        return fasta
+    found = sorted(
+        (folder.name, fasta) for folder in root.iterdir()
+        if folder.is_dir() and BMDB_DIR.fullmatch(folder.name) and (fasta := _bmdb_fasta(folder))
+    )
+    if not found:
+        parser.error(f"no bmdb_<YYYYMMDD> database found in {root}; {hint}")
+    return found[-1][1]
+
+
 def _current_files(paths: list[Path], database: Path) -> bool:
     database_mtime = database.stat().st_mtime_ns
     return all(
@@ -482,10 +514,10 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-1", "--read1", help="Comma-separated R1 FASTQ files")
     parser.add_argument("-2", "--read2", help="Comma-separated R2 FASTQ files")
     parser.add_argument("-o", "--output", help="Output taxonomy TSV file")
-    parser.add_argument("-d", "--database", help="Combined BarcodeMapper FASTA path (.fa.gz for builds; with --build, "
-                             "defaults to bmdb_<YYYYMMDD>/bmdb_<YYYYMMDD>.fa.gz)")
-    parser.add_argument("--db-dir", help="With --build and no -d: directory in which to create bmdb_<YYYYMMDD>/ "
-                                         "(default: current directory)")
+    parser.add_argument("-d", "--database", help="Combined BarcodeMapper FASTA path (.fa.gz for builds; default: newest bmdb_<YYYYMMDD> "
+                             "in --db-dir or the current directory; builds create a new one)")
+    parser.add_argument("--db-dir", help="Directory holding bmdb_<YYYYMMDD>/ folders, or one such folder. Build: where to create it; "
+                                         "mapping: where to find the newest one (default: current directory)")
     parser.add_argument("-b", "--bold", help="BOLD FASTA for database creation")
     parser.add_argument("-u", "--unite", help="UNITE FASTA for database creation")
     parser.add_argument("-x", "--bold_retain", default="k__Animalia", help="Comma-separated BOLD taxa to retain")
@@ -547,11 +579,11 @@ def main(argv: list[str] | None = None) -> None:
             parser.error(f"no existing run configuration found at {config_path}")
         unlock_snakemake(tmp_dir, config_path, "slurm" if args.slurm else "local")
         return
-    if args.db_dir and (not args.build or args.database):
-        parser.error("--db-dir only applies to --build without -d/--database")
+    if args.db_dir and args.database:
+        parser.error("--db-dir cannot be combined with -d/--database")
+    if not args.database and not args.build:
+        args.database = str(_find_database(parser, args.db_dir))
     if not args.database:
-        if not args.build:
-            parser.error("-d/--database is required")
         stamp = "bmdb_" + datetime.now().strftime("%Y%m%d")
         args.database = str(Path(args.db_dir or ".").expanduser().resolve() / stamp / f"{stamp}.fa.gz")
     if bool(args.bold) != bool(args.unite):

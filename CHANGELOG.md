@@ -4,14 +4,15 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+## [1.2.3] - 2026-10-18
+
 ### Added
 
 - Dependency check at release time: `scripts/check_dependencies.py` compares the pinned dependencies with the latest releases, `tests/regression/` and `scripts/regression_check.py` verify that a small dataset still gives an identical taxonomy table, `scripts/release_dependency_check.sh` runs both with the newer versions on Mjolnir, and a weekly GitHub Actions workflow repeats the check. The Mjolnir check also repeats the regression through Slurm, and `--record` appends each run to `docs/dependency-checks.md`, which lists the checks and their commands.
 
 ### Changed
 
-- Update the pinned environment to the newest compatible releases, verified on Mjolnir to give a taxonomy table identical to the golden regression table: snakemake 9.27.0, snakemake-executor-plugin-slurm 2.8.0, fastp 1.4.0, samtools 1.24, Bowtie2 2.5.5, numpy 2.5.4, pandas 2.3.3, plotly 7.1.0, Biopython 1.88, pysam 0.24.1, PyYAML 6.0.3. The Bioconda recipe now allows Snakemake below 10.
-
+- Update the pinned environment to the newest compatible releases, verified on Mjolnir to give a taxonomy table identical to the golden regression table: snakemake 9.27.0, snakemake-executor-plugin-slurm 2.8.0, fastp 1.4.0, samtools 1.24, Bowtie2 2.5.5, numpy 2.5.4, pandas 2.3.3, plotly 7.1.0, Biopython 1.88, pysam 0.24.1, PyYAML 6.0.3. The Bioconda recipe and the Python dependencies in `pyproject.toml` pin the same versions.
 - `--update` says "No local database found" instead of reporting newer sources when there is nothing to compare with.
 - When the dated database folder already exists (for example a second build on the same day), the error suggests `-n/--name` for a differently named database.
 

@@ -20,7 +20,7 @@ These checks verify software behavior on synthetic data. They do not establish s
 python scripts/regression_check.py
 ```
 
-`scripts/check_dependencies.py` lists the pins in `barcodemapper_env.yml` next to the latest released versions and can write an environment file with the latest versions (`--write-candidate`). `scripts/release_dependency_check.sh` combines the two on Mjolnir; see [](releasing.md). A scheduled GitHub Actions workflow repeats the check weekly. Adopting new pins stays a manual edit of `barcodemapper_env.yml` after a passing check.
+`scripts/check_dependencies.py` lists the pins in `barcodemapper_env.yml` next to the latest released versions and can write an environment file with the latest versions (`--write-candidate`). `scripts/release_dependency_check.sh` combines the two on Mjolnir; see Releases below. A scheduled GitHub Actions workflow repeats the check weekly. Adopting new pins stays a manual edit of `barcodemapper_env.yml` after a passing check.
 
 ## Building these docs
 

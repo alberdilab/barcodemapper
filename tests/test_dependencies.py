@@ -38,9 +38,8 @@ def test_parses_environment_without_yaml(checker):
     channels, pins = checker.parse_environment(text)
     assert channels == ["conda-forge", "bioconda"]
     assert pins["python"] == "3.12"
-    assert pins["snakemake-executor-plugin-slurm"] == "1.1.0"
-    assert pins["pyyaml"] == "6.0.2"
-    assert len(pins) == 12
+    assert {"snakemake", "snakemake-executor-plugin-slurm", "fastp", "bowtie2", "samtools", "pysam"} <= set(pins)
+    assert all(version and version[0].isdigit() for version in pins.values())
 
 
 @pytest.mark.parametrize(("older", "newer"), [

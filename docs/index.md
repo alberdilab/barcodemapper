@@ -34,6 +34,7 @@ limitations
 :caption: Project
 
 development
+dependency-checks
 changelog
 ```
 

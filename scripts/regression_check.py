@@ -38,12 +38,12 @@ def _print_versions(manifest: dict) -> None:
     print(f"pysam: {_version('pysam')}")
 
 
-def _run(executable: str, directory: Path, update_golden: bool) -> int:
+def _run(executable: str, directory: Path, update_golden: bool, slurm: bool = False) -> int:
     output = directory / "taxonomy.tsv"
     command = [
         executable, "-i", str(DATA / "reads"), "-d", str(DATA / "references.fa"),
         "-o", str(output), "-t", str(directory / "work"),
-    ]
+    ] + (["-s"] if slurm else [])
     try:
         result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
     except OSError as exc:
@@ -93,6 +93,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--barcodemapper", default="barcodemapper", help="Installed barcodemapper entry point")
     parser.add_argument("--keep-dir", action="store_true", help="Keep the temporary run directory")
+    parser.add_argument("--slurm", action="store_true", help="Submit the workflow jobs through Slurm (-s)")
     parser.add_argument("--update-golden", action="store_true", help="Replace the committed taxonomy table")
     args = parser.parse_args()
 
@@ -102,7 +103,7 @@ def main() -> int:
         path = Path(path)
         if args.keep_dir:
             print(f"regression check: run directory {path}")
-        return _run(args.barcodemapper, path, args.update_golden)
+        return _run(args.barcodemapper, path, args.update_golden, args.slurm)
 
 
 if __name__ == "__main__":

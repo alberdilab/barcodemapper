@@ -8,7 +8,7 @@
    scripts/release_dependency_check.sh
    ```
 
-   It compares the pins in `barcodemapper_env.yml` with the latest conda-forge/bioconda releases. If anything is newer, it builds a throwaway environment with the latest versions on Mjolnir, installs the checkout, runs the small regression dataset (`tests/regression/`) and requires the taxonomy table to be identical to the committed golden table. A pass means the newer versions can be adopted by editing the pins; a failure means they must wait until the difference is understood. Record the outcome in the release notes. `--force` runs the HPC check even when every pin is current, and `BM_HPC_SSH` sets the ssh command if `ssh mjolnirgate.unicph.domain` is not enough. The same check runs weekly on GitHub Actions (`dependency-check.yml`).
+   It compares the pins in `barcodemapper_env.yml` with the latest conda-forge/bioconda releases. If anything is newer, it builds a throwaway environment with the latest versions on Mjolnir, installs the checkout, runs the small regression dataset (`tests/regression/`) and requires the taxonomy table to be identical to the committed golden table. It repeats the check through Slurm (`--no-slurm` skips that) and `--record` appends the outcome to [](dependency-checks.md), which also lists every check and its command. A pass means the newer versions can be adopted by editing the pins; a failure means they must wait until the difference is understood. Run it with `--record` and commit the new row. `--force` runs the HPC check even when every pin is current, and `BM_HPC_SSH` sets the ssh command if `ssh mjolnirgate.unicph.domain` is not enough. The same check runs weekly on GitHub Actions (`dependency-check.yml`).
 4. Check the proposed tag and build artifacts:
 
    ```sh

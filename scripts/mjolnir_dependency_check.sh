@@ -3,6 +3,7 @@
 # checkout into it, run the regression check, and print a one-block verdict.
 #
 # usage: mjolnir_dependency_check.sh REPO_DIR ENV_FILE [--keep]
+# BM_SLURM_TEST=1 also repeats the check through Slurm (-s).
 # BM_REGRESSION_ARGS adds options to regression_check.py (for example --update-golden).
 set -uo pipefail
 
@@ -44,18 +45,30 @@ if ! "$env_dir/bin/python" -m pip install -q --no-deps "$repo" >"$work/pip.log" 
 fi
 
 echo "== installed versions"
-conda list -p "$env_dir" 2>/dev/null |
-    grep -E '^(python|snakemake|snakemake-executor-plugin-slurm|fastp|samtools|bowtie2|numpy|pandas|plotly|biopython|pysam|pyyaml|barcodemapper) ' |
-    awk '{printf "  %-34s %s\n", $1, $2}'
+versions=$(conda list -p "$env_dir" 2>/dev/null |
+    grep -E '^(python|snakemake|snakemake-executor-plugin-slurm|fastp|samtools|bowtie2|numpy|pandas|plotly|biopython|pysam|pyyaml) ' |
+    awk '{printf "%s%s %s", sep, $1, $2; sep=", "}')
+echo "$versions" | tr ',' '\n' | awk '{printf "  %-34s %s\n", $1, $2}'
 
-echo "== regression check"
-PATH="$env_dir/bin:$PATH" "$env_dir/bin/python" "$repo/scripts/regression_check.py" \
-    --barcodemapper "$env_dir/bin/barcodemapper" ${BM_REGRESSION_ARGS:-}
-status=$?
+run_check() {  # run_check LABEL [extra regression_check.py options]
+    local label=$1; shift
+    echo "== regression check ($label)"
+    PATH="$env_dir/bin:$PATH" "$env_dir/bin/python" "$repo/scripts/regression_check.py" \
+        --barcodemapper "$env_dir/bin/barcodemapper" "$@" ${BM_REGRESSION_ARGS:-}
+}
 
-if [ "$status" -eq 0 ]; then
-    echo "RESULT: PASS (results identical to the golden table)"
-else
-    echo "RESULT: FAIL (exit $status: results differ or the pipeline failed; see above)"
+local_result=PASS
+run_check "local profile" || local_result=FAIL
+slurm_result=skipped
+if [ -n "${BM_SLURM_TEST:-}" ]; then
+    slurm_result=PASS
+    run_check "Slurm profile" --slurm || slurm_result=FAIL
 fi
-exit "$status"
+
+echo "RECORD|local=$local_result|slurm=$slurm_result|versions=$versions"
+if [ "$local_result" = PASS ] && [ "$slurm_result" != FAIL ]; then
+    echo "RESULT: PASS (results identical to the golden table; local $local_result, Slurm $slurm_result)"
+    exit 0
+fi
+echo "RESULT: FAIL (local $local_result, Slurm $slurm_result; results differ or the pipeline failed, see above)"
+exit 1

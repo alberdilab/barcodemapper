@@ -7,9 +7,11 @@
 #
 # BM_HPC_SSH is split on whitespace, so it cannot hold quoted arguments.
 #
-# usage: scripts/release_dependency_check.sh [--force] [--keep]
+# usage: scripts/release_dependency_check.sh [--force] [--keep] [--no-slurm] [--record]
 #   --force  run the HPC check even when every pin is already the latest
 #   --keep   keep the throwaway environment on the HPC for inspection
+#   --no-slurm  skip the Slurm repeat of the regression check
+#   --record    append the outcome to docs/dependency-checks.md
 #
 # Environment:
 #   BM_HPC_SSH      ssh command prefix (default: ssh mjolnirgate.unicph.domain)
@@ -19,10 +21,14 @@ set -uo pipefail
 root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 force=
 keep=
+slurm=1
+record=
 for arg in "$@"; do
     case "$arg" in
         --force) force=1 ;;
         --keep) keep=--keep ;;
+        --no-slurm) slurm= ;;
+        --record) record=1 ;;
         *) echo "unknown option: $arg" >&2; exit 64 ;;
     esac
 done
@@ -59,8 +65,28 @@ echo "== copying the checkout to the HPC ($remote)"
 "${ssh_cmd[@]}" "cat > '$remote/candidate.yml'" < "$candidate" || exit 4
 
 echo "== regression check on the HPC with the newer versions"
-"${ssh_cmd[@]}" "BM_SCRATCH='$scratch' bash '$remote/repo/scripts/mjolnir_dependency_check.sh' '$remote/repo' '$remote/candidate.yml' $keep"
-result=$?
+output=$(mktemp -t bm_check_output.XXXXXX)
+"${ssh_cmd[@]}" "BM_SCRATCH='$scratch' BM_SLURM_TEST='$slurm' bash '$remote/repo/scripts/mjolnir_dependency_check.sh' '$remote/repo' '$remote/candidate.yml' $keep" |
+    tee "$output"
+result=${PIPESTATUS[0]}
+
+if [ -n "$record" ]; then
+    line=$(grep '^RECORD|' "$output" | tail -1)
+    outcome=FAIL; [ "$result" -eq 0 ] && outcome=PASS
+    local_r=$(sed -n 's/.*|local=\([^|]*\)|.*/\1/p' <<<"$line")
+    slurm_r=$(sed -n 's/.*|slurm=\([^|]*\)|.*/\1/p' <<<"$line")
+    versions=$(sed -n 's/.*|versions=//p' <<<"$line")
+    version=$(python3 - "$root" <<'PY'
+import sys, tomllib
+print(tomllib.load(open(sys.argv[1] + "/pyproject.toml", "rb"))["project"]["version"])
+PY
+)
+    commit=$(git -C "$root" rev-parse --short HEAD 2>/dev/null || echo unknown)
+    printf '| %s | %s (%s) | %s | %s | %s | %s |\n' "$(date +%F)" "$version" "$commit" \
+        "${local_r:-n/a}" "${slurm_r:-n/a}" "${versions:-n/a}" "$outcome" >> "$root/docs/dependency-checks.md"
+    echo "Recorded in docs/dependency-checks.md"
+fi
+rm -f "$output"
 
 echo
 if [ "$result" -eq 0 ]; then

@@ -28,6 +28,11 @@ REPORT_FILE = config.get("report_file", None)
 MAX_EDIT_PERCENT = config.get("max_edit_percent", 3.0)
 MIN_COVERAGE = config.get("min_coverage", None)
 MAX_HITS = config.get("max_hits", None)
+# Without a hit cap (bowtie2 -a) mapping needs far more memory and time, so
+# scale the mapping request: 1M-pair benchmarks peaked at 43-55 GB (about
+# 3.6x the input) against 22-24 GB when capped, and took up to 20 min per GB of input.
+MAP_MEM_FACTOR = 3 if MAX_HITS is not None else 6
+MAP_MIN_PER_GB = 12 if MAX_HITS is not None else 36
 MIN_READ_LENGTH = config.get("min_read_length", 100)
 COMPLEXITY_THRESHOLD = config.get("complexity_threshold", 30)
 COMPLEXITY_ARGS = (
@@ -231,11 +236,12 @@ rule bowtie2_mapping:
         20
     resources:
         # Measured on the default database (~15 GB of index plus 100k read pairs):
-        # peak memory about 36 GB (2.3x the input) and 1 h 50 min on 8 threads, with
-        # bowtie2 -a dominating the time. Request 3x the input in memory and 12
-        # minutes per GB of input (about 3 h for that case); retries double both.
-        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 3) * 2 ** (attempt - 1)),
-        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 12)) * 2 ** (attempt - 1)
+        # peak memory about 36 GB (2.3x the input) and 1 h 50 min on 8 threads with
+        # bowtie2 -a. Request MAP_MEM_FACTOR x the input in memory and MAP_MIN_PER_GB
+        # minutes per GB of input (3x and 12 min capped; 6x and 36 min with -a,
+        # see above); retries double both.
+        mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * MAP_MEM_FACTOR) * 2 ** (attempt - 1)),
+        runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * MAP_MIN_PER_GB)) * 2 ** (attempt - 1)
     message:
         "Mapping {wildcards.sample} to BarcodeMapper database with Bowtie2"
     shell:

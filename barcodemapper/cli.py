@@ -25,6 +25,7 @@ from barcodemapper.workflow.scripts.validate_database import validate_database
 PACKAGE_DIR = Path(__file__).resolve().parent
 READ_PATTERN = re.compile(r"^(?P<sample>.+)_(?P<mate>[12])\.(?:fq|fastq)\.gz$")
 DEFAULT_ADAPTER = "CTGTCTCTTATACACATCT"
+DEFAULT_MAX_HITS = 200
 RESERVED_SAMPLE_NAMES = {"Taxonomy", "Phylum", "Kingdom", "color"}
 PRESETS = {
     "ultrastrict": (0.0, 120),
@@ -494,8 +495,12 @@ def _parser() -> argparse.ArgumentParser:
                         help="Maximum NM edit distance as a percent of aligned bases (default: 3)")
     parser.add_argument("-c", "--min_coverage", "--min-coverage", type=int, default=80,
                         help="Minimum aligned bases (default: 80)")
-    parser.add_argument("-k", "--max-hits", type=int, default=None,
-                        help="Maximum alignments Bowtie2 reports per read (default: all, -a)")
+    hits = parser.add_mutually_exclusive_group()
+    hits.add_argument("-k", "--max-hits", type=int, default=DEFAULT_MAX_HITS,
+                      help=f"Maximum alignments Bowtie2 reports per read (default: {DEFAULT_MAX_HITS})")
+    hits.add_argument("--all-hits", "--full", dest="all_hits", action="store_true",
+                      help="Report all Bowtie2 alignments per read (-a) instead of capping them; "
+                           "slower and needs more memory")
     parser.add_argument("--adapter-r1", default=DEFAULT_ADAPTER, help="R1 adapter sequence, or 'auto'")
     parser.add_argument("--adapter-r2", default=DEFAULT_ADAPTER, help="R2 adapter sequence, or 'auto'")
     parser.add_argument("--min-read-length", type=int, default=100, help="Minimum read length after fastp (default: 100)")
@@ -545,6 +550,8 @@ def main(argv: list[str] | None = None) -> None:
         parser.error("-m/--max-mismatches must be between 0 and 100")
     if args.min_coverage < 1 or args.min_read_length < 1:
         parser.error("coverage and read length must be positive")
+    if args.all_hits:
+        args.max_hits = None
     if args.max_hits is not None and args.max_hits < 1:
         parser.error("-k/--max-hits must be positive")
     if not 0 <= args.complexity_threshold <= 100:

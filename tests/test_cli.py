@@ -89,7 +89,12 @@ def test_numeric_options_and_paths_with_spaces(monkeypatch, tmp_path):
     assert json.loads((work / "data/sample_to_reads1.json").read_text()) == {"sample": [str(reads / "sample_1.fq.gz")]}
 
 
-@pytest.mark.parametrize(("option", "expected"), [([], None), (["-k", "50"], 50)])
+@pytest.mark.parametrize(("option", "expected"), [
+    ([], 200),
+    (["-k", "50"], 50),
+    (["--all-hits"], None),
+    (["--full"], None),
+])
 def test_max_hits_is_recorded_in_config_and_manifest(monkeypatch, tmp_path, option, expected):
     database = _db(tmp_path)
     reads = tmp_path / "reads"
@@ -111,6 +116,7 @@ def test_max_hits_is_recorded_in_config_and_manifest(monkeypatch, tmp_path, opti
 
 
 @pytest.mark.parametrize(("option", "message"), [
+    (["-k", "50", "--all-hits"], "not allowed with argument"),
     (["-k", "0"], "-k/--max-hits must be positive"),
     (["-k=-3"], "-k/--max-hits must be positive"),
     (["-k", "-3"], "argument -k/--max-hits: expected one argument"),

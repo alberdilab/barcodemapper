@@ -86,9 +86,9 @@ The bundled adapters are `CTGTCTCTTATACACATCT` for both mates. Set `--adapter-r1
 | `--standard` (default) | 80 | 3% |
 | `--permissive` | 60 | 5% |
 
-For example, `barcodemapper -i reads -d references/barcodemapper.fa.gz -o results.tsv --strict`. Bowtie2 reports all alignments it finds, so repetitive sequences and large databases can increase run time and disk use substantially.
+For example, `barcodemapper -i reads -d references/barcodemapper.fa.gz -o results.tsv --strict`.
 
-Use `-k` / `--max-hits N` to cap the alignments Bowtie2 reports per read; the default remains all hits (`-a`). Bowtie2 `-k` stops after finding N valid alignments, which are not necessarily the best N, so for reads with more than N equally good hits the shared taxonomy can be assigned from a subset; whether to cap by default will be decided by benchmarks.
+By default Bowtie2 reports at most 200 alignments per read (`-k 200`). In benchmarks on six samples this changed 0-1.1% of read assignments against reporting all hits, left the detected taxa unchanged, and cut the mapping step from up to five hours to a few minutes and peak memory by about half. Use `-k` / `--max-hits N` to change the cap. Bowtie2 `-k` stops after finding N valid alignments, which are not necessarily the best N, so for reads with more than N equally good hits the shared taxonomy can be assigned from a subset. Use `--all-hits` (alias `--full`) to report every alignment (`-a`); this can be much slower on repetitive sequences and large databases, and the pipeline requests more memory and time for the mapping step automatically. `--all-hits` cannot be combined with `-k`.
 
 ### Slurm
 

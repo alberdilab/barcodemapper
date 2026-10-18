@@ -1,0 +1,27 @@
+name: barcodemapper-benchmark-1.2.3
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  # Pins of barcodemapper 1.2.3 (barcodemapper_env.yml at tag v1.2.3)
+  - python=3.12
+  - pip
+  - snakemake=9.27.0
+  - snakemake-executor-plugin-slurm=2.8.0
+  - fastp=1.4.0
+  - samtools=1.24
+  - bowtie2=2.5.5
+  - numpy=2.5.4
+  - pandas=2.3.3
+  - plotly=7.1.0
+  - biopython=1.88
+  - pysam=0.24.1
+  - pyyaml=6.0.3
+  # Comparators (versions solved and verified on Mjolnir, 2026-10-18)
+  - kraken2=2.1.3
+  - blast=2.16.0
+  - vsearch=2.32.0
+  - minimap2=2.31
+  - seqkit=2.10.1
+  - art=2016.06.05

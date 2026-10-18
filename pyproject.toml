@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "barcodemapper"
-version = "1.2.1"
+version = "1.2.2"
 description = "Map paired shotgun reads to COI and ITS reference sequences"
 readme = "README.md"
 license = "MIT"

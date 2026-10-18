@@ -30,7 +30,7 @@ conda create -n barcodemapper --override-channels -c conda-forge -c bioconda \
   pandas pyyaml biopython pysam plotly pip
 conda activate barcodemapper
 python -m pip install --no-deps \
-  https://github.com/alberdilab/barcodemapper/releases/download/v1.2.0/barcodemapper-1.2.0-py3-none-any.whl
+  https://github.com/alberdilab/barcodemapper/releases/download/v1.2.1/barcodemapper-1.2.1-py3-none-any.whl
 
 # Build the reference database (once)
 barcodemapper --build -d references/barcodemapper.fa.gz

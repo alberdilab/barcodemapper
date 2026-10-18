@@ -4,6 +4,12 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-10-18
+
+### Fixed
+
+- Fix the Read the Docs build, which failed because `docs/conf.py` referenced a missing `_static` directory.
+
 ## [1.2.0] - 2026-10-18
 
 ### Added

@@ -70,7 +70,7 @@ Build the Kraken2 inputs with [build_kraken_inputs.py](build_kraken_inputs.py)
 It refuses to overwrite existing files. [submit_kraken_build.sbatch](submit_kraken_build.sbatch)
 runs it, then `kraken2-build`, and records the commands in `build-commands.sh`.
 It needs `BENCH_ROOT`, `BENCH_ENV`, `REFERENCE_FASTA`, `KRAKEN_DB`, `K`,
-`MINIMIZER_LEN` and `MAX_DB_SIZE` exported before submission.
+`MINIMIZER_LEN` exported before submission (`MAX_DB_SIZE` is optional and unset by default so the database is not truncated).
 
 Kraken2 accepts [custom taxonomy assignments](https://kraken2.readthedocs.io/en/latest/custom_databases.html).
 Create one taxon ID per distinct path prefix, with stable IDs from a sorted

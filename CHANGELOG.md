@@ -6,8 +6,10 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ### Added
 
-- `--build` without `-d` now creates `bmdb_<YYYYMMDD>/bmdb_<YYYYMMDD>.fa.gz` plus its Bowtie2 index, headers and manifest in one folder; `--db-dir` chooses where that folder is created (default: current directory).
-- Mapping runs without `-d` use the newest `bmdb_<YYYYMMDD>` database found in `--db-dir` (either the folder holding `bmdb_*` folders or one `bmdb_*` folder) or, by default, the launch directory; if none is found they fail and ask for `-d` or `--db-dir`.
+- `--build` without `-d` now creates `bmdb_<YYYYMMDD>/bmdb_<YYYYMMDD>.fa.gz` plus its Bowtie2 index, headers and manifest in one folder; `--db-dir` chooses where that folder is created (default: current directory); `-n/--name` adds a label (`bmdb_<YYYYMMDD>_<name>`).
+- Mapping runs without `-d` use the newest `bmdb_<YYYYMMDD>` database found in `--db-dir` (either the folder holding `bmdb_*` folders or one `bmdb_*` folder) or, by default, the launch directory; if none is found they fail and ask for `-d` or `--db-dir`. `--db-name` pins an older database by folder name or date.
+- `--list` summarises the databases in a folder; `--verify` checks a database's FASTA, index, overview and checksum; `--update [--check]` rebuilds only when BOLD/UNITE have a newer release; `--keep N` prunes older databases after a build.
+- Run manifests record the database folder name, build date and source releases.
 
 ## [1.2.1] - 2026-10-18
 

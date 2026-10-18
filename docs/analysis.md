@@ -3,7 +3,7 @@
 Put one read pair per sample in a directory, named `sample_1.fq.gz` and `sample_2.fq.gz` (or `.fastq.gz`):
 
 ```sh
-barcodemapper -i reads -d references/barcodemapper.fa.gz -o results/taxonomy.tsv
+barcodemapper -i reads --db-dir references -o results/taxonomy.tsv
 ```
 
 ## Inputs
@@ -39,7 +39,7 @@ Inspect fastp's per-sample HTML and JSON files in the work directory for filteri
 | `--permissive` | 60 | 5% |
 
 ```sh
-barcodemapper -i reads -d references/barcodemapper.fa.gz -o results.tsv --strict
+barcodemapper -i reads --db-dir references -o results.tsv --strict
 ```
 
 ## Alignment cap (`-k`) and `--all-hits`
@@ -69,12 +69,14 @@ Run `barcodemapper --help` for the authoritative list.
 | `-i`, `--input` | Directory of paired `.fq.gz` / `.fastq.gz` files |
 | `-1`, `--read1` / `-2`, `--read2` | Comma-separated R1 / R2 files |
 | `-o`, `--output` | Output taxonomy TSV |
-| `-d`, `--database` | Combined BarcodeMapper FASTA |
+| `-d`, `--database` | Combined BarcodeMapper FASTA (default: newest `bmdb_*` in `--db-dir` or the current directory) |
+| `--db-dir`, `--db-name` | Where to find databases, and which one (folder name or date) |
 | `-b`, `--bold` / `-u`, `--unite` | Source FASTAs for `--build` |
 | `-x`, `--bold_retain` / `-y`, `--unite_retain` | Taxa retained when building |
 | `-t`, `--tmpdir` | Working directory; reuse to resume |
 | `-s`, `--slurm` | Submit jobs through Slurm |
-| `--build` | Build and index a database only |
+| `--build`, `-n`, `--keep` | Build and index a database only; name it; prune older ones |
+| `--list`, `--verify`, `--update`, `--check` | Inspect, check or refresh databases (see [](database.md)) |
 | `--unlock` | Unlock a working directory |
 | `-m`, `-c`, presets | Mapping stringency |
 | `-k`, `--all-hits`, `--no-bam` | Alignment cap, uncapped mapping, BAM retention |

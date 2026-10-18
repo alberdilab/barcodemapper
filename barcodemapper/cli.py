@@ -19,6 +19,9 @@ import yaml
 
 from barcodemapper.__version__ import __version__
 from barcodemapper.reference_sources import Release, discover_latest, download_sources
+from barcodemapper.databases import (
+    BMDB_DIR, describe, find_databases, is_outdated, provenance, prune, select_database, verify,
+)
 from barcodemapper.workflow.scripts.validate_database import validate_database
 
 
@@ -45,20 +48,8 @@ def _database_artifact(path: Path, suffix: str) -> Path:
     return Path(f"{_database_base(path)}{suffix}")
 
 
-BMDB_DIR = re.compile(r"bmdb_\d{8}")
-
-
-def _bmdb_fasta(folder: Path) -> Path | None:
-    """Return the FASTA inside a bmdb_<YYYYMMDD> folder, if it has one."""
-    for suffix in (".fa.gz", ".fa", ".fasta.gz", ".fasta"):
-        candidate = folder / f"{folder.name}{suffix}"
-        if candidate.is_file():
-            return candidate
-    return None
-
-
-def _find_database(parser: argparse.ArgumentParser, db_dir: str | None) -> Path:
-    """Locate the newest bmdb_<YYYYMMDD> database in db_dir (default: launch directory).
+def _find_database(parser: argparse.ArgumentParser, db_dir: str | None, pin: str | None = None) -> Path:
+    """Locate the newest (or pinned) bmdb_<YYYYMMDD> database in db_dir (default: launch directory).
 
     db_dir may be the folder that contains bmdb_* folders or a bmdb_* folder itself.
     """
@@ -66,15 +57,11 @@ def _find_database(parser: argparse.ArgumentParser, db_dir: str | None) -> Path:
     hint = "provide -d/--database or --db-dir"
     if not root.is_dir():
         parser.error(f"database directory does not exist: {root}; {hint}")
-    if BMDB_DIR.fullmatch(root.name) and (fasta := _bmdb_fasta(root)):
-        return fasta
-    found = sorted(
-        (folder.name, fasta) for folder in root.iterdir()
-        if folder.is_dir() and BMDB_DIR.fullmatch(folder.name) and (fasta := _bmdb_fasta(folder))
-    )
-    if not found:
-        parser.error(f"no bmdb_<YYYYMMDD> database found in {root}; {hint}")
-    return found[-1][1]
+    fasta = select_database(root, pin)
+    if fasta is None:
+        what = f"database {pin!r}" if pin else "bmdb_<YYYYMMDD> database"
+        parser.error(f"no {what} found in {root}; {hint}")
+    return fasta
 
 
 def _current_files(paths: list[Path], database: Path) -> bool:
@@ -233,6 +220,8 @@ def _write_manifest(
         "samples": {sample: {"read1": read1[sample], "read2": read2[sample]} for sample in read1},
         "tools": {tool: _tool_version(tool) for tool in ("snakemake", "fastp", "bowtie2", "bowtie2-build", "samtools")},
     }
+    if not config.get("build_only") == "yes":
+        manifest["database"].update({k: v for k, v in provenance(db_path).items() if v is not None})
     if automatic_sources:
         manifest["automatic_sources"] = True
     if source_info is not None:
@@ -447,11 +436,16 @@ def _build_manual(args, parser: argparse.ArgumentParser, db_path: Path) -> None:
     print(f"Run manifest: {_database_artifact(db_path, '.manifest.json')}")
 
 
-def _build_latest(args, parser: argparse.ArgumentParser, db_path: Path) -> None:
+def _discover(parser: argparse.ArgumentParser) -> dict[str, Release]:
     try:
-        releases = discover_latest()
+        return discover_latest()
     except (OSError, ValueError, KeyError, TypeError) as exc:
         parser.error(f"could not discover the latest BOLD/UNITE releases: {exc}")
+
+
+def _build_latest(args, parser: argparse.ArgumentParser, db_path: Path,
+                  releases: dict[str, Release] | None = None) -> None:
+    releases = releases or _discover(parser)
     manifest = _auto_manifest(db_path)
     if db_path.exists() and manifest is None:
         parser.error(f"{db_path} has no automatic-build manifest; choose a new -d path")
@@ -518,6 +512,21 @@ def _parser() -> argparse.ArgumentParser:
                              "in --db-dir or the current directory; builds create a new one)")
     parser.add_argument("--db-dir", help="Directory holding bmdb_<YYYYMMDD>/ folders, or one such folder. Build: where to create it; "
                                          "mapping: where to find the newest one (default: current directory)")
+    parser.add_argument("-n", "--name", help="With --build and no -d: label added to the database name, "
+                                             "giving bmdb_<YYYYMMDD>_<name>")
+    parser.add_argument("--db-name", help="Mapping/--verify: use this database inside --db-dir instead of the newest, "
+                                          "given as a folder name or date (bmdb_20260101 or 20260101)")
+    parser.add_argument("--list", action="store_true",
+                        help="List the databases in --db-dir (default: current directory) with their sources and exit")
+    parser.add_argument("--verify", action="store_true",
+                        help="Check that the selected database (FASTA, index, headers, checksum) is complete and exit")
+    parser.add_argument("--update", action="store_true",
+                        help="Build a new database only if BOLD/UNITE have a newer release than the newest local one")
+    parser.add_argument("--check", action="store_true",
+                        help="With --update: only report whether a newer release exists; do not build")
+    parser.add_argument("--keep", type=int, metavar="N",
+                        help="With --build/--update and no -d: afterwards delete all but the newest N databases "
+                             "of the same name in --db-dir")
     parser.add_argument("-b", "--bold", help="BOLD FASTA for database creation")
     parser.add_argument("-u", "--unite", help="UNITE FASTA for database creation")
     parser.add_argument("-x", "--bold_retain", default="k__Animalia", help="Comma-separated BOLD taxa to retain")
@@ -556,8 +565,39 @@ def main(argv: list[str] | None = None) -> None:
         parser.print_help()
         parser.exit(2)
 
-    if args.build and args.unlock:
-        parser.error("--build and --unlock cannot be combined")
+    actions = [flag for flag in ("build", "unlock", "list", "verify", "update") if getattr(args, flag)]
+    if len(actions) > 1:
+        parser.error("--" + ", --".join(actions) + " cannot be combined")
+    if args.check and not args.update:
+        parser.error("--check only applies to --update")
+    if args.keep is not None and (args.keep < 1 or args.database or not (args.build or args.update)):
+        parser.error("--keep needs a positive number, --build or --update, and no -d/--database")
+    if args.db_name and (args.database or args.build or args.update):
+        parser.error("--db-name selects an existing database; it cannot be used with -d, --build or --update")
+    if args.list or args.verify:
+        if args.input or args.read1 or args.read2 or args.output or args.database and args.list:
+            parser.error("--list/--verify take no reads or -o" + ("; use --db-dir with --list" if args.list else ""))
+        if args.list:
+            root = Path(args.db_dir or ".").expanduser().resolve()
+            lines = describe(root)
+            if not lines:
+                parser.error(f"no bmdb_<YYYYMMDD> database found in {root}; provide --db-dir")
+            print("\n".join(lines).rstrip())
+            return
+        fasta = Path(args.database).expanduser().resolve() if args.database else _find_database(
+            parser, args.db_dir, args.db_name)
+        failed = False
+        print(f"Verifying {fasta}")
+        for check, ok, detail in verify(fasta):
+            print(f"  [{'ok' if ok else 'FAIL'}] {check}: {detail}")
+            failed |= not ok
+        if failed:
+            sys.exit(1)
+        return
+    if args.update:
+        if args.database or args.bold or args.unite or args.input or args.read1 or args.read2 or args.output:
+            parser.error("--update uses the latest BOLD/UNITE sources; omit -d, -b, -u, reads and -o")
+        args.build = True
     if args.build:
         if args.input or args.read1 or args.read2 or args.output:
             parser.error("--build accepts database inputs only; omit reads and -o")
@@ -579,12 +619,19 @@ def main(argv: list[str] | None = None) -> None:
             parser.error(f"no existing run configuration found at {config_path}")
         unlock_snakemake(tmp_dir, config_path, "slurm" if args.slurm else "local")
         return
+    if args.name and (args.database or not args.build):
+        parser.error("-n/--name only applies to --build without -d/--database")
+    if args.name and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", args.name):
+        parser.error("-n/--name may only contain letters, digits, '.', '_' and '-'")
     if args.db_dir and args.database:
         parser.error("--db-dir cannot be combined with -d/--database")
     if not args.database and not args.build:
-        args.database = str(_find_database(parser, args.db_dir))
+        args.database = str(_find_database(parser, args.db_dir, args.db_name))
+    default_layout = not args.database
+    if default_layout and BMDB_DIR.fullmatch(Path(args.db_dir or ".").expanduser().resolve().name):
+        parser.error("for builds, --db-dir is the folder that will contain bmdb_<YYYYMMDD>/, not a database folder")
     if not args.database:
-        stamp = "bmdb_" + datetime.now().strftime("%Y%m%d")
+        stamp = "bmdb_" + datetime.now().strftime("%Y%m%d") + (f"_{args.name}" if args.name else "")
         args.database = str(Path(args.db_dir or ".").expanduser().resolve() / stamp / f"{stamp}.fa.gz")
     if bool(args.bold) != bool(args.unite):
         parser.error("provide both BOLD and UNITE FASTA files, or neither")
@@ -624,7 +671,23 @@ def main(argv: list[str] | None = None) -> None:
                 _manual_target_guard(parser, uncompressed_path)
             parser.error(f"uncompressed database already exists at {uncompressed_path}; choose a new -d basename")
     if args.build and not args.bold:
-        _build_latest(args, parser, db_path)
+        build_root = db_path.parent.parent
+        if args.update:
+            releases = _discover(parser)
+            known = find_databases(build_root, args.name or None)
+            newest = known[-1][1] if known else None
+            if newest is not None and not is_outdated(newest, releases, args.bold_retain, args.unite_retain):
+                print(f"Database is up to date: {newest}")
+                return
+            print(f"Newer sources available (latest: {newest or 'none found'})")
+            if args.check:
+                sys.exit(10)
+            _build_latest(args, parser, db_path, releases)
+        else:
+            _build_latest(args, parser, db_path)
+        if args.keep and default_layout:
+            for folder in prune(build_root, args.keep, args.name or None):
+                print(f"Removed old database: {folder}")
         return
     if args.bold:
         for label, value in (("BOLD", args.bold), ("UNITE", args.unite)):

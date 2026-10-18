@@ -715,3 +715,113 @@ def test_find_database_fails_with_hint(tmp_path, capsys):
         cli.main(["-i", str(tmp_path), "-o", "out.tsv", "--db-dir", str(tmp_path)])
     assert exc.value.code == 2
     assert "-d/--database or --db-dir" in capsys.readouterr().err
+
+
+def test_build_name_adds_label_and_stays_discoverable(monkeypatch, tmp_path):
+    seen = []
+    monkeypatch.setattr(cli, "_build_latest", lambda args, parser, db_path: seen.append(db_path))
+    cli.main(["--build", "-n", "coi-v2", "--db-dir", str(tmp_path)])
+    stamp = cli.datetime.now().strftime("bmdb_%Y%m%d_coi-v2")
+    assert seen == [(tmp_path / stamp / f"{stamp}.fa.gz").resolve()]
+    _bmdb(tmp_path, "20200101")
+    fasta = _bmdb(tmp_path, "20261018_coi-v2")
+    assert cli._find_database(cli._parser(), str(tmp_path)) == fasta
+
+
+def test_name_rejected_for_mapping_and_bad_characters(tmp_path):
+    for argv in (["--build", "-n", "a/b"], ["-n", "x", "-i", str(tmp_path), "-o", "o.tsv"]):
+        with pytest.raises(SystemExit) as exc:
+            cli.main(argv)
+        assert exc.value.code == 2
+
+
+def _built(root: Path, stamp: str, bold="BOLD_1", unite="UNITE_1", retain=("k__Animalia", "k__Viridiplantae,c__Agaricomycetes,c__Pezizomycetes")):
+    fasta = _bmdb(root, stamp)
+    stem = fasta.parent / fasta.name.removesuffix(".fa.gz")
+    fasta.write_bytes(gzip.compress(b">a|ITS|k__Fungi\nACGT\n"))
+    for part in cli.INDEX_PARTS:
+        Path(f"{stem}.{part}.bt2l").write_bytes(b"x")
+    Path(f"{stem}.tsv").write_text("x\n")
+    Path(f"{stem}.manifest.json").write_text(json.dumps({
+        "created_utc": "2026-10-18T00:00:00+00:00", "automatic_sources": True,
+        "database": {"sha256": cli._sha256(fasta)},
+        "parameters": {"bold_retain": retain[0], "unite_retain": retain[1]},
+        "sources": {"bold": {"release": bold, "doi": "d1"}, "unite": {"release": unite, "doi": "d2"}},
+    }))
+    return fasta
+
+
+def test_list_describes_databases(tmp_path, capsys):
+    _built(tmp_path, "20260101")
+    _built(tmp_path, "20261018", bold="BOLD_2")
+    cli.main(["--list", "--db-dir", str(tmp_path)])
+    out = capsys.readouterr().out
+    assert out.index("bmdb_20261018") < out.index("bmdb_20260101")
+    assert "BOLD_2" in out and "index:   bt2l" in out
+
+
+def test_verify_passes_then_detects_damage(tmp_path, capsys):
+    fasta = _built(tmp_path, "20261018")
+    cli.main(["--verify", "--db-dir", str(tmp_path)])
+    assert "FAIL" not in capsys.readouterr().out
+    Path(f"{fasta.parent / 'bmdb_20261018'}.1.bt2l").unlink()
+    with pytest.raises(SystemExit) as exc:
+        cli.main(["--verify", "--db-dir", str(tmp_path)])
+    assert exc.value.code == 1
+    assert "[FAIL] Bowtie2 index" in capsys.readouterr().out
+
+
+def test_db_name_pins_an_older_database(tmp_path):
+    old = _bmdb(tmp_path, "20260101")
+    _bmdb(tmp_path, "20261018")
+    parser = cli._parser()
+    assert cli._find_database(parser, str(tmp_path), "20260101") == old
+    assert cli._find_database(parser, str(tmp_path), "bmdb_20260101") == old
+    with pytest.raises(SystemExit):
+        cli._find_database(parser, str(tmp_path), "20250101")
+
+
+def _releases(bold="BOLD_1", unite="UNITE_1"):
+    return {"bold": Release(bold, "d1", "u"), "unite": Release(unite, "d2", "u")}
+
+
+def test_update_skips_when_current_and_builds_when_newer(monkeypatch, tmp_path, capsys):
+    _built(tmp_path, "20260101")
+    built = []
+    monkeypatch.setattr(cli, "discover_latest", lambda: _releases())
+    monkeypatch.setattr(cli, "_build_latest", lambda args, parser, db_path, releases=None: built.append(db_path))
+    cli.main(["--update", "--db-dir", str(tmp_path)])
+    assert not built and "up to date" in capsys.readouterr().out
+    monkeypatch.setattr(cli, "discover_latest", lambda: _releases(bold="BOLD_2"))
+    with pytest.raises(SystemExit) as exc:
+        cli.main(["--update", "--check", "--db-dir", str(tmp_path)])
+    assert exc.value.code == 10 and not built
+    cli.main(["--update", "--db-dir", str(tmp_path)])
+    assert len(built) == 1 and built[0].parent.parent == tmp_path.resolve()
+
+
+def test_keep_prunes_old_databases_of_the_same_name(monkeypatch, tmp_path):
+    for stamp in ("20250101", "20260101", "20260301"):
+        _built(tmp_path, stamp)
+    _built(tmp_path, "20250101_other")
+    (tmp_path / "bmdb_20240101").mkdir()  # no manifest: never deleted
+    monkeypatch.setattr(cli, "_build_latest", lambda args, parser, db_path, releases=None: None)
+    cli.main(["--build", "--keep", "2", "--db-dir", str(tmp_path)])
+    left = sorted(p.name for p in tmp_path.iterdir())
+    assert left == ["bmdb_20240101", "bmdb_20250101_other", "bmdb_20260101", "bmdb_20260301"]
+
+
+def test_keep_and_actions_are_validated(tmp_path):
+    for argv in (["--keep", "2", "-d", "x.fa.gz", "--build"], ["--build", "--keep", "0"],
+                 ["--list", "--verify"], ["--check"], ["--build", "--db-name", "2026"]):
+        with pytest.raises(SystemExit) as exc:
+            cli.main(argv)
+        assert exc.value.code == 2
+
+
+def test_run_manifest_records_database_provenance(tmp_path):
+    fasta = _built(tmp_path, "20261018")
+    out = tmp_path / "m.json"
+    cli._write_manifest(out, fasta, {"tmp_dir": str(tmp_path)}, {}, {})
+    database = json.loads(out.read_text())["database"]
+    assert database["name"] == "bmdb_20261018" and database["bold"] == "BOLD_1"

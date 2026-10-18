@@ -12,10 +12,10 @@ Read counts describe marker-matching fragments. They are **not** estimates of or
 conda activate barcodemapper
 
 # 1. Build the reference database (once)
-barcodemapper --build -d references/barcodemapper.fa.gz
+barcodemapper --build --db-dir references   # creates references/bmdb_<YYYYMMDD>/
 
 # 2. Analyse a directory of paired reads
-barcodemapper -i reads -d references/barcodemapper.fa.gz -o results/taxonomy.tsv
+barcodemapper -i reads --db-dir references -o results/taxonomy.tsv
 ```
 
 ```{toctree}

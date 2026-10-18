@@ -6,7 +6,7 @@ For `-o results/taxonomy.tsv`, BarcodeMapper writes:
 | --- | --- |
 | `results/taxonomy.tsv` | Taxonomy paths and one count column per sample, including zero-hit samples. |
 | `results/taxonomy.html` | Offline, self-contained bar and sunburst plots. |
-| `results/taxonomy.manifest.json` | Version, parameters, tool versions, database checksum, inputs, and fastp/assignment counts. |
+| `results/taxonomy.manifest.json` | Version, parameters, tool versions, database name, checksum and source releases, inputs, and fastp/assignment counts. |
 
 The working directory additionally holds fastp reports and, unless `--no-bam` is used, one BAM per sample in `bowtie/`.
 
@@ -26,4 +26,4 @@ The report's relative bars use assigned fragments at the phylum level plus unres
 
 ## Manifest
 
-The JSON manifest records everything needed to reproduce a run: BarcodeMapper version, parameters, tool versions, the database checksum, the input files, and fastp and assignment counts. Keep it with the count table.
+The JSON manifest records everything needed to reproduce a run: BarcodeMapper version, parameters, tool versions, the database name, build date, source releases and checksum, the input files, and fastp and assignment counts. Keep it with the count table.

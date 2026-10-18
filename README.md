@@ -39,6 +39,8 @@ barcodemapper --build --db-dir references   # creates references/bmdb_<YYYYMMDD>
 barcodemapper -i reads --db-dir references -o results/taxonomy.tsv
 ```
 
+Without `-d`/`--db-dir`, the newest `bmdb_*` folder in the current directory is used. `--list`, `--verify` and `--update` manage databases; see the documentation.
+
 This writes `results/taxonomy.tsv`, `results/taxonomy.html` and `results/taxonomy.manifest.json`.
 
 ## Citation and license

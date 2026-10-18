@@ -225,3 +225,26 @@ the builds have no dependency because source cleaning (`45898609`) completed.
 | 45899219 | Best-hit ablation, animal | 45899214 |
 | 45899220 | Scaling pilot, 100k pairs | 45899214 |
 | 45899221 | Scratch sampler | 45899220 (`after`) |
+
+## Project 05 (not yet submitted)
+
+Scripts: [05_taxid_paths.sbatch](05_taxid_paths.sbatch) builds both taxonomy
+tables; [05_blast_nt.sbatch](05_blast_nt.sbatch) searches nt;
+[05_kraken2_nt.sbatch](05_kraken2_nt.sbatch) classifies against Kraken2 nt;
+[submit_05.sh](submit_05.sh) prints the dependency chain unless
+`CONFIRM_SUBMIT=yes` is set. Jobs require `RUN` for BLAST and Kraken2.
+Optional variables are `READ_IDS` (BLAST subset), `THREADS`, `OUT_DIR`,
+`PRELOAD` (Kraken2, default 1), and `MEM` (Kraken2 submission, default 1150G).
+All scripts also accept path overrides (`BENCH_ROOT`, `BENCH_ENV`, `PLAN_DIR`,
+`PROJECT_DIR`, database paths, taxonomy paths, and FASTQ paths). The submit
+helper accepts `READ_IDS_<RUN>` for each pilot.
+
+Copy the entire contents of `benchmarks/mjolnir`, including
+`metadata/05-default-databases/name-map.tsv`, into `$BENCH_ROOT/plans/` before
+submission. The two mock pilots require `READ_IDS_<RUN>` subset files. Review
+the `--report` outputs from `05_taxid_paths.sbatch` and compare the name map
+against `ktaxonomy.tsv` before reading Kraken2 results. A failed Kraken2 job
+leaves later Kraken2 jobs pending with `DependencyNeverSatisfied` by design.
+The Kraken2 preload is best effort: classifier-only timing includes any first
+read of `hash.k2d` that the cache did not retain, so report the first run with
+that caveat.

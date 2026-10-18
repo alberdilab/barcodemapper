@@ -70,6 +70,42 @@ def test_unmapped_taxids_fail_or_omit_subjects(tmp_path):
     assert result["no_taxid_rows"] == 2
 
 
+def test_unmapped_as_empty_keeps_subjects_with_audited_reasons(tmp_path, capsys):
+    paths = tmp_path / "taxids.tsv"
+    paths.write_text("TaxID\tTaxonomy\n"
+                     "10\tk__Animalia;p__Arthropoda\n"
+                     "11\tk__Bacteria\n")
+    blast = tmp_path / "blast.tsv"
+    blast.write_text(hit("r1/1", "good", "10") +
+                     hit("r2/1", "unknown", "999") +
+                     hit("r3/1", "none", "N/A") +
+                     hit("r4/1", "zero", "0") +
+                     hit("r5/1", "mixed", "10") +
+                     hit("r5/2", "mixed", "999") +
+                     hit("r6/1", "no-common-kingdom", "10;11"))
+    output = tmp_path / "accessions.tsv"
+    audit = tmp_path / "audit.json"
+    args = ["--blast", str(blast), "--taxid-paths", str(paths),
+            "--output", str(output), "--audit", str(audit)]
+    with pytest.raises(SystemExit) as error:
+        builder.main([*args, "--allow-unmapped", "--unmapped-as-empty"])
+    assert error.value.code == 2
+    assert "not allowed with argument" in capsys.readouterr().err
+    builder.main([*args, "--unmapped-as-empty"])
+    assert rows(output) == {"good": "k__Animalia;p__Arthropoda", "unknown": "",
+                            "none": "", "zero": "", "mixed": "",
+                            "no-common-kingdom": ""}
+    result = json.loads(audit.read_text())
+    assert result["unmapped_as_empty_subject_count"] == 5
+    assert result["unmapped_as_empty_subjects"] == {
+        "unknown": ["taxid 999 absent from taxid paths"],
+        "none": ["no taxid (N/A)"], "zero": ["no taxid (0)"],
+        "mixed": ["taxid 999 absent from taxid paths"],
+        "no-common-kingdom": ["no common kingdom"],
+    }
+    assert result["output_rows"] == 6
+
+
 def test_refuses_to_overwrite_existing_output(tmp_path):
     paths = tmp_path / "taxids.tsv"
     paths.write_text("TaxID\tTaxonomy\n10\tk__Animalia\n")
@@ -83,7 +119,7 @@ def test_refuses_to_overwrite_existing_output(tmp_path):
     assert output.read_text() == "keep"
 
 
-def test_empty_taxid_paths_omit_whole_subject_and_are_audited(tmp_path):
+def test_empty_taxid_paths_are_written_and_audited(tmp_path):
     paths = tmp_path / "taxids.tsv"
     paths.write_text("TaxID\tTaxonomy\n1\t\n131567\t\n10\tk__Animalia\n")
     blast = tmp_path / "blast.tsv"
@@ -97,7 +133,8 @@ def test_empty_taxid_paths_omit_whole_subject_and_are_audited(tmp_path):
     audit = tmp_path / "audit.json"
     builder.main(["--blast", str(blast), "--taxid-paths", str(paths),
                   "--output", str(output), "--audit", str(audit), "--allow-unmapped"])
-    assert rows(output) == {"good": "k__Animalia"}
+    assert rows(output) == {"root": "", "pre-domain": "", "mixed": "",
+                            "good": "k__Animalia"}
     result = json.loads(audit.read_text())
     assert result["empty_path_subjects"] == 4
     assert result["empty_path_subject_ids"] == ["both", "mixed", "pre-domain", "root"]
@@ -112,5 +149,5 @@ def test_empty_taxid_path_does_not_require_allow_unmapped(tmp_path):
     output = tmp_path / "accessions.tsv"
     builder.main(["--blast", str(blast), "--taxid-paths", str(paths),
                   "--output", str(output)])
-    assert rows(output) == {"good": "k__Animalia"}
+    assert rows(output) == {"root": "", "good": "k__Animalia"}
     assert json.loads((tmp_path / "accessions.tsv.audit.json").read_text())["empty_path_subjects"] == 1

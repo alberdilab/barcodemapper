@@ -72,19 +72,66 @@ the file and state which was done.
 
 ## Taxonomy harmonisation
 
-NCBI names and BarcodeMapper's BOLD/UNITE paths differ, so the common schema
-in [convert_calls.py](convert_calls.py) cannot be reused as is.
+NCBI names and BarcodeMapper's BOLD/UNITE paths differ, so each arm's calls are
+mapped to the common `k__;p__;c__;o__;f__;g__;s__` form by
+[build_ncbi_path_map.py](build_ncbi_path_map.py) (taxid to path, used by the
+`kraken2` subcommand) and [build_nt_accession_paths.py](build_nt_accession_paths.py)
+(BLAST accession to path, used by `blastn`). `convert_calls.py` is reused as is.
+Calls at taxa with no domain ancestor (root, "cellular organisms", "synthetic
+construct") become `unclassified`.
 
-- Freeze an NCBI-to-common name mapping **before** looking at any accuracy
-  result. Resolve synonyms with the NCBI `names.dmp` and record every mapping.
-- Evaluate only at ranks where a name can be mapped without ambiguity
-  (expected: phylum, class, order, family, genus; species where unambiguous).
-  Report how many mock taxa are lost to the mapping at each rank.
-- Add `nt-blastn` and `nt-kraken2` subcommands (and `nt-centrifuge` if built)
-  to `convert_calls.py`, with tests on small fixtures that cover synonyms,
-  unmapped names, and unclassified reads.
-- Calls that map to non-target organisms (bacteria, host, human) are counted
-  as off-target calls, not as errors at the marker level.
+Survey of the reference against `taxonomy/20251202` (2026-10-18), distinct names
+matching an NCBI scientific name at the same rank (default / all-fungi):
+kingdom 2 of 3 and 1 of 2 (see below), phylum 34 of 48 / 38 of 50, class
+109 of 151 / 143 of 203, order 666 of 793 / 748 of 924, family 5,847 of 6,571 /
+5,959 of 6,794, genus 66,638 of 77,559 / 61,976 of 72,975. About 166,000
+species labels are BOLD BIN placeholders that NCBI cannot match, which is
+expected. Kingdoms: BOLD animals are `Animalia` (NCBI scientific name
+`Metazoa`; `Animalia` is only a synonym), plants are `Viridiplantae` (matches
+NCBI), fungi are `Fungi` (matches).
+
+Rules, frozen before looking at any accuracy result:
+
+- The default [name-map](metadata/05-default-databases/name-map.tsv) has one
+  row, `Metazoa` to `Animalia`. Plants are **not** renamed.
+- The k slot is the domain name for Bacteria, Archaea and Viruses; the NCBI
+  `kingdom` node only applies under Eukaryota. Recent dumps put `kingdom` nodes
+  (for example Bacillati, Pseudomonadati) under Bacteria.
+- Many reference names differ from NCBI at class and order (for example
+  Teleostei is an infraclass, Anthophyta and Eudicotyledonae do not exist).
+  Same-rank matching would score these as wrong calls, so extend the name map
+  with a reviewed entry for **each expected mock taxon** at those ranks, using
+  the Project 01 `expected-members.tsv`. Build the list by joining the expected
+  taxa to NCBI by name across ranks and synonyms, review it by hand, and freeze
+  it with its SHA-256 in the run record.
+- Report, for every arm, how many expected taxa could not be mapped at each
+  rank. Evaluate a rank only where the mapping is unambiguous; unmatched called
+  names count as wrong at that rank and are listed.
+- Run the same comparison against the Kraken2 `ktaxonomy.tsv` before the
+  Kraken2 arm, because that arm uses its own taxonomy.
+
+The converters need tests; they are in `tests/test_build_ncbi_path_map.py`,
+`tests/test_build_nt_accession_paths.py` and `tests/test_nt_integration.py`.
+
+## Reference and input facts (Mjolnir, 2026-10-18)
+
+`B` is `/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks`.
+
+- The fungal pilot SRR14351851 used `B/references/all-fungi.fa.gz`; the animal
+  ERR6001161 and blank ERR6001173 used `B/references/default.fa.gz`. Record
+  which reference each pilot uses in every run record.
+- fastp-filtered pairs are in
+  `B/projects/01-mock-communities/work/<RUN>-pilot-standard/fastp/<RUN>_{1,2}.fq.gz`.
+  They come from the 1.1.2 environment (fastp 0.23.1). Use these files, hash
+  them once, and give the same files to every arm and version.
+- The 1.2.3 reference rebuild was still running at the time of the survey, so
+  the 1.2.3 pilots cannot start until it is finished and audited.
+- Environment with blastn 2.16.0 and kraken2 2.1.3:
+  `B/projects/03-method-comparison/software/env-1.2.3`.
+- The 2 TB nodes `mjolnircomp08fl` and `mjolnircomp09fl` (partition `cpuqueue`)
+  were nearly fully allocated, so a Kraken2 nt job will queue.
+- The shared databases are on NFS (Isilon). Nothing is cached on compute nodes,
+  so the Kraken2 hash is read from the network on first use.
 
 ## Evaluation
 

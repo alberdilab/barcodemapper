@@ -62,7 +62,10 @@ def load_paths(path):
     return paths
 
 
-def build_paths(blast, taxid_paths, output, audit, allow_unmapped=False):
+def build_paths(blast, taxid_paths, output, audit, allow_unmapped=False,
+                unmapped_as_empty=False):
+    if allow_unmapped and unmapped_as_empty:
+        raise ValueError("--allow-unmapped and --unmapped-as-empty are mutually exclusive")
     if output == audit:
         raise ValueError("Output paths must be distinct")
     for path in (output, audit):
@@ -70,6 +73,7 @@ def build_paths(blast, taxid_paths, output, audit, allow_unmapped=False):
             raise ValueError(f"Output already exists: {path}")
     paths = load_paths(taxid_paths)
     subjects = {}
+    subject_order = {}
     unmapped = {}
     empty_path_subjects = set()
     row_count = 0
@@ -84,6 +88,7 @@ def build_paths(blast, taxid_paths, output, audit, allow_unmapped=False):
                 raise ValueError(f"Invalid BLAST row at {blast}:{number}; expected staxids in column 13")
             row_count += 1
             subject = row[1]
+            subject_order.setdefault(subject, None)
             taxids = [taxid.strip() for taxid in row[12].split(";")]
             if len(taxids) > 1:
                 multi_taxid_rows += 1
@@ -98,25 +103,28 @@ def build_paths(blast, taxid_paths, output, audit, allow_unmapped=False):
                 unmapped.setdefault(subject, set()).update(missing)
                 continue
             if empty:
+                subjects[subject] = ""
                 continue
             taxonomy = paths[taxids[0]]
             for taxid in taxids[1:]:
                 taxonomy = common_taxonomy(taxonomy, paths[taxid])
-            if subject in subjects:
+            if subject in empty_path_subjects:
+                taxonomy = ""
+            elif subject in subjects:
                 taxonomy = common_taxonomy(subjects[subject], taxonomy)
             subjects[subject] = taxonomy
 
     for subject, taxonomy in subjects.items():
-        if not taxonomy:
+        if not taxonomy and subject not in empty_path_subjects:
             unmapped.setdefault(subject, set()).add("no common kingdom")
     missing_taxids = {taxid for taxids in unmapped.values() for taxid in taxids
                       if taxid != "no common kingdom"}
-    if unmapped and not allow_unmapped:
+    if unmapped and not (allow_unmapped or unmapped_as_empty):
         raise ValueError(f"{len(unmapped)} BLAST subjects have unmapped taxids or no common kingdom "
                          f"({len(missing_taxids)} distinct unmapped taxids; e.g. {min(unmapped)!r}); "
-                         "pass --allow-unmapped to omit them")
+                         "pass --allow-unmapped to omit them or --unmapped-as-empty to classify them as unclassified")
 
-    kept = subjects.keys() - unmapped.keys() - empty_path_subjects
+    kept = (subjects.keys() | unmapped.keys()) if unmapped_as_empty else subjects.keys() - unmapped.keys()
     audit_data = {
         "input_sha256": {"blast": sha256(blast), "taxid_paths": sha256(taxid_paths)},
         "blast_rows": row_count,
@@ -131,6 +139,17 @@ def build_paths(blast, taxid_paths, output, audit, allow_unmapped=False):
         "empty_path_subjects": len(empty_path_subjects),
         "empty_path_subject_ids": sorted(empty_path_subjects),
     }
+    if unmapped_as_empty:
+        audit_data["unmapped_as_empty_subject_count"] = len(unmapped)
+        audit_data["unmapped_as_empty_subjects"] = {
+            subject: sorted(
+                "no common kingdom" if taxid == "no common kingdom" else
+                f"no taxid ({taxid or 'empty'})" if taxid in ("N/A", "0", "") else
+                f"taxid {taxid} absent from taxid paths"
+                for taxid in taxids
+            )
+            for subject, taxids in sorted(unmapped.items())
+        }
     temporary = {}
     published = []
     try:
@@ -140,9 +159,13 @@ def build_paths(blast, taxid_paths, output, audit, allow_unmapped=False):
             temporary[output] = Path(handle.name)
             writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
             writer.writerow(("Accession", "Taxonomy"))
-            for subject, taxonomy in subjects.items():
-                if subject in kept:
-                    writer.writerow((subject, taxonomy))
+            if unmapped_as_empty:
+                for subject in subject_order:
+                    writer.writerow((subject, "" if subject in unmapped else subjects[subject]))
+            else:
+                for subject, taxonomy in subjects.items():
+                    if subject in kept:
+                        writer.writerow((subject, taxonomy))
         with NamedTemporaryFile("w", dir=audit.parent, prefix=f".{audit.name}.",
                                 suffix=".tmp", encoding="utf-8", delete=False) as handle:
             temporary[audit] = Path(handle.name)
@@ -167,10 +190,13 @@ def main(argv=None):
     parser.add_argument("--taxid-paths", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--audit", type=Path)
-    parser.add_argument("--allow-unmapped", action="store_true")
+    policy = parser.add_mutually_exclusive_group()
+    policy.add_argument("--allow-unmapped", action="store_true")
+    policy.add_argument("--unmapped-as-empty", action="store_true")
     args = parser.parse_args(argv)
     audit = args.audit or args.output.with_suffix(args.output.suffix + ".audit.json")
-    build_paths(args.blast, args.taxid_paths, args.output, audit, args.allow_unmapped)
+    build_paths(args.blast, args.taxid_paths, args.output, audit,
+                args.allow_unmapped, args.unmapped_as_empty)
 
 
 if __name__ == "__main__":

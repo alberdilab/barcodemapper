@@ -85,7 +85,7 @@ def test_ktaxonomy_plain_ranks_and_default_name_map(tmp_path):
         ("131567", "1", "R", "1", "cellular organisms"),
         ("2759", "131567", "D", "2", "Eukaryota"),
         ("3", "2759", "K1", "3", "ignored"),
-        ("4", "3", "K", "3", "Viridiplantae"),
+        ("4", "3", "K", "3", "Metazoa"),
         ("5", "4", "P", "4", "Tracheophyta"),
         ("6", "5", "P1", "5", "ignored"),
         ("7", "6", "C", "6", "Magnoliopsida"),
@@ -99,7 +99,7 @@ def test_ktaxonomy_plain_ranks_and_default_name_map(tmp_path):
     audit = tmp_path / "audit.json"
     builder.main(["--ktaxonomy", str(source), "--output", str(output), "--audit", str(audit)])
     paths = rows(output)
-    assert paths["7"].startswith("k__Plantae;p__Tracheophyta;c__Magnoliopsida;")
+    assert paths["7"].startswith("k__Animalia;p__Tracheophyta;c__Magnoliopsida;")
     assert paths["3"].startswith("k__Eukaryota;p__")
     assert paths["8"].endswith("s__Species alpha")
     assert paths["9"] == paths["8"]

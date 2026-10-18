@@ -1,0 +1,21 @@
+# Frozen before examining classification accuracy. Apply the same settings to
+# COI and ITS; do not tune them on the final confirmation reads.
+blast_version: "2.16.0"
+# These reads are 100-150 bp. The regular blastn task uses shorter seed words
+# than megablast, retaining sensitivity to divergent COI and ITS references.
+# blastn-short is designed for much shorter oligos and is not used here.
+task: blastn
+# A 1e-5 e-value and 80% identity/coverage admit divergent marker matches;
+# the LCA rule below handles ambiguity rather than forcing a species call.
+evalue: 0.00001
+min_percent_identity: 80.0
+min_query_coverage_percent: 80.0  # qcovhsp, measured on each read mate
+max_target_seqs: 1000  # per mate; a capped top-score tie remains unclassified
+lca_tie_policy:
+  score: bit_score
+  ties: exact_equal_score
+  paired_reads: union_top_scoring_accepted_hits_per_mate
+  assignment: lowest_common_ancestor_of_tied_taxonomy_paths
+  accepted_assignment: classified
+  no_accepted_hits: no_hit
+  top_tie_reaches_max_target_seqs: unclassified

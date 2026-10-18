@@ -8,9 +8,7 @@ package:
 source:
   # GitHub tag archive: exists as soon as tag v{{ version }} is pushed (barcodemapper is not on PyPI).
   url: https://github.com/alberdilab/barcodemapper/archive/refs/tags/v{{ version }}.tar.gz
-  # PLACEHOLDER: fill in after tag v{{ version }} is pushed. Do not submit with this value:
-  #   curl -sL https://github.com/alberdilab/barcodemapper/archive/refs/tags/v1.2.3.tar.gz | shasum -a 256
-  sha256: REPLACE_WITH_SHA256_AFTER_RELEASE_TAG
+  sha256: 97e2178c960c2d70d864f8c3e70a8445f856aaa748cd166c6a7d1409c48d55b0
 
 build:
   number: 0

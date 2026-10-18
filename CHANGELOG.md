@@ -9,6 +9,8 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 - Add `-k` / `--max-hits N` to cap Bowtie2 alignments per read.
 - Add `--all-hits` (alias `--full`) to report all Bowtie2 alignments (`-a`), as earlier versions did.
 
+- Keep the Bowtie2 alignments as BAM files in `<tmpdir>/bowtie/`, written with `--no-unal` (unaligned reads are left out), so thresholds can be revisited without remapping. Use `--no-bam` to skip them.
+
 ### Changed
 
 - Bowtie2 now reports at most 200 alignments per read by default (`-k 200`). Benchmarks showed 0-1.1% of read assignments changing, unchanged detected taxa, and a much faster, lighter mapping step. Use `--all-hits` for the previous behaviour; results can differ slightly from 1.1.x otherwise.

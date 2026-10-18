@@ -28,6 +28,7 @@ REPORT_FILE = config.get("report_file", None)
 MAX_EDIT_PERCENT = config.get("max_edit_percent", 3.0)
 MIN_COVERAGE = config.get("min_coverage", None)
 MAX_HITS = config.get("max_hits", None)
+KEEP_BAM = config.get("keep_bam", True)
 # Without a hit cap (bowtie2 -a) mapping needs far more memory and time, so
 # scale the mapping request: 1M-pair benchmarks peaked at 43-55 GB (about
 # 3.6x the input) against 22-24 GB when capped, and took up to 20 min per GB of input.
@@ -225,9 +226,11 @@ rule bowtie2_mapping:
         r1 = f"{TMP_DIR}/fastp/{{sample}}_1.fq.gz",
         r2 = f"{TMP_DIR}/fastp/{{sample}}_2.fq.gz",
     output:
-        f"{TMP_DIR}/extract/{{sample}}.tsv"
+        tsv = f"{TMP_DIR}/extract/{{sample}}.tsv",
+        bam = f"{TMP_DIR}/bowtie/{{sample}}.bam" if KEEP_BAM else []
     params:
         database = BARCODEMAPPER_BASE,
+        bam_arg = lambda wildcards, output: f"--bam-out {shlex.quote(output.bam)} --threads 4" if KEEP_BAM else "",
         hits_arg = "-a" if MAX_HITS is None else f"-k {MAX_HITS}",
         package_dir=PACKAGE_DIR,
         max_edit_percent=MAX_EDIT_PERCENT,
@@ -247,17 +250,18 @@ rule bowtie2_mapping:
     shell:
         """
         set -o pipefail
-        trap 'rm -f {output:q}.unsorted' EXIT
+        trap 'rm -f {output.tsv:q}.unsorted' EXIT
         bowtie2 \
             --time \
+            --no-unal \
             --threads {threads} \
             -x {params.database:q} \
             -1 {input.r1:q} \
             -2 {input.r2:q} \
             {params.hits_arg} \
             --seed 1337 \
-        | python {params.package_dir:q}/workflow/scripts/stream_extract_taxonomy.py --output {output:q}.unsorted --max-edit-percent {params.max_edit_percent} --min-covered {params.min_coverage}
-        LC_ALL=C sort -s -t $'\\t' -k1,1 -o {output:q} {output:q}.unsorted
+        | python {params.package_dir:q}/workflow/scripts/stream_extract_taxonomy.py --output {output.tsv:q}.unsorted --max-edit-percent {params.max_edit_percent} --min-covered {params.min_coverage} {params.bam_arg}
+        LC_ALL=C sort -s -t $'\\t' -k1,1 -o {output.tsv:q} {output.tsv:q}.unsorted
         """
 
 ################################################################################

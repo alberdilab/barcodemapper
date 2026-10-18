@@ -103,6 +103,22 @@ def test_stream_extraction_matches_bam_extraction(tmp_path):
         assert expected.read_text()  # not vacuous
 
 
+@pytest.mark.skipif(shutil.which("samtools") is None, reason="samtools not installed")
+def test_stream_extraction_can_also_write_bam(tmp_path):
+    sam = tmp_path / "in.sam"
+    sam.write_text("@HD\tVN:1.6\n@SQ\tSN:ref1|ITS|k__Fungi\tLN:1000\n"
+                   + "\t".join(["r1", "0", "ref1|ITS|k__Fungi", "1", "60", "120M", "*", "0", "0",
+                               "A" * 120, "I" * 120, "NM:i:0"]) + "\n")
+    scripts = Path(__file__).resolve().parents[1] / "barcodemapper/workflow/scripts"
+    bam = tmp_path / "out.bam"
+    with open(sam) as handle:
+        subprocess.run([sys.executable, str(scripts / "stream_extract_taxonomy.py"), "--output",
+                        str(tmp_path / "out.tsv"), "--bam-out", str(bam)], stdin=handle, check=True)
+    with pysam.AlignmentFile(bam, "rb") as reads:
+        assert [read.query_name for read in reads] == ["r1"]
+    assert (tmp_path / "out.tsv").read_text().startswith("r1\t")
+
+
 def _require_tools(*names: str) -> None:
     missing = [name for name in names if shutil.which(name) is None]
     if missing:
@@ -123,11 +139,12 @@ def _use_local_storage(monkeypatch, root: Path) -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize(("max_hits", "expected", "excluded"), [
-    (None, "-a", "-k 50"),
-    (50, "-k 50", "-a"),
+@pytest.mark.parametrize(("max_hits", "expected", "excluded", "keep_bam"), [
+    (None, "-a", "-k 50", True),
+    (50, "-k 50", "-a", True),
+    (50, "-k 50", "-a", False),
 ])
-def test_bowtie2_mapping_renders_hit_limit_without_bowtie2(tmp_path, max_hits, expected, excluded):
+def test_bowtie2_mapping_renders_hit_limit_without_bowtie2(tmp_path, max_hits, expected, excluded, keep_bam):
     _require_tools("snakemake")
     database, reads = make_fixture(tmp_path)
     work = tmp_path / "work"
@@ -154,8 +171,9 @@ def test_bowtie2_mapping_renders_hit_limit_without_bowtie2(tmp_path, max_hits, e
         "report_file": str(tmp_path / "results.html"),
         "build_only": "no",
         "max_hits": max_hits,
+        "keep_bam": keep_bam,
     }))
-    bam = work / "bowtie/positive.bam"
+    bam = work / ("bowtie/positive.bam" if keep_bam else "extract/positive.tsv")
     result = subprocess.run([
         "snakemake", "-s", str(cli.PACKAGE_DIR / "workflow/Snakefile"),
         "--directory", str(work), "--configfile", str(config_path),
@@ -166,7 +184,8 @@ def test_bowtie2_mapping_renders_hit_limit_without_bowtie2(tmp_path, max_hits, e
     ], capture_output=True, text=True)
     command = result.stdout + result.stderr
     assert result.returncode == 0, command
-    assert "bowtie2" in command and "--seed 1337" in command
+    assert "bowtie2" in command and "--seed 1337" in command and "--no-unal" in command
+    assert ("--bam-out" in command) is keep_bam
     assert re.search(r"(?<!\S)" + re.escape(expected) + r"(?!\S)", command)
     assert not re.search(r"(?<!\S)" + re.escape(excluded) + r"(?!\S)", command)
 

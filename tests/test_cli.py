@@ -115,6 +115,23 @@ def test_max_hits_is_recorded_in_config_and_manifest(monkeypatch, tmp_path, opti
     assert manifest["parameters"]["max_hits"] == expected
 
 
+@pytest.mark.parametrize(("option", "expected"), [([], True), (["--no-bam"], False)])
+def test_keep_bam_is_recorded_in_config(monkeypatch, tmp_path, option, expected):
+    database = _db(tmp_path)
+    reads = tmp_path / "reads"
+    reads.mkdir()
+    (reads / "sample_1.fq.gz").touch()
+    (reads / "sample_2.fq.gz").touch()
+    work = tmp_path / "work"
+    monkeypatch.setattr(cli.shutil, "which", lambda name: f"/mock/{name}")
+    monkeypatch.setattr(cli, "run_snakemake", lambda *args: None)
+    monkeypatch.setattr(cli, "_tool_version", lambda name: "test")
+
+    cli.main(["-d", str(database), "-i", str(reads), "-o", str(tmp_path / "r.tsv"), "-t", str(work), *option])
+
+    assert yaml.safe_load((work / "data/config.yaml").read_text())["keep_bam"] is expected
+
+
 @pytest.mark.parametrize(("option", "message"), [
     (["-k", "50", "--all-hits"], "not allowed with argument"),
     (["-k", "0"], "-k/--max-hits must be positive"),

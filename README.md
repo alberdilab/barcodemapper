@@ -90,6 +90,8 @@ For example, `barcodemapper -i reads -d references/barcodemapper.fa.gz -o result
 
 By default Bowtie2 reports at most 200 alignments per read (`-k 200`). In benchmarks on six samples this changed 0-1.1% of read assignments against reporting all hits, left the detected taxa unchanged, and cut the mapping step from up to five hours to a few minutes and peak memory by about half. Use `-k` / `--max-hits N` to change the cap. Bowtie2 `-k` stops after finding N valid alignments, which are not necessarily the best N, so for reads with more than N equally good hits the shared taxonomy can be assigned from a subset. Use `--all-hits` (alias `--full`) to report every alignment (`-a`); this can be much slower on repetitive sequences and large databases, and the pipeline requests more memory and time for the mapping step automatically. `--all-hits` cannot be combined with `-k`.
 
+Bowtie2 alignments are kept as one BAM per sample in `<tmpdir>/bowtie/`, written with `--no-unal` so reads that did not align are left out and the files stay small. Because `-m` and `-c` are applied after Bowtie2, each BAM holds every alignment Bowtie2 reported, including those a stricter threshold excluded, so the data can be re-extracted at other thresholds without remapping. Alignments are still limited by Bowtie2's own minimum score and by the `-k` cap, and the BAMs do not record how many reads failed to align. Use `--no-bam` to skip them and save disk space.
+
 ### Slurm
 
 Use `--slurm` on a cluster with the Snakemake Slurm executor plugin installed. Adjust `barcodemapper/profile/slurm/config.yaml` for site resources before running large datasets; the provided profile submits up to 50 jobs and caps threads per job at 8.

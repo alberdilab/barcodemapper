@@ -1,6 +1,7 @@
 """Stream SAM text on stdin and write the same TSV as extract_taxonomy.py (no BAM, no pysam)."""
 import argparse
 import re
+import subprocess
 import sys
 
 CIGAR_OP = re.compile(r"(\d+)([MIDNSHP=X])")
@@ -12,12 +13,34 @@ def main():
     parser.add_argument("--output", required=True)
     parser.add_argument("--max-edit-percent", type=float, default=3.0)
     parser.add_argument("--min-covered", type=int, default=80)
+    parser.add_argument("--bam-out", help="Also write the incoming SAM to this BAM (needs samtools)")
+    parser.add_argument("--threads", type=int, default=1, help="samtools compression threads")
     args = parser.parse_args()
     max_edit, min_cov = args.max_edit_percent, args.min_covered
 
-    with open(args.output, "w", buffering=1 << 20) as out:
+    bam = None
+    if args.bam_out:
+        bam = subprocess.Popen(
+            ["samtools", "view", "-b", "-@", str(args.threads), "-o", args.bam_out, "-"],
+            stdin=subprocess.PIPE, text=True)
+    try:
+        extract(sys.stdin, args.output, max_edit, min_cov, bam.stdin if bam else None)
+    except BaseException:
+        if bam:
+            bam.kill()
+        raise
+    if bam:
+        bam.stdin.close()
+        if bam.wait() != 0:
+            sys.exit(f"samtools failed writing {args.bam_out}")
+
+
+def extract(lines, output, max_edit, min_cov, passthrough=None):
+    with open(output, "w", buffering=1 << 20) as out:
         write = out.write
-        for line in sys.stdin:
+        for line in lines:
+            if passthrough is not None:
+                passthrough.write(line)
             if line[0] == "@":
                 continue
             f = line.split("\t", 11)

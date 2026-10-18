@@ -501,6 +501,8 @@ def _parser() -> argparse.ArgumentParser:
     hits.add_argument("--all-hits", "--full", dest="all_hits", action="store_true",
                       help="Report all Bowtie2 alignments per read (-a) instead of capping them; "
                            "slower and needs more memory")
+    parser.add_argument("--no-bam", action="store_true",
+                        help="Do not keep the Bowtie2 alignments as BAM files in <tmpdir>/bowtie (saves disk space)")
     parser.add_argument("--adapter-r1", default=DEFAULT_ADAPTER, help="R1 adapter sequence, or 'auto'")
     parser.add_argument("--adapter-r2", default=DEFAULT_ADAPTER, help="R2 adapter sequence, or 'auto'")
     parser.add_argument("--min-read-length", type=int, default=100, help="Minimum read length after fastp (default: 100)")
@@ -646,6 +648,7 @@ def main(argv: list[str] | None = None) -> None:
         "max_edit_percent": args.max_mismatches,
         "min_coverage": args.min_coverage,
         "max_hits": args.max_hits,
+        "keep_bam": not args.no_bam,
         "adapter_r1": args.adapter_r1,
         "adapter_r2": args.adapter_r2,
         "min_read_length": args.min_read_length,

@@ -134,10 +134,37 @@ def test_hash_mismatch_refuses_before_writing_outputs(tmp_path, capsys, changed_
                       + "two\t" + "\t".join(second) + "\n")
     with pytest.raises(SystemExit) as error:
         run(tmp_path, {"one": calls, "two": calls}, "--truth", truth,
-            ["--hashes-manifest", str(hashes)])
+            ["--hashes-manifest", str(hashes), "--allow-unverified-hashes"])
     assert error.value.code != 0
     assert "FASTQ/reference sha256 differ" in capsys.readouterr().err
     assert not (tmp_path / "out").exists()
+
+
+@pytest.mark.parametrize("missing", ["columns", "cell"])
+def test_hash_manifest_requires_file_paths_unless_opted_out(tmp_path, capsys, missing):
+    calls = "ReadID\tTaxonomy\tstatus\nr1\t\tno_hit\n"
+    truth = f"ReadID\tTaxonomy\toff_target\nr1\t{A}\tno\n"
+    hashes = tmp_path / "hashes.tsv"
+    digest = hashlib.sha256(b"sample").hexdigest()
+    header = "method\tfastq_r1_sha256\tfastq_r2_sha256\treference_sha256"
+    row = f"m\t{digest}\t{digest}\t{digest}"
+    if missing == "cell":
+        header += "\tfastq_r1_path\tfastq_r2_path\treference_path"
+        row += "\t  \tr2.fq\treference.fa"
+        (tmp_path / "r2.fq").write_bytes(b"sample")
+        (tmp_path / "reference.fa").write_bytes(b"sample")
+    hashes.write_text(f"{header}\n{row}\n")
+    manifest = ["--hashes-manifest", str(hashes)]
+    with pytest.raises(SystemExit) as error:
+        run(tmp_path, {"m": calls}, "--truth", truth, manifest)
+    assert error.value.code != 0
+    assert "fastq_r1_path" in capsys.readouterr().err
+    assert not (tmp_path / "out").exists()
+
+    run(tmp_path, {"m": calls}, "--truth", truth,
+        [*manifest, "--allow-unverified-hashes"])
+    assert "unverified" in capsys.readouterr().err.lower()
+    assert (tmp_path / "out" / "rank_metrics.tsv").exists()
 
 
 def test_hash_manifest_verifies_listed_files(tmp_path, capsys):

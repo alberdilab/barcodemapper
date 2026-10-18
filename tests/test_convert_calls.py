@@ -90,8 +90,8 @@ def test_alignment_formats_reduce_all_accepted_hits_to_lca(tmp_path, method, hit
     calls = (hit.format(read="r1/1", subject="a|ITS|ignored") +
              hit.format(read="r1/2", subject="b") +
              hit.format(read="r1/2", subject="a") +
-             hit.format(read="r2", subject="a") +
-             hit.format(read="r2", subject="c"))
+             hit.format(read="r2/1", subject="a") +
+             hit.format(read="r2/1", subject="c"))
     rows = convert(tmp_path, method, calls, ["--accession-paths", str(mapping)])
     assert [(row["Taxonomy"], row["status"]) for row in rows] == [
         ("k__Fungi;g__Alpha", "classified"), ("", "unclassified"),
@@ -107,6 +107,18 @@ def test_blast_uses_only_top_score_hits_per_mate(tmp_path):
     rows = convert(tmp_path, "blastn", hit("r1/1", "a", 200) + hit("r1/1", "b", 100),
                    ["--accession-paths", str(mapping)])
     assert (rows[0]["Taxonomy"], rows[0]["status"]) == ("k__Fungi;g__Alpha;s__one", "classified")
+
+
+def test_blast_unions_top_score_hits_from_both_mates(tmp_path):
+    mapping = tmp_path / "accessions.tsv"
+    mapping.write_text("Accession\tTaxonomy\na\tk__Fungi;g__Alpha\n"
+                       "b\tk__Fungi;g__Beta\n")
+    def hit(read, subject, score):
+        return f"{read}\t{subject}\t99\t100\t0\t0\t1\t100\t1\t100\t1e-20\t{score}\n"
+    rows = convert(tmp_path, "blastn", hit("r1/1", "a", 200) +
+                   hit("r1/1", "b", 100) + hit("r1/2", "b", 180),
+                   ["--accession-paths", str(mapping)])
+    assert (rows[0]["Taxonomy"], rows[0]["status"]) == ("k__Fungi", "classified")
 
 
 def test_blast_capped_top_tie_is_unclassified(tmp_path):
@@ -135,6 +147,25 @@ def test_blast_cap_counts_targets_not_hsp_rows(tmp_path):
         "k__Fungi;g__Alpha;s__one", "classified")
 
 
+@pytest.mark.parametrize("method,hit", [
+    ("blastn", "{read}\t{subject}\t99\t100\t0\t0\t1\t100\t1\t100\t1e-20\t{score}\n"),
+    ("vsearch", "{read}\t{subject}\t99\n"),
+    ("minimap2", "{read}\t100\t0\t100\t+\t{subject}\t100\t0\t100\t100\t100\t60\n"),
+])
+def test_alignment_without_mate_requires_single_end_flag(tmp_path, method, hit):
+    mapping = tmp_path / "accessions.tsv"
+    mapping.write_text("Accession\tTaxonomy\na\tk__Fungi;g__Alpha\n"
+                       "b\tk__Fungi;g__Beta\n")
+    calls = (hit.format(read="r1", subject="a", score=200) +
+             hit.format(read="r1", subject="b", score=100))
+    options = ["--accession-paths", str(mapping)]
+    with pytest.raises(ValueError, match="Cannot determine mate.*r1.*--single-end"):
+        convert(tmp_path, method, calls, options)
+    rows = convert(tmp_path, method, calls, [*options, "--single-end"])
+    assert (rows[0]["Taxonomy"], rows[0]["status"]) == (
+        ("k__Fungi;g__Alpha" if method == "blastn" else "k__Fungi"), "classified")
+
+
 def test_duplicate_retained_ids_are_rejected(tmp_path):
     with pytest.raises(ValueError, match="Duplicate retained read pair ID"):
         convert(tmp_path, "barcodemapper", "ReadID\tTaxonomy\n", read_ids="r1/1\nr1/2\n")
@@ -144,7 +175,7 @@ def test_unmapped_accession_is_rejected(tmp_path):
     mapping = tmp_path / "accessions.tsv"
     mapping.write_text("Accession\tTaxonomy\na\tk__Fungi\n")
     with pytest.raises(ValueError, match="Unmapped accession"):
-        convert(tmp_path, "blastn", "r1\tmissing\t99\t100\t0\t0\t1\t100\t1\t100\t1e-20\t100\n",
+        convert(tmp_path, "blastn", "r1/1\tmissing\t99\t100\t0\t0\t1\t100\t1\t100\t1e-20\t100\n",
                 ["--accession-paths", str(mapping)])
 
 

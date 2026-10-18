@@ -18,7 +18,9 @@ input manifest, working directory, results, and run record.
 1. Use `/projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks` as
    `BENCH_ROOT`, or replace that path consistently in every command and record.
    Do not use the shared lab Conda environments for these runs.
-2. Freeze the BarcodeMapper **v1.1.1** wheel before starting. It was built
+2. Project 03 uses BarcodeMapper **v1.2.3** (see
+   [03-method-comparison.md](03-method-comparison.md)); the v1.1.1 text below
+   is the frozen history of the earlier projects. Freeze the BarcodeMapper **v1.1.1** wheel before starting. It was built
    from the working tree on top of Git commit
    `893040ff24eb85a706ce2b4bf97d12e55619a11d`; v1.1.0 (commit
    `7efbdd4941a74ac3b7b5e24ca420be6ba075aed1`) was superseded because its

@@ -6,6 +6,9 @@ Taxonomy (a header is optional). BLASTn outfmt6 and vsearch userout must put
 query and subject IDs in their first two columns; PAF uses its standard query
 and target columns. Alignment inputs must already contain only accepted hits.
 BLASTn uses bit scores and the tie/cap policy in blast_config.yaml.
+BLASTn, vsearch, and minimap2 query IDs must end in /1 or /2 so mates stay
+separate. Use --single-end for unsuffixed queries; BLASTn then selects top
+scoring hits per read.
 """
 
 import argparse
@@ -28,6 +31,15 @@ def pair_id(value):
     if not read_id:
         raise ValueError("Empty read ID")
     return read_id
+
+
+def alignment_query(value, path, number, single_end):
+    read_id = pair_id(value)
+    query_id = value.strip()
+    if not single_end and not query_id.endswith(("/1", "/2")):
+        raise ValueError(f"Cannot determine mate from query ID {query_id!r} at "
+                         f"{path}:{number}; expected /1 or /2 or pass --single-end")
+    return read_id, "" if single_end else query_id[-2:]
 
 
 def retained_ids(path):
@@ -139,7 +151,7 @@ def kraken_calls(path, paths):
     return calls
 
 
-def alignment_calls(path, paths, format_name):
+def alignment_calls(path, paths, format_name, single_end=False):
     calls = {}
     with open_text(path) as handle:
         for number, row in enumerate(csv.reader(handle, delimiter="\t"), 1):
@@ -147,11 +159,12 @@ def alignment_calls(path, paths, format_name):
                 continue
             if len(row) < (12 if format_name == "minimap2" else 2):
                 raise ValueError(f"Invalid {format_name} row at {path}:{number}")
+            read_id, _ = alignment_query(row[0], path, number, single_end)
             subject = row[5] if format_name == "minimap2" else row[1]
             accession = subject if subject in paths else subject.split("|", 1)[0]
             if accession not in paths:
                 raise ValueError(f"Unmapped accession {subject!r} at {path}:{number}")
-            add_call(calls, row[0], paths[accession], "classified")
+            add_call(calls, read_id, paths[accession], "classified")
     return calls
 
 
@@ -176,7 +189,7 @@ def blast_policy(path):
     return tolerance, cap
 
 
-def blast_calls(path, paths, tolerance, cap):
+def blast_calls(path, paths, tolerance, cap, single_end=False):
     mate_hits = {}
     with open_text(path) as handle:
         for number, row in enumerate(csv.reader(handle, delimiter="\t"), 1):
@@ -184,6 +197,7 @@ def blast_calls(path, paths, tolerance, cap):
                 continue
             if len(row) < 12:
                 raise ValueError(f"Invalid blastn row at {path}:{number}")
+            read_id, mate = alignment_query(row[0], path, number, single_end)
             subject = row[1]
             accession = subject if subject in paths else subject.split("|", 1)[0]
             if accession not in paths:
@@ -194,8 +208,6 @@ def blast_calls(path, paths, tolerance, cap):
                 raise ValueError(f"Invalid BLAST bit score at {path}:{number}") from error
             if not math.isfinite(score):
                 raise ValueError(f"Invalid BLAST bit score at {path}:{number}")
-            read_id = pair_id(row[0])
-            mate = row[0].strip()[-2:] if row[0].strip().endswith(("/1", "/2")) else ""
             mate_hits.setdefault((read_id, mate), []).append((score, subject, paths[accession]))
     selected = {}
     capped = set()
@@ -229,6 +241,7 @@ def main(argv=None):
             command.add_argument("--taxid-paths", required=True, type=Path)
         elif method in ("blastn", "vsearch", "minimap2"):
             command.add_argument("--accession-paths", required=True, type=Path)
+            command.add_argument("--single-end", action="store_true")
             if method == "blastn":
                 command.add_argument("--blast-config", type=Path,
                                      default=Path(__file__).with_name("blast_config.yaml"))
@@ -243,9 +256,10 @@ def main(argv=None):
         calls = kraken_calls(args.input, load_paths(args.taxid_paths, "TaxID"))
     elif args.method == "blastn":
         calls = blast_calls(args.input, load_paths(args.accession_paths, "Accession"),
-                            *blast_policy(args.blast_config))
+                            *blast_policy(args.blast_config), args.single_end)
     else:
-        calls = alignment_calls(args.input, load_paths(args.accession_paths, "Accession"), args.method)
+        calls = alignment_calls(args.input, load_paths(args.accession_paths, "Accession"),
+                                args.method, args.single_end)
     unexpected = calls.keys() - set(ids)
     if unexpected:
         raise ValueError(f"{len(unexpected)} call IDs not present in retained reads (e.g. {min(unexpected)!r})")

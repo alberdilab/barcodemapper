@@ -18,7 +18,16 @@ The first comparison uses the three verified pilots: fungal SRR14351851, animal
 ERR6001161, and the blank ERR6001173, which is a negative control. Project 02
 truth is not built yet, so the synthetic-truth evaluation is deferred until it
 is. Best-hit outputs exist for the first two pilots only; the blank has none.
-BarcodeMapper 1.1.2 is the primary version throughout.
+BarcodeMapper v1.2.3 is the primary version throughout, at its released
+default (`-k 200` alignments per read). The earlier 1.1.2 pilot is history
+only and does not appear in the comparison tables.
+
+The default and all-fungi references are rebuilt with 1.2.3 from the retained
+cleaned sources. Their FASTA hashes must match the 1.1.2 ones before use. fastp,
+Bowtie2 and samtools are the versions pinned by 1.2.3 (see the 1.2.3 entry in
+[CHANGELOG.md](../../CHANGELOG.md)), installed in a new Project 03 environment
+with the wheel built from tag v1.2.3. The wheel SHA-256 is recorded in the run
+record. Kraken2, BLAST, vsearch and minimap2 are installed in that environment.
 
 All methods receive the same fastp-filtered paired FASTQs. Generate these
 once with BarcodeMapper's pinned fastp settings and save their hashes; the
@@ -34,8 +43,8 @@ finished. Record both:
 
 | Method | Preparation | Main output |
 | --- | --- | --- |
-| BarcodeMapper v1.1.2 (primary) | Use the frozen 1.1.2 wheel (SHA-256 in [wheel.sha256](wheel.sha256) and [EXECUTION.md](EXECUTION.md)), its frozen Bowtie2 index and the `--standard` setting | Per-fragment taxonomy from `work/taxonomy/` |
-| BarcodeMapper v1.2.3 (pilot rerun only) | Rerun the three pilots with the 1.2.3 release; confirm that `barcodemapper --version` prints 1.2.3. Report separately and never pool with the 1.1.2 results | Per-fragment taxonomy; shows version-to-version change |
+| BarcodeMapper v1.2.3 (primary) | Wheel built from tag v1.2.3 (SHA-256 recorded in the run record); confirm that `barcodemapper --version` prints 1.2.3. Released default, `-k 200` per read, on the 1.2.3-rebuilt reference | Per-fragment taxonomy from `work/taxonomy/` |
+| BarcodeMapper v1.2.3 `--all-hits` (secondary) | Same wheel and reference, pilots only, with `--all-hits`. Report separately and never pool with the primary row | Per-fragment taxonomy; shows the cost of the `-k 200` cap |
 | Single best accepted Bowtie2 hit | From BarcodeMapper's `work/extract/` TSV, retain the alignment with the highest prespecified score; resolve exact ties with a fixed accession sort rule | Per-fragment taxonomy; isolates the assignment rule without changing mapping |
 | Kraken2 2.1.3 | Build a custom database from the *same* FASTA records with deterministic synthetic taxon IDs for BarcodeMapper's taxonomy paths | Paired classification converted back to the common taxonomy paths |
 | vsearch | `--usearch_global` against the same marker FASTA; keep the top hit per mate and take the LCA of tied top hits | Per-fragment taxonomy from a global-identity search |
@@ -85,6 +94,7 @@ it writes one ReadID list per seed for selecting both mates.
 vsearch and minimap2 follow the same rules: same reference records, same
 fastp-filtered FASTQs, settings frozen before examining accuracy, and the same
 LCA conversion to the common taxonomy paths.
+Query FASTAs must retain the `/1` and `/2` read ID suffixes so alignment hits can be assigned to mates.
 
 ## Evaluation
 

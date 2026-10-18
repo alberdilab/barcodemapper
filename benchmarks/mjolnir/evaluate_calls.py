@@ -7,7 +7,8 @@ and off_target (yes/no); off-target rows have empty Taxonomy. Mock evaluation
 uses the expected-taxa.tsv made by annotate_expected_taxa.py and requires
 --run-accession. The optional hashes manifest is a TSV with method,
 fastq_r1_sha256, fastq_r2_sha256, and reference_sha256, one row per method.
-Optional matching *_path columns make the listed file hashes mandatory to verify.
+Matching *_path columns with nonempty cells are required to verify each listed
+file hash. Pass --allow-unverified-hashes to accept missing paths with a warning.
 All inputs must describe the same retained read pairs.
 """
 
@@ -15,6 +16,7 @@ import argparse
 import csv
 import hashlib
 import re
+import sys
 from collections import Counter
 from pathlib import Path
 
@@ -103,7 +105,7 @@ def load_truth(path):
     return truth
 
 
-def check_hashes(path, methods):
+def check_hashes(path, methods, allow_unverified_hashes=False):
     rows = read_tsv(path, ("method", *HASH_FIELDS))
     hashes = {}
     actual_hashes = {}
@@ -114,8 +116,15 @@ def check_hashes(path, methods):
         values = tuple(row[field].lower() for field in HASH_FIELDS)
         if any(not re.fullmatch(r"[0-9a-f]{64}", value) for value in values):
             raise ValueError(f"Invalid sha256 for {method!r} in {path}")
+        missing_paths = [field for field in HASH_PATH_FIELDS if not row.get(field, "").strip()]
+        if missing_paths:
+            message = (f"Missing hash paths for {method!r} in {path}: "
+                       f"{', '.join(missing_paths)}")
+            if not allow_unverified_hashes:
+                raise ValueError(f"{message}; use --allow-unverified-hashes to skip verification")
+            print(f"Warning: {message}; corresponding hashes are unverified", file=sys.stderr)
         for field, path_field, expected in zip(HASH_FIELDS, HASH_PATH_FIELDS, values):
-            if path_field not in row or not row[path_field]:
+            if not row.get(path_field, "").strip():
                 continue
             file_path = Path(row[path_field])
             if not file_path.is_absolute():
@@ -255,6 +264,7 @@ def main(argv=None):
     source.add_argument("--expected-taxa", type=Path)
     parser.add_argument("--run-accession")
     parser.add_argument("--hashes-manifest", type=Path)
+    parser.add_argument("--allow-unverified-hashes", action="store_true")
     parser.add_argument("--min-fragments", type=int, default=1)
     parser.add_argument("--out", required=True, type=Path)
     args = parser.parse_args(argv)
@@ -272,7 +282,7 @@ def main(argv=None):
                 raise ValueError(f"Empty or duplicate method in --calls {item!r}")
             methods[name] = load_calls(Path(path))
         if args.hashes_manifest:
-            check_hashes(args.hashes_manifest, methods)
+            check_hashes(args.hashes_manifest, methods, args.allow_unverified_hashes)
         first_ids = set(next(iter(methods.values())))
         if not first_ids or any(set(calls) != first_ids for calls in methods.values()):
             raise ValueError("Methods have empty or differing ReadID sets")

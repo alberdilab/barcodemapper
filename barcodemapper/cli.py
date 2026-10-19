@@ -231,16 +231,26 @@ def _write_manifest(
             source: {"path": config[key], "sha256": _sha256(Path(config[key]))}
             for source, key in (("bold", "bold_db"), ("unite", "unite_db"))
         }
+    levels = config.get("levels", {})
+    if levels:
+        manifest["levels"] = [
+            {"name": name, **settings, "output_file": config["output_files"][name]}
+            for name, settings in levels.items()
+        ]
     for sample in read1:
         fastp_file = Path(config["tmp_dir"]) / "fastp" / f"{sample}.json"
-        taxonomy_file = Path(config["tmp_dir"]) / "taxonomy" / f"{sample}.tsv"
         if fastp_file.is_file():
             fastp_data = json.loads(fastp_file.read_text(encoding="utf-8"))
             manifest["samples"][sample]["fastp_reads_before"] = fastp_data.get("summary", {}).get("before_filtering", {}).get("total_reads")
             manifest["samples"][sample]["fastp_reads_after"] = fastp_data.get("summary", {}).get("after_filtering", {}).get("total_reads")
-        if taxonomy_file.is_file():
-            with taxonomy_file.open(encoding="utf-8") as handle:
-                manifest["samples"][sample]["assigned_read_ids"] = max(0, sum(1 for _ in handle) - 1)
+        assigned = {}
+        for name in levels:
+            taxonomy_file = Path(config["tmp_dir"]) / "taxonomy" / name / f"{sample}.tsv"
+            if taxonomy_file.is_file():
+                with taxonomy_file.open(encoding="utf-8") as handle:
+                    assigned[name] = max(0, sum(1 for _ in handle) - 1)
+        if assigned:
+            manifest["samples"][sample]["assigned_read_ids"] = assigned
     destination.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 
@@ -543,10 +553,10 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-s", "--slurm", action="store_true", help="Submit workflow jobs through Slurm")
     parser.add_argument("--unlock", action="store_true", help="Unlock an existing working directory")
     parser.add_argument("--build", action="store_true", help="Build and index a database only")
-    parser.add_argument("-m", "--max_mismatches", "--max-mismatches", type=float, default=3.0,
-                        help="Maximum NM edit distance as a percent of aligned bases (default: 3)")
-    parser.add_argument("-c", "--min_coverage", "--min-coverage", type=int, default=80,
-                        help="Minimum aligned bases (default: 80)")
+    parser.add_argument("-m", "--max_mismatches", "--max-mismatches", type=float,
+                        help="Custom maximum NM edit distance as a percent of aligned bases (default: 3)")
+    parser.add_argument("-c", "--min_coverage", "--min-coverage", type=int,
+                        help="Custom minimum aligned bases (default: 80)")
     hits = parser.add_mutually_exclusive_group()
     hits.add_argument("-k", "--max-hits", type=int, default=DEFAULT_MAX_HITS,
                       help=f"Maximum alignments Bowtie2 reports per read (default: {DEFAULT_MAX_HITS})")
@@ -560,10 +570,44 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--min-read-length", type=int, default=100, help="Minimum read length after fastp (default: 100)")
     parser.add_argument("--complexity-threshold", type=int, default=30, help="fastp complexity threshold (default: 30)")
     parser.add_argument("--no-low-complexity-filter", action="store_true", help="Disable fastp low complexity filtering")
-    presets = parser.add_mutually_exclusive_group()
+    parser.add_argument("--stringency", metavar="LIST",
+                        help="Comma-separated stringency levels, or 'all' (default: all); choices: "
+                             + ", ".join(PRESETS))
     for name, (percent, bases) in PRESETS.items():
-        presets.add_argument(f"--{name}", action="store_true", help=f"Set -m {percent:g} and -c {bases}")
+        parser.add_argument(f"--{name}", action="store_true",
+                            help=f"Add {name} level ({percent:g}% edits, {bases} aligned bases)")
     return parser
+
+
+def _selected_levels(parser: argparse.ArgumentParser, args) -> dict[str, dict]:
+    selected = set()
+    if args.stringency is not None:
+        names = [name.strip() for name in args.stringency.split(",")]
+        if names == ["all"]:
+            selected.update(PRESETS)
+        else:
+            if "all" in names or len(names) != len(set(names)):
+                parser.error("--stringency has duplicate levels or 'all' combined with other names")
+            for name in names:
+                if name == "overview":
+                    parser.error("--stringency level 'overview' is reserved")
+                if name not in PRESETS:
+                    parser.error(f"unknown --stringency level: {name!r}; choose from {', '.join(PRESETS)}")
+            selected.update(names)
+    selected.update(name for name in PRESETS if getattr(args, name))
+    custom = args.max_mismatches is not None or args.min_coverage is not None
+    if not selected and not custom:
+        selected.update(PRESETS)
+    levels = {
+        name: {"max_edit_percent": percent, "min_coverage": bases}
+        for name, (percent, bases) in PRESETS.items() if name in selected
+    }
+    if custom:
+        levels["custom"] = {
+            "max_edit_percent": args.max_mismatches if args.max_mismatches is not None else 3.0,
+            "min_coverage": args.min_coverage if args.min_coverage is not None else 80,
+        }
+    return levels
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -643,9 +687,10 @@ def main(argv: list[str] | None = None) -> None:
         args.database = str(Path(args.db_dir or ".").expanduser().resolve() / stamp / f"{stamp}.fa.gz")
     if bool(args.bold) != bool(args.unite):
         parser.error("provide both BOLD and UNITE FASTA files, or neither")
-    if not math.isfinite(args.max_mismatches) or args.max_mismatches < 0 or args.max_mismatches > 100:
+    if (args.max_mismatches is not None and
+            (not math.isfinite(args.max_mismatches) or args.max_mismatches < 0 or args.max_mismatches > 100)):
         parser.error("-m/--max-mismatches must be between 0 and 100")
-    if args.min_coverage < 1 or args.min_read_length < 1:
+    if (args.min_coverage is not None and args.min_coverage < 1) or args.min_read_length < 1:
         parser.error("coverage and read length must be positive")
     if args.all_hits:
         args.max_hits = None
@@ -658,6 +703,7 @@ def main(argv: list[str] | None = None) -> None:
             parser.error(f"{label} must be a DNA sequence or 'auto'")
     if (args.adapter_r1 == "auto") != (args.adapter_r2 == "auto"):
         parser.error("use 'auto' for both adapters or provide both sequences")
+    levels = _selected_levels(parser, args) if not args.build else {}
 
     db_path = Path(args.database).expanduser().resolve()
     if not db_path.name.lower().endswith((".fa", ".fasta", ".fa.gz", ".fasta.gz")):
@@ -734,16 +780,16 @@ def main(argv: list[str] | None = None) -> None:
     if missing:
         parser.error("required executables are missing from PATH: " + ", ".join(missing))
 
-    for preset, (percent, bases) in PRESETS.items():
-        if getattr(args, preset):
-            args.max_mismatches, args.min_coverage = percent, bases
-            break
-
     tmp_dir.mkdir(parents=True, exist_ok=True)
     output_path = Path(args.output).expanduser().resolve() if args.output else None
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
     report_path = output_path.with_suffix(".html") if output_path else None
+    output_files = {
+        name: str(output_path if len(levels) == 1 else
+                  output_path.with_name(f"{output_path.stem}.{name}{output_path.suffix}"))
+        for name in levels
+    }
     config_path = tmp_dir / "data" / "config.yaml"
     config_path.parent.mkdir(parents=True, exist_ok=True)
     config = {
@@ -759,8 +805,8 @@ def main(argv: list[str] | None = None) -> None:
         "output_file": str(output_path) if output_path else "no",
         "build_only": "yes" if args.build else "no",
         "report_file": str(report_path) if report_path else "none",
-        "max_edit_percent": args.max_mismatches,
-        "min_coverage": args.min_coverage,
+        "levels": levels,
+        "output_files": output_files,
         "max_hits": args.max_hits,
         "keep_bam": not args.no_bam,
         "adapter_r1": args.adapter_r1,
@@ -787,7 +833,7 @@ def main(argv: list[str] | None = None) -> None:
                 read1, read2 = inputlist_to_samples(args.read1, args.read2, tmp_dir)
         except ValueError as exc:
             parser.error(str(exc))
-    config_path.write_text(yaml.safe_dump(config, sort_keys=True), encoding="utf-8")
+    config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
     run_snakemake(tmp_dir, config_path, "slurm" if args.slurm else "local")
     manifest_path = (_database_artifact(db_path, ".manifest.json") if args.build
                      else output_path.with_suffix(".manifest.json"))

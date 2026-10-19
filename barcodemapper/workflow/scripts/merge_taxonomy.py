@@ -1,30 +1,24 @@
 import pandas as pd
-from collections import defaultdict
 
 # Get input and output files from Snakemake
 input_files = list(snakemake.input)  # List of input taxonomic files
 output_file = snakemake.output[0]  # Output file path
 sample_names = list(snakemake.params.samples)  # Extract sample names from Snakemake wildcards
 
-# Initialize dictionary for taxon counts
-taxonomy_dict = defaultdict(lambda: defaultdict(int))
-
 # Process each sample's aggregated taxonomy file
+sample_frames = []
 for file, sample_name in zip(input_files, sample_names):
     df = pd.read_csv(file, sep="\t")
+    sample_frames.append(df.assign(_sample=sample_name))
 
-    # Store counts for each taxon
-    for _, row in df.iterrows():
-        taxonomy = row["Taxonomy"]
-        count = row["Count"]
-        taxonomy_dict[taxonomy][sample_name] = count
-
-# Convert dictionary to DataFrame
-merged_df = pd.DataFrame.from_dict(taxonomy_dict, orient="index").fillna(0).astype(int)
-for sample_name in sample_names:
-    if sample_name not in merged_df:
-        merged_df[sample_name] = 0
-merged_df = merged_df[sample_names]
+# Combine sample counts into a wide table
+if sample_frames:
+    counts = pd.concat(sample_frames, ignore_index=True)
+    counts = counts.drop_duplicates(subset=["Taxonomy", "_sample"], keep="last")
+    merged_df = counts.pivot(index="Taxonomy", columns="_sample", values="Count")
+else:
+    merged_df = pd.DataFrame(index=pd.Index([], name="Taxonomy"))
+merged_df = merged_df.reindex(columns=sample_names).infer_objects(copy=False).fillna(0).astype(int)
 
 # Reset index and rename columns
 merged_df.index.name = "Taxonomy"

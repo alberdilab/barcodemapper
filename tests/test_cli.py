@@ -78,8 +78,9 @@ def test_numeric_options_and_paths_with_spaces(monkeypatch, tmp_path):
     monkeypatch.setattr(cli, "_write_manifest", lambda *args: None)
     cli.main(["-d", str(database), "-i", str(reads), "-o", str(output), "-t", str(work), "-m", "2", "-c", "100"])
     config = yaml.safe_load((work / "data/config.yaml").read_text())
-    assert config["max_edit_percent"] == 2.0
-    assert config["min_coverage"] == 100
+    assert config["levels"] == {"custom": {"max_edit_percent": 2.0, "min_coverage": 100}}
+    assert config["output_files"] == {"custom": str(output)}
+    assert "max_edit_percent" not in config and "min_coverage" not in config
     assert config["barcodemapper_db"] == str(database)
     assert config["barcodemapper_index_base"] == str(work / "reference/database")
     assert config["barcodemapper_db_headers"] == str(work / "reference/database.tsv")
@@ -87,6 +88,85 @@ def test_numeric_options_and_paths_with_spaces(monkeypatch, tmp_path):
     assert captured[0][0] == "snakemake"
     assert str(work) in captured[0]
     assert json.loads((work / "data/sample_to_reads1.json").read_text()) == {"sample": [str(reads / "sample_1.fq.gz")]}
+
+
+@pytest.mark.parametrize(("options", "expected"), [
+    ([], ["ultrastrict", "strict", "standard", "permissive"]),
+    (["--stringency", "strict"], ["strict"]),
+    (["--stringency", "strict,permissive"], ["strict", "permissive"]),
+    (["--strict"], ["strict"]),
+    (["--permissive", "--ultrastrict"], ["ultrastrict", "permissive"]),
+    (["--stringency", "strict", "--permissive", "--strict"], ["strict", "permissive"]),
+    (["--stringency", "all"], ["ultrastrict", "strict", "standard", "permissive"]),
+    (["-m", "2"], ["custom"]),
+    (["-c", "100"], ["custom"]),
+    (["--strict", "-m", "1", "-c", "90"], ["strict", "custom"]),
+    (["--stringency", "permissive", "-m", "1"], ["permissive", "custom"]),
+])
+def test_stringency_levels_and_outputs(monkeypatch, tmp_path, options, expected):
+    database = _db(tmp_path)
+    reads = tmp_path / "reads"
+    reads.mkdir()
+    (reads / "sample_1.fq.gz").touch()
+    (reads / "sample_2.fq.gz").touch()
+    work = tmp_path / "work"
+    output = tmp_path / "result.table.tsv"
+    monkeypatch.setattr(cli.shutil, "which", lambda name: f"/mock/{name}")
+    monkeypatch.setattr(cli, "run_snakemake", lambda *args: None)
+    monkeypatch.setattr(cli, "_tool_version", lambda name: "test")
+
+    cli.main(["-d", str(database), "-i", str(reads), "-o", str(output), "-t", str(work), *options])
+
+    config = yaml.safe_load((work / "data/config.yaml").read_text())
+    assert list(config["levels"]) == expected
+    for name in expected:
+        if name == "custom":
+            percent = options[options.index("-m") + 1] if "-m" in options else 3.0
+            coverage = options[options.index("-c") + 1] if "-c" in options else 80
+        else:
+            percent, coverage = cli.PRESETS[name]
+        assert config["levels"][name] == {"max_edit_percent": float(percent), "min_coverage": int(coverage)}
+    assert config["output_files"] == {
+        name: str(output if len(expected) == 1 else output.with_name(f"result.table.{name}.tsv"))
+        for name in expected
+    }
+    assert config["report_file"] == str(output.with_suffix(".html"))
+    assert "max_edit_percent" not in config and "min_coverage" not in config
+    manifest = json.loads(output.with_suffix(".manifest.json").read_text())
+    assert [level["name"] for level in manifest["levels"]] == expected
+    assert [level["output_file"] for level in manifest["levels"]] == list(config["output_files"].values())
+
+
+@pytest.mark.parametrize("selection", [
+    "unknown", "overview", "strict,strict", "strict,overview", "strict,unknown", "", "all,strict",
+])
+def test_invalid_stringency_is_rejected(tmp_path, capsys, selection):
+    database = _db(tmp_path)
+    with pytest.raises(SystemExit) as error:
+        cli.main(["-d", str(database), "-i", str(tmp_path), "-o", str(tmp_path / "out.tsv"),
+                  "--stringency", selection])
+    assert error.value.code == 2
+    assert "stringency" in capsys.readouterr().err.lower()
+
+
+def test_manifest_counts_assigned_reads_per_level(tmp_path, monkeypatch):
+    database = _db(tmp_path)
+    work = tmp_path / "work"
+    for name, count in (("strict", 2), ("standard", 3)):
+        path = work / "taxonomy" / name / "sample.tsv"
+        path.parent.mkdir(parents=True)
+        path.write_text("header\n" + "row\n" * count)
+    monkeypatch.setattr(cli, "_tool_version", lambda name: "test")
+    destination = tmp_path / "run.manifest.json"
+    cli._write_manifest(destination, database, {
+        "tmp_dir": str(work),
+        "levels": {name: {"max_edit_percent": percent, "min_coverage": coverage}
+                   for name, (percent, coverage) in (("strict", (2.0, 100)), ("standard", (3.0, 80)))},
+        "output_files": {"strict": str(tmp_path / "out.strict.tsv"),
+                         "standard": str(tmp_path / "out.standard.tsv")},
+    }, {"sample": ["r1"]}, {"sample": ["r2"]})
+    manifest = json.loads(destination.read_text())
+    assert manifest["samples"]["sample"]["assigned_read_ids"] == {"strict": 2, "standard": 3}
 
 
 @pytest.mark.parametrize(("option", "expected"), [

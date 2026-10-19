@@ -233,6 +233,11 @@ tables; [05_blast_nt.sbatch](05_blast_nt.sbatch) searches nt;
 [05_kraken2_nt.sbatch](05_kraken2_nt.sbatch) classifies against Kraken2 nt;
 [submit_05.sh](submit_05.sh) prints the dependency chain unless
 `CONFIRM_SUBMIT=yes` is set. Jobs require `RUN` for BLAST and Kraken2.
+The Kraken2 path build takes kingdom taxids from
+`/maps/datasets/globe_databases/ncbi/taxonomy/20241001/nodes.dmp` because its
+`ktaxonomy.tsv` uses numeric D/K codes for these nodes. Override that source
+with `KRAKEN_KINGDOM_TAXDUMP` if needed; the audit records its checksum and
+how many kingdom taxids occur in the Kraken2 taxonomy.
 Optional variables are `READ_IDS` (BLAST subset), `THREADS`, `OUT_DIR`,
 `PRELOAD` (Kraken2, default 1), and `MEM` (Kraken2 submission, default 1150G).
 All scripts also accept path overrides (`BENCH_ROOT`, `BENCH_ENV`, `PLAN_DIR`,

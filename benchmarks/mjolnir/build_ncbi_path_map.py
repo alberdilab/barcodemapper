@@ -96,18 +96,46 @@ def taxdump_data(directory, name_map):
     return nodes, names, mapped, merged, deleted, files, input_rows, semicolon_names
 
 
-def ktaxonomy_data(path, name_map):
+def kingdom_taxids_from_file(path):
+    taxids = set()
+    with path.open(encoding="utf-8") as handle:
+        for number, line in enumerate(handle, 1):
+            taxid = line.partition("#")[0].strip()
+            if not taxid:
+                continue
+            if not taxid.isdecimal() or int(taxid) < 1:
+                raise ValueError(f"Invalid kingdom taxid at {path}:{number}")
+            taxids.add(taxid)
+    return taxids, {"type": "taxid_file", "path": str(path), "sha256": sha256(path)}
+
+
+def kingdom_taxids_from_taxdump(directory):
+    nodes = directory / "nodes.dmp"
+    taxids = {fields[0] for fields in dmp_rows(nodes, 3) if fields[2] == "kingdom"}
+    return taxids, {"type": "taxdump", "directory": str(directory),
+                    "nodes_dmp": str(nodes), "nodes_sha256": sha256(nodes)}
+
+
+def ktaxonomy_data(path, name_map, kingdom_taxids):
     nodes = {}
     names = {}
     mapped = {}
     semicolon_names = 0
     input_rows = Counter({"ktaxonomy": 0})
+    has_numeric_rank_code = False
+    kingdom_taxids_found = 0
     for fields in dmp_rows(path, 5):
         input_rows["ktaxonomy"] += 1
         taxid, parent, code, _, name = fields[:5]
+        if code[:1] in ("D", "K") and code[1:].isdigit():
+            has_numeric_rank_code = True
         rank = KRAKEN_RANKS.get(code, "")
         if taxid in nodes:
             raise ValueError(f"Duplicate taxid {taxid!r}")
+        if taxid in kingdom_taxids:
+            kingdom_taxids_found += 1
+            if rank != "domain":
+                rank = "k"
         nodes[taxid] = parent, rank
         if rank:
             letter = "k" if rank == "domain" else rank
@@ -117,7 +145,8 @@ def ktaxonomy_data(path, name_map):
             if ";" in name:
                 semicolon_names += 1
             names[taxid] = name.replace(";", ",").replace("\t", " ")
-    return nodes, names, mapped, {}, set(), {"ktaxonomy": path}, input_rows, semicolon_names
+    return (nodes, names, mapped, {}, set(), {"ktaxonomy": path}, input_rows,
+            semicolon_names, has_numeric_rank_code, kingdom_taxids_found)
 
 
 def build_paths(nodes, names, mapped):
@@ -164,7 +193,8 @@ def build_paths(nodes, names, mapped):
     return lineage
 
 
-def build_map(taxdump, ktaxonomy, output, audit, name_map=DEFAULT_NAME_MAP, report=None):
+def build_map(taxdump, ktaxonomy, output, audit, name_map=DEFAULT_NAME_MAP, report=None,
+              kingdom_taxids=None, kingdom_from_taxdump=None):
     outputs = [output, audit] + ([report] if report is not None else [])
     if len(set(outputs)) != len(outputs):
         raise ValueError("Output paths must be distinct")
@@ -173,10 +203,27 @@ def build_map(taxdump, ktaxonomy, output, audit, name_map=DEFAULT_NAME_MAP, repo
             raise ValueError(f"Output already exists: {path}")
 
     mapping = name_map_rows(name_map)
+    if kingdom_taxids is not None and kingdom_from_taxdump is not None:
+        raise ValueError("Choose only one kingdom taxid source")
+    kingdom_source = None
+    kingdom_taxids_found = 0
     if taxdump is not None:
+        if kingdom_taxids is not None or kingdom_from_taxdump is not None:
+            raise ValueError("Kingdom taxid options require --ktaxonomy")
         nodes, names, mapped, merged, deleted, files, input_rows, semicolon_names = taxdump_data(taxdump, mapping)
     else:
-        nodes, names, mapped, merged, deleted, files, input_rows, semicolon_names = ktaxonomy_data(ktaxonomy, mapping)
+        selected = set()
+        if kingdom_taxids is not None:
+            selected, kingdom_source = kingdom_taxids_from_file(kingdom_taxids)
+        elif kingdom_from_taxdump is not None:
+            selected, kingdom_source = kingdom_taxids_from_taxdump(kingdom_from_taxdump)
+        (nodes, names, mapped, merged, deleted, files, input_rows, semicolon_names,
+         has_numeric_rank_code, kingdom_taxids_found) = ktaxonomy_data(ktaxonomy, mapping, selected)
+        if has_numeric_rank_code and kingdom_source is None:
+            raise ValueError("Numeric D/K rank codes in ktaxonomy require "
+                             "--kingdom-taxids or --kingdom-from-taxdump")
+        if kingdom_source is not None and not kingdom_taxids_found:
+            raise ValueError("No supplied kingdom taxids found in ktaxonomy")
     lineage = build_paths(nodes, names, mapped)
     lost = Counter()
     resolved_depth_counts = Counter()
@@ -239,6 +286,8 @@ def build_map(taxdump, ktaxonomy, output, audit, name_map=DEFAULT_NAME_MAP, repo
             "input_rows": dict(input_rows),
             "name_map_sha256": sha256(name_map),
             "name_map_rows": len(mapping),
+            "kingdom_source": kingdom_source,
+            "kingdom_taxids_found": kingdom_taxids_found,
             "node_count": len(nodes),
             "merged_count": len(merged),
             "merged_rows": merged_rows,
@@ -274,13 +323,17 @@ def main(argv=None):
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--taxdump", type=Path)
     source.add_argument("--ktaxonomy", type=Path)
+    kingdoms = parser.add_mutually_exclusive_group()
+    kingdoms.add_argument("--kingdom-taxids", type=Path)
+    kingdoms.add_argument("--kingdom-from-taxdump", type=Path)
     parser.add_argument("--name-map", type=Path, default=DEFAULT_NAME_MAP)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--audit", type=Path)
     parser.add_argument("--report", type=Path)
     args = parser.parse_args(argv)
     audit = args.audit or args.output.with_suffix(args.output.suffix + ".audit.json")
-    build_map(args.taxdump, args.ktaxonomy, args.output, audit, args.name_map, args.report)
+    build_map(args.taxdump, args.ktaxonomy, args.output, audit, args.name_map, args.report,
+              args.kingdom_taxids, args.kingdom_from_taxdump)
 
 
 if __name__ == "__main__":

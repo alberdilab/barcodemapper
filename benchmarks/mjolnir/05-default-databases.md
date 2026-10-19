@@ -39,7 +39,7 @@ do not download a new nt. Checked on Mjolnir:
 | --- | --- | --- |
 | BLAST nt | `ncbi/nt/20250722` | Newest full nt. Also available: `ncbi/nt_core/20251119`. |
 | Kraken2 nt | `kraken2/kraken2_nt/20240530` | Newest; `hash.k2d` is 953 GB. The 20231129 build is 1.5 TB with its tarball. |
-| NCBI taxonomy | `ncbi/taxonomy/20251202` | Newer than both databases. Check taxon IDs in the Kraken2 `ktaxonomy.tsv` before relying on it. |
+| NCBI taxonomy | `ncbi/taxonomy/20241001` (decided 2026-10-19) | Used for the BLAST arm and as the kingdom source for the Kraken2 path map. It matches the Kraken2 database (May 2024) and BarcodeMapper's reference classes. `20251202` shows the same taxa under newer classes and orders (for example Pichiomycetes, Serinales) and is kept only as an optional sensitivity table. |
 
 1. Treat these as read-only. Copy nothing; point to them.
 2. Record each path, directory date, file list and the `nt.md5` / `*.md5`
@@ -59,7 +59,7 @@ do not download a new nt. Checked on Mjolnir:
 **Taxonomy check (2026-10-18):** of 2,056,473 taxon IDs in the Kraken2
 `ktaxonomy.tsv`, 9,764 (0.5%) are absent from `taxonomy/20251202/nodes.dmp`:
 9,340 were merged into other IDs and 421 were deleted. Decision: the Kraken2 arm
-uses its own `ktaxonomy.tsv` and the BLAST arm uses `taxonomy/20251202`, and the
+uses its own `ktaxonomy.tsv` and the BLAST arm uses `taxonomy/20241001` (the 20251202 check above was done before this decision), and the
 name-mapping table is built per arm. Do not translate Kraken2 IDs with the newer
 dump.
 
@@ -112,6 +112,19 @@ Rules, frozen before looking at any accuracy result:
 
 The converters need tests; they are in `tests/test_build_ncbi_path_map.py`,
 `tests/test_build_nt_accession_paths.py` and `tests/test_nt_integration.py`.
+
+**Name-map review (2026-10-19), expected mock taxa.** All 66 expected species
+exist in NCBI. Animal run (26 compared): only the kingdom differs systematically
+(`Animalia` vs `Metazoa`, mapped); 3 species differ at family because they are
+different taxa, and `Parachela_hn` vs `Parachela` at order is mapped (the
+reference holds only the `_hn` form). Fungal run (33 compared): 18 differ at class
+and 20 at order against `20251202`, because BarcodeMapper's reference and the
+Kraken2 `ktaxonomy.tsv` use the older Saccharomycetes/Saccharomycetales
+classification. This is version drift, not naming, and is the reason for choosing
+`20241001`. Seven expected species have no exact BarcodeMapper species path
+(spelling variants or renamed species) and are reported as such, not mapped.
+The Kraken2 `ktaxonomy.tsv` codes kingdoms as `D1`/`D2`, so the kingdom taxids
+come from the taxdump's `nodes.dmp` (`--kingdom-from-taxdump`).
 
 ## Reference and input facts (Mjolnir, 2026-10-18)
 

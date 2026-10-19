@@ -29,11 +29,15 @@ def test_nt_builders_feed_both_converters_and_keep_no_hit_pairs(tmp_path):
     ktaxonomy.write_text(
         "1\t|\t1\t|\tR\t|\t0\t|\troot\t|\n"
         "2759\t|\t1\t|\tD\t|\t1\t|\tEukaryota\t|\n"
-        "2\t|\t2759\t|\tK\t|\t2\t|\tMetazoa\t|\n"
-        "3\t|\t2\t|\tP\t|\t3\t|\tArthropoda\t|\n"
+        "33154\t|\t2759\t|\tD1\t|\t2\t|\tOpisthokonta\t|\n"
+        "33208\t|\t33154\t|\tD2\t|\t3\t|\tMetazoa\t|\n"
+        "3\t|\t33208\t|\tP\t|\t4\t|\tArthropoda\t|\n"
         "4\t|\t3\t|\tC\t|\t4\t|\tInsecta\t|\n")
     taxid_paths = tmp_path / "taxid-paths.tsv"
-    build_ncbi_path_map.main(["--ktaxonomy", str(ktaxonomy), "--output", str(taxid_paths)])
+    kingdom_taxids = tmp_path / "kingdom-taxids.txt"
+    kingdom_taxids.write_text("33208\n")
+    build_ncbi_path_map.main(["--ktaxonomy", str(ktaxonomy), "--kingdom-taxids",
+                              str(kingdom_taxids), "--output", str(taxid_paths)])
 
     blast = tmp_path / "blast.tsv"
     blast.write_text(
@@ -72,9 +76,13 @@ def test_empty_path_blast_hits_are_kept_through_builder_and_converter(tmp_path):
         "1\t|\t1\t|\tR\t|\t0\t|\troot\t|\n"
         "32630\t|\t1\t|\tR\t|\t1\t|\tsynthetic construct\t|\n"
         "2759\t|\t1\t|\tD\t|\t1\t|\tEukaryota\t|\n"
-        "33208\t|\t2759\t|\tK\t|\t2\t|\tMetazoa\t|\n")
+        "33154\t|\t2759\t|\tD1\t|\t2\t|\tOpisthokonta\t|\n"
+        "33208\t|\t33154\t|\tD2\t|\t3\t|\tMetazoa\t|\n")
     taxid_paths = tmp_path / "taxid-paths.tsv"
-    build_ncbi_path_map.main(["--ktaxonomy", str(ktaxonomy), "--output", str(taxid_paths)])
+    kingdom_taxids = tmp_path / "kingdom-taxids.txt"
+    kingdom_taxids.write_text("33208\n")
+    build_ncbi_path_map.main(["--ktaxonomy", str(ktaxonomy), "--kingdom-taxids",
+                              str(kingdom_taxids), "--output", str(taxid_paths)])
 
     def hit(read, subject, score, taxid):
         return (f"{read}\t{subject}\t99\t100\t0\t0\t1\t100\t1\t100\t"

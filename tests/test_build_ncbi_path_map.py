@@ -84,28 +84,109 @@ def test_ktaxonomy_plain_ranks_and_default_name_map(tmp_path):
         ("1", "1", "R", "0", "root"),
         ("131567", "1", "R", "1", "cellular organisms"),
         ("2759", "131567", "D", "2", "Eukaryota"),
-        ("3", "2759", "K1", "3", "ignored"),
-        ("4", "3", "K", "3", "Metazoa"),
-        ("5", "4", "P", "4", "Tracheophyta"),
+        ("33154", "2759", "D1", "3", "Opisthokonta"),
+        ("33208", "33154", "D2", "4", "Metazoa"),
+        ("4751", "33154", "D2", "4", "Fungi"),
+        ("33090", "2759", "D1", "3", "Viridiplantae"),
+        ("3", "33154", "K1", "4", "ignored"),
+        ("5", "33090", "P", "4", "Tracheophyta"),
         ("6", "5", "P1", "5", "ignored"),
         ("7", "6", "C", "6", "Magnoliopsida"),
         ("20", "131567", "R1", "2", "ignored"),
         ("21", "20", "D1", "3", "ignored"),
         ("2", "21", "D", "4", "Bacteria"),
         ("200", "2", "K", "5", "Bacillati"),
+        ("2157", "131567", "D", "2", "Archaea"),
+        ("215700", "2157", "K", "3", "Thermoproteati"),
+        ("10239", "1", "D", "1", "Viruses"),
+        ("102390", "10239", "K", "2", "Riboviria"),
     ]) + "8\t|\t7\t|\tS\t|\t7\t|\tSpecies alpha\n" +
                       "9\t|\t8\t|\tS1\t|\t8\t|\tSpecies alpha strain\n")
+    kingdom_taxids = tmp_path / "kingdom-taxids.txt"
+    kingdom_taxids.write_text("# Frozen kingdom IDs\n33090 # plants\n33208\n4751\n999999\n")
     output = tmp_path / "paths.tsv"
     audit = tmp_path / "audit.json"
-    builder.main(["--ktaxonomy", str(source), "--output", str(output), "--audit", str(audit)])
+    builder.main(["--ktaxonomy", str(source), "--kingdom-taxids", str(kingdom_taxids),
+                  "--output", str(output), "--audit", str(audit)])
     paths = rows(output)
-    assert paths["7"].startswith("k__Animalia;p__Tracheophyta;c__Magnoliopsida;")
+    assert paths["7"].startswith("k__Viridiplantae;p__Tracheophyta;c__Magnoliopsida;")
+    assert paths["33154"].startswith("k__Eukaryota;p__")
+    assert paths["33208"].startswith("k__Animalia;p__")
+    assert paths["4751"].startswith("k__Fungi;p__")
     assert paths["3"].startswith("k__Eukaryota;p__")
     assert paths["8"].endswith("s__Species alpha")
     assert paths["9"] == paths["8"]
     assert paths["200"].startswith("k__Bacteria;p__")
+    assert paths["215700"].startswith("k__Archaea;p__")
+    assert paths["102390"].startswith("k__Viruses;p__")
     assert paths["1"] == paths["131567"] == paths["20"] == paths["21"] == ""
-    assert json.loads(audit.read_text())["name_map_changes"] == 1
+    result = json.loads(audit.read_text())
+    assert result["name_map_changes"] == 1
+    assert result["kingdom_taxids_found"] == 3
+    assert result["kingdom_source"] == {"type": "taxid_file", "path": str(kingdom_taxids),
+                                        "sha256": builder.sha256(kingdom_taxids)}
+
+
+def test_ktaxonomy_kingdom_taxids_from_taxdump(tmp_path):
+    source = tmp_path / "ktaxonomy.tsv"
+    source.write_text("".join(dmp(*row) for row in [
+        ("1", "1", "R", "0", "root"),
+        ("2759", "1", "D", "1", "Eukaryota"),
+        ("33154", "2759", "D1", "2", "Opisthokonta"),
+        ("33208", "33154", "D2", "3", "Metazoa"),
+        ("4751", "33154", "D2", "3", "Fungi"),
+        ("33090", "2759", "D1", "2", "Viridiplantae"),
+    ]))
+    taxdump = tmp_path / "taxdump"
+    taxdump.mkdir()
+    nodes = taxdump / "nodes.dmp"
+    nodes.write_text(dmp("33154", "2759", "clade") +
+                     dmp("33208", "33154", "kingdom") +
+                     dmp("4751", "33154", "kingdom") +
+                     dmp("33090", "2759", "kingdom") +
+                     dmp("999999", "2759", "kingdom"))
+    output = tmp_path / "paths.tsv"
+    audit = tmp_path / "audit.json"
+    builder.main(["--ktaxonomy", str(source), "--kingdom-from-taxdump", str(taxdump),
+                  "--output", str(output), "--audit", str(audit)])
+    paths = rows(output)
+    assert paths["33154"].startswith("k__Eukaryota;p__")
+    assert paths["33208"].startswith("k__Animalia;p__")
+    assert paths["4751"].startswith("k__Fungi;p__")
+    assert paths["33090"].startswith("k__Viridiplantae;p__")
+    result = json.loads(audit.read_text())
+    assert result["kingdom_taxids_found"] == 3
+    assert result["kingdom_source"] == {
+        "type": "taxdump", "directory": str(taxdump), "nodes_dmp": str(nodes),
+        "nodes_sha256": builder.sha256(nodes)}
+
+
+@pytest.mark.parametrize("code", ["D2", "K1"])
+def test_ktaxonomy_numeric_codes_require_present_kingdom_source(tmp_path, code):
+    source = tmp_path / "ktaxonomy.tsv"
+    source.write_text(dmp("1", "1", "R", "0", "root") +
+                      dmp("2759", "1", "D", "1", "Eukaryota") +
+                      dmp("33208", "2759", code, "2", "Metazoa"))
+    output = tmp_path / "paths.tsv"
+    with pytest.raises(ValueError, match="--kingdom-taxids or --kingdom-from-taxdump"):
+        builder.main(["--ktaxonomy", str(source), "--output", str(output)])
+    assert not output.exists()
+    kingdom_taxids = tmp_path / "kingdom-taxids.txt"
+    kingdom_taxids.write_text("999999\n")
+    with pytest.raises(ValueError, match="No supplied kingdom taxids found"):
+        builder.main(["--ktaxonomy", str(source), "--kingdom-taxids",
+                      str(kingdom_taxids), "--output", str(output)])
+    assert not output.exists()
+
+
+def test_ktaxonomy_plain_k_needs_no_kingdom_source(tmp_path):
+    source = tmp_path / "ktaxonomy.tsv"
+    source.write_text(dmp("1", "1", "R", "0", "root") +
+                      dmp("2759", "1", "D", "1", "Eukaryota") +
+                      dmp("33208", "2759", "K", "2", "Metazoa"))
+    output = tmp_path / "paths.tsv"
+    builder.main(["--ktaxonomy", str(source), "--output", str(output)])
+    assert rows(output)["33208"].startswith("k__Animalia;p__")
 
 
 def test_refuses_to_overwrite_existing_output(tmp_path):

@@ -14,7 +14,8 @@ BENCH_ENV="${BENCH_ENV:-$BENCH_ROOT/projects/03-method-comparison/software/env-1
 PLAN_DIR="${PLAN_DIR:-$BENCH_ROOT/plans}"
 PROJECT_DIR="${PROJECT_DIR:-$BENCH_ROOT/projects/05-default-databases}"
 OUT_DIR="${OUT_DIR:-$PROJECT_DIR/taxonomy}"
-NCBI_TAXDUMP="${NCBI_TAXDUMP:-/maps/datasets/globe_databases/ncbi/taxonomy/20251202}"
+NCBI_TAXDUMP="${NCBI_TAXDUMP:-/maps/datasets/globe_databases/ncbi/taxonomy/20241001}"
+KRAKEN_KINGDOM_TAXDUMP="${KRAKEN_KINGDOM_TAXDUMP:-/maps/datasets/globe_databases/ncbi/taxonomy/20241001}"
 KRAKEN_DB="${KRAKEN_DB:-/maps/datasets/globe_databases/kraken2/kraken2_nt/20240530}"
 KTAXONOMY="${KTAXONOMY:-$KRAKEN_DB/ktaxonomy.tsv}"
 NAME_MAP="${NAME_MAP:-$PLAN_DIR/metadata/05-default-databases/name-map.tsv}"
@@ -23,7 +24,8 @@ BUILDER="$PLAN_DIR/build_ncbi_path_map.py"
 
 for input in "$PYTHON" "$BUILDER" "$NAME_MAP" "$KTAXONOMY" \
              "$NCBI_TAXDUMP/nodes.dmp" "$NCBI_TAXDUMP/names.dmp" \
-             "$NCBI_TAXDUMP/merged.dmp" "$NCBI_TAXDUMP/delnodes.dmp"; do
+             "$NCBI_TAXDUMP/merged.dmp" "$NCBI_TAXDUMP/delnodes.dmp" \
+             "$KRAKEN_KINGDOM_TAXDUMP/nodes.dmp"; do
     [[ -f "$input" ]] || { echo "Missing input: $input" >&2; exit 2; }
 done
 [[ ! -e "$OUT_DIR" && ! -L "$OUT_DIR" ]] || { echo "Refusing to overwrite $OUT_DIR" >&2; exit 2; }
@@ -37,7 +39,8 @@ trap 'rm -rf "$stage"' EXIT
     --audit "$stage/blast-taxid-paths.audit.json" \
     --report "$stage/blast-taxid-paths.unresolved.tsv"
 "$PYTHON" "$BUILDER" \
-    --ktaxonomy "$KTAXONOMY" --name-map "$NAME_MAP" \
+    --ktaxonomy "$KTAXONOMY" --kingdom-from-taxdump "$KRAKEN_KINGDOM_TAXDUMP" \
+    --name-map "$NAME_MAP" \
     --output "$stage/kraken-taxid-paths.tsv" \
     --audit "$stage/kraken-taxid-paths.audit.json" \
     --report "$stage/kraken-taxid-paths.unresolved.tsv"

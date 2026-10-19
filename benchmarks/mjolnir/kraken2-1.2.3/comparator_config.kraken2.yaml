@@ -1,0 +1,70 @@
+# Frozen comparator settings: Kraken2 2.1.3 on the three 1.2.3 pilot datasets
+# (primary --standard runs). Frozen on 2026-10-19T03:08:18Z (UTC), BEFORE any Kraken2
+# classification job was submitted and before any Kraken2 result or accuracy was
+# examined. Exploratory timing runs; the same settings apply to every dataset.
+# THESE TWO SETTINGS ARE THE FULL PREDECLARED SET. No other setting, parameter
+# value or database is to be tried, and nothing is tuned on accuracy. A change
+# needs a new file, not an edit.
+frozen_utc: "2026-10-19T03:08:18Z"
+tool_versions: {kraken2: "2.1.3"}
+
+database:
+  # Built from the same FASTA records and taxonomy tree as BarcodeMapper
+  # (references-1.2.3/<name>.fa.gz) with deterministic synthetic taxids;
+  # k=35, minimizer length 31 (Kraken2 defaults), no --max-db-size truncation.
+  # Audit (source = library = map record counts, per marker) passed for both.
+  SRR14351851: all-fungi
+  ERR6001161: default
+  ERR6001173: default
+  default:
+    path: projects/03-method-comparison/work/kraken2/default
+    build_job: 45939543
+    sha256:
+      hash.k2d: 0e8f84f103e6186686eaa91a9d973bf70752ef51a0adab1b585914cb07ad7930
+      opts.k2d: 89f4ee3b56847112548660c347504c4b43cc81087c8ff25ce2793f2e7eac60d9
+      taxo.k2d: 9a98043d5f5a5118c0efc3fe4ca27b4a629d8b59aac1ae67a3a3069f1b9e6455
+      taxid-to-path.tsv: 42d15da57a24d1b09cf4b8fb538bec43f02f109826461c96e1a8401397cd669f
+  all-fungi:
+    path: projects/03-method-comparison/work/kraken2/all-fungi
+    build_job: 45939544
+    sha256:
+      hash.k2d: a218afeb290790aaa8aed3d262da9f9b816aea3a382dc1b5f530e671d8e5b286
+      opts.k2d: bed9a579ffdaaacc0aabe27be0cbefc6d06b04bfd53c4007554e304d69e404be
+      taxo.k2d: 3fbbde00d6d34341dcde8395fe16c50477c63db6035a444575bb28a32c9a597a
+      taxid-to-path.tsv: 8c35a948b717d507671ebff76aac3291dbb669606d4f26a6584f667a12164c7b
+
+reads:
+  # fastp-filtered pairs of the primary 1.2.3 --standard pilots; sha256 must
+  # equal results/pilots-1.2.3/<run>-pilot-standard.SHA256SUMS. R1/R2 IDs are
+  # identical and in the same order (Kraken2 --paired).
+  path: work/pilots-1.2.3/<run>-pilot-standard/fastp/<run>_{1,2}.fq.gz
+
+primary:
+  name: kraken2
+  results_dir: results/pilots-1.2.3/kraken2
+  command: >-
+    kraken2 --db DB --paired --confidence 0.0 --threads 16
+    --report RUN.report.txt --output RUN.output.txt R1.fq.gz R2.fq.gz
+  # Kraken2 defaults otherwise (--minimum-hit-groups 2, --minimum-base-quality 0,
+  # database loaded into RAM, no --memory-mapping, no --use-names, no
+  # --report-zero-counts, no --classified-out/--unclassified-out).
+
+secondary:
+  name: kraken2-conf0.1
+  results_dir: results/pilots-1.2.3/kraken2-conf0.1
+  command: >-
+    kraken2 --db DB --paired --confidence 0.1 --threads 16
+    --report RUN.report.txt --output RUN.output.txt R1.fq.gz R2.fq.gz
+  # Predeclared variant: identical to primary except --confidence 0.1.
+
+hit_to_call:
+  # convert_calls.py kraken2 (committed HEAD version): taxid -> path via the
+  # DB's taxid-to-path.tsv; U or taxid 0 = unclassified; every retained pair
+  # gets one row. Retained-pair list = R1 fastp FASTQ.
+
+slurm:
+  partition: cpuqueue
+  cpus_per_task: 16
+  mem: 2G   # DB (hash+taxo+opts) ~0.44 GB; x1.5 = 0.67 GB, rounded up for process/thread buffers
+  wrapper: time_classifier.sh --label classifier-only --cpus 16 (GNU time -v, taskset)
+  note: exploratory timings only; DB load time is inside the timing

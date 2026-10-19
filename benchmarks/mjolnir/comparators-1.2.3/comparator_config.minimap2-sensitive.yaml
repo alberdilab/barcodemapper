@@ -1,0 +1,26 @@
+# Frozen minimap2 SENSITIVE VARIANT, frozen on 2026-10-19T02:56:38Z (UTC), before
+# any run of this variant and without looking at taxonomy correctness.
+# The preset row (comparator_config.yaml, -x sr) stays the PRIMARY minimap2
+# row; this variant is reported as a separately labelled row
+# ("minimap2 sensitive") and is never pooled with it.
+#
+# Rationale (based only on the hit counts of the preset run, not on accuracy):
+# with -x sr the preset repetitive-minimizer filter (-f1000,5000) left very few
+# accepted hits on the redundant 10.5 M-record COI/ITS reference (e.g. 49 mates
+# with an accepted hit out of ~98k pairs for ERR6001161, versus ~59k for
+# vsearch). Seeds from conserved regions occur >1000 times in such a
+# reference and are discarded. Raising the occurrence thresholds tests whether
+# seeding sensitivity, not alignment scoring, explains the low yield.
+# Everything else is identical to the preset run.
+frozen_utc: "2026-10-19T02:56:38Z"
+tool_version: "2.31-r1302"
+reference: {SRR14351851: all-fungi, ERR6001161: default, ERR6001173: default}
+reads: same fastp pairs and mate-labelled query FASTAs as comparator_config.yaml
+acceptance_rule: identical to comparator_config.yaml (covered >= 80 bases and NM*100 <= 3.0*covered, applied by accept_hits.py)
+minimap2:
+  command: >-
+    minimap2 -x sr -f 20000,100000 -t 16 -N 200 --secondary=yes -p 0.5 -I 32G -c
+    -o OUT.paf REF.fa.gz QUERY.fa
+  threads: 16
+output_dir: results/pilots-1.2.3/minimap2-sensitive/
+slurm: {partition: cpuqueue, cpus_per_task: 16, mem: 200G, wrapper: time_classifier.sh --label classifier-only --cpus 16}

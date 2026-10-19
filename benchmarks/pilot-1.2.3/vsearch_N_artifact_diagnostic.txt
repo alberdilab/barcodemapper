@@ -1,0 +1,2 @@
+ERR6001161 vsearch R1 accepted hits: accepted_hits=118461 hits_with_any_N_in_aligned_target=111992 (94.5%) hits_with_>=50%_N=111992
+(read-only diagnostic: vsearch_n_diagnostic.py; vsearch scores N as a match, the reference has long N runs; BarcodeMapper/Bowtie2 and minimap2 do not)

@@ -1,0 +1,25 @@
+method	run	mate	wall_seconds	cpu_hours	peak_rss_GiB	node	exit_status
+vsearch (invalid, N artifact)	SRR14351851	R1	5848.000	24.310	142.884	mjolnirgpu03fl	0
+vsearch (invalid, N artifact)	SRR14351851	R2	5624.000	23.493	142.916	mjolnirgpu03fl	0
+vsearch (invalid, N artifact)	ERR6001161	R1	2341.540	9.734	141.247	mjolnircomp14fl	0
+vsearch (invalid, N artifact)	ERR6001161	R2	2350.510	9.767	141.288	mjolnircomp14fl	0
+vsearch (invalid, N artifact)	ERR6001173	R1	1199.400	4.604	141.266	mjolnircomp15fl	0
+vsearch (invalid, N artifact)	ERR6001173	R2	1195.750	4.603	141.180	mjolnircomp15fl	0
+vsearch (n_mismatch)	SRR14351851	R1	4424.000	18.341	142.911	mjolnircomp01fl	0
+vsearch (n_mismatch)	SRR14351851	R2	4724.000	19.614	142.970	mjolnircomp01fl	0
+vsearch (n_mismatch)	ERR6001161	R1	5178.000	20.643	141.248	mjolnircomp06fl	0
+vsearch (n_mismatch)	ERR6001161	R2	5301.000	21.033	141.274	mjolnircomp06fl	0
+vsearch (n_mismatch)	ERR6001173	R1	1616.370	5.927	141.206	mjolnirgpu03fl	0
+vsearch (n_mismatch)	ERR6001173	R2	1668.070	6.161	141.248	mjolnirgpu03fl	0
+minimap2 preset	SRR14351851	R1	102.350	0.072	32.555	mjolnirgpu03fl	0
+minimap2 preset	SRR14351851	R2	98.480	0.069	31.579	mjolnirgpu03fl	0
+minimap2 preset	ERR6001161	R1	68.320	0.049	33.263	mjolnircomp15fl	0
+minimap2 preset	ERR6001161	R2	68.310	0.049	32.179	mjolnircomp15fl	0
+minimap2 preset	ERR6001173	R1	101.450	0.071	31.788	mjolnirgpu03fl	0
+minimap2 preset	ERR6001173	R2	100.220	0.071	31.405	mjolnirgpu03fl	0
+minimap2 sensitive	SRR14351851	R1	83.270	0.059	32.740	mjolnircomp12fl	0
+minimap2 sensitive	SRR14351851	R2	84.180	0.059	31.925	mjolnircomp12fl	0
+minimap2 sensitive	ERR6001161	R1	82.900	0.057	32.403	mjolnircomp01fl	0
+minimap2 sensitive	ERR6001161	R2	79.680	0.056	32.499	mjolnircomp01fl	0
+minimap2 sensitive	ERR6001173	R1	134.800	0.097	32.482	mjolnircomp06fl	0
+minimap2 sensitive	ERR6001173	R2	132.640	0.097	31.480	mjolnircomp06fl	0

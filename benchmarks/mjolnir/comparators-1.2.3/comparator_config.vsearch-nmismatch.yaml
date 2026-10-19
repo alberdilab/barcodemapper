@@ -1,0 +1,32 @@
+# Frozen vsearch RERUN with --n_mismatch, frozen on 2026-10-19T03:06:53Z (UTC), before
+# any job of this rerun was submitted. Not chosen by looking at taxonomy
+# correctness; chosen because of the N-run artifact below.
+#
+# The FIRST vsearch run (comparator_config.yaml, results/pilots-1.2.3/vsearch/)
+# is RETAINED AS INVALID (N-run artifact) and is EXCLUDED from comparison
+# tables. It is not deleted. Evidence: evaluation/vsearch_N_artifact_diagnostic.txt
+# (ERR6001161 R1: 111,992 of 118,461 accepted hits = 94.5% aligned onto
+# reference stretches that are >=50% N). vsearch scores N as a match, the
+# reference records contain long N runs, so reads aligned at 100% identity
+# to N runs and displaced real hits under --top_hits_only.
+#
+# Only difference to the first config: --n_mismatch (N columns scored as
+# mismatches, vsearch 2.32.0 option "consider aligning with N's as mismatches").
+# Everything else, including the exact post-hoc acceptance rule, is identical.
+# Check before the production jobs: a tiny test (300 reads of ERR6001161 R1)
+# must show the N-run hit fraction collapsing; otherwise this config is void.
+frozen_utc: "2026-10-19T03:06:53Z"
+tool_version: "2.32.0"
+reference: {SRR14351851: all-fungi, ERR6001161: default, ERR6001173: default}
+reads: same fastp pairs and mate-labelled query FASTAs as comparator_config.yaml
+acceptance_rule: identical to comparator_config.yaml (covered >= 80 bases and NM*100 <= 3.0*covered, accept_hits.py)
+vsearch:
+  command: >-
+    vsearch --usearch_global QUERY.fa --db REF.fa.gz --userout OUT.tsv
+    --userfields query+target+id+alnlen+mism+opens+gaps+ql+qlo+qhi+tl+caln+qcov
+    --id 0.97 --iddef 2 --mincols 80 --strand both
+    --maxaccepts 0 --maxrejects 1000 --top_hits_only
+    --n_mismatch --qmask none --dbmask none --fasta_width 0 --threads 16
+  threads: 16
+output_dir: results/pilots-1.2.3/vsearch-nmismatch/
+slurm: {partition: cpuqueue, cpus_per_task: 16, mem: 200G, wrapper: time_classifier.sh --label classifier-only --cpus 16}

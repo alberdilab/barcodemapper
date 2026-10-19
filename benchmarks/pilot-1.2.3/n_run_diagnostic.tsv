@@ -1,0 +1,16 @@
+label	accepted_alignments	with_any_N	with_ge50pct_N	frac_ge50pct_N
+ERR6001161.vsearch_invalid	237966	224925	224925	0.9452
+ERR6001161.vsearch_n_mismatch	99	0	0	0.0000
+ERR6001161.minimap2_preset	820	0	0	0.0000
+ERR6001161.minimap2_sensitive	851	0	0	0.0000
+ERR6001161.barcodemapper_standard	106	0	0	0.0000
+ERR6001173.vsearch_invalid	126673	116530	116527	0.9199
+ERR6001173.vsearch_n_mismatch	197	0	0	0.0000
+ERR6001173.minimap2_preset	1408	0	0	0.0000
+ERR6001173.minimap2_sensitive	1697	0	0	0.0000
+ERR6001173.barcodemapper_standard	23	0	0	0.0000
+SRR14351851.vsearch_invalid	70098	62141	62084	0.8857
+SRR14351851.vsearch_n_mismatch	1492	4	0	0.0000
+SRR14351851.minimap2_preset	10621	46	0	0.0000
+SRR14351851.minimap2_sensitive	13052	50	0	0.0000
+SRR14351851.barcodemapper_standard	1521	39	0	0.0000

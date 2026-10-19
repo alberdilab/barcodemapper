@@ -1,0 +1,470 @@
+run	method	run_accession	expected_species	coverage_status	exact_species_reference_records	fragments	detected
+SRR14351851	barcodemapper_standard	SRR14351851	Aspergillus flavus	exact_species	171	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Aspergillus fumigatus	exact_species	42	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Blastobotrys proliferans	exact_species	4	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Candida albicans	exact_species	96	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Candida dubliniensis	exact_species	6	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Candida glabrata	genus_only	0	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Candida haemulonis	genus_only	0	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Candida parapsilosis	exact_species	22	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Candida tropicalis	genus_only	0	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Clavispora lusitaniae	exact_species	17	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Cryptococcus gattii	exact_species	1	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Cryptococcus neoformans	exact_species	5	1	yes
+SRR14351851	barcodemapper_standard	SRR14351851	Cutaneotrichosporon dermatis	exact_species	1	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Cyberlindnera jadinii	exact_species	4	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Debaryomyces hansenii	exact_species	4	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Diutina catenulata	exact_species	3	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Diutina mesorugosa	exact_species	2	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Diutina rugosa	exact_species	7	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Filobasidium magnum	exact_species	3	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Geotrichum candidum	exact_species	54	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Geotrichum fermentans	genus_only	0	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Kluyveromyces marxianus	exact_species	4	5	yes
+SRR14351851	barcodemapper_standard	SRR14351851	Kodamaea ohmeri	exact_species	14	1	yes
+SRR14351851	barcodemapper_standard	SRR14351851	Lomentospora prolificans	unresolved_source_family	0	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Meyerozyma caribbica	exact_species	4	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Meyerozyma guilliermondii	exact_species	20	1	yes
+SRR14351851	barcodemapper_standard	SRR14351851	Naganishia albida	exact_species	8	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Pichia kudriavzevii	exact_species	36	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Pichia membranifaciens	exact_species	26	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Pichia norvegensis	exact_species	4	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Rhodotorula mucilaginosa	exact_species	8	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Scedosporium aurantiacum	exact_species	5	3	yes
+SRR14351851	barcodemapper_standard	SRR14351851	Scedosporium boydii	exact_species	5	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Trichophyton rubrum	exact_species	8	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Trichosporon asahii	exact_species	6	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Wickerhamomyces anomalus	exact_species	14	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Yarrowia lipolytica	exact_species	10	0	no
+SRR14351851	barcodemapper_standard	SRR14351851	Zygoascus hellenicus	exact_species	1	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Aspergillus flavus	exact_species	171	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Aspergillus fumigatus	exact_species	42	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Blastobotrys proliferans	exact_species	4	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Candida albicans	exact_species	96	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Candida dubliniensis	exact_species	6	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Candida glabrata	genus_only	0	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Candida haemulonis	genus_only	0	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Candida parapsilosis	exact_species	22	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Candida tropicalis	genus_only	0	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Clavispora lusitaniae	exact_species	17	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Cryptococcus gattii	exact_species	1	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Cryptococcus neoformans	exact_species	5	1	yes
+SRR14351851	barcodemapper_allhits	SRR14351851	Cutaneotrichosporon dermatis	exact_species	1	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Cyberlindnera jadinii	exact_species	4	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Debaryomyces hansenii	exact_species	4	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Diutina catenulata	exact_species	3	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Diutina mesorugosa	exact_species	2	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Diutina rugosa	exact_species	7	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Filobasidium magnum	exact_species	3	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Geotrichum candidum	exact_species	54	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Geotrichum fermentans	genus_only	0	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Kluyveromyces marxianus	exact_species	4	5	yes
+SRR14351851	barcodemapper_allhits	SRR14351851	Kodamaea ohmeri	exact_species	14	1	yes
+SRR14351851	barcodemapper_allhits	SRR14351851	Lomentospora prolificans	unresolved_source_family	0	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Meyerozyma caribbica	exact_species	4	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Meyerozyma guilliermondii	exact_species	20	1	yes
+SRR14351851	barcodemapper_allhits	SRR14351851	Naganishia albida	exact_species	8	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Pichia kudriavzevii	exact_species	36	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Pichia membranifaciens	exact_species	26	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Pichia norvegensis	exact_species	4	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Rhodotorula mucilaginosa	exact_species	8	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Scedosporium aurantiacum	exact_species	5	3	yes
+SRR14351851	barcodemapper_allhits	SRR14351851	Scedosporium boydii	exact_species	5	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Trichophyton rubrum	exact_species	8	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Trichosporon asahii	exact_species	6	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Wickerhamomyces anomalus	exact_species	14	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Yarrowia lipolytica	exact_species	10	0	no
+SRR14351851	barcodemapper_allhits	SRR14351851	Zygoascus hellenicus	exact_species	1	0	no
+SRR14351851	best_hit	SRR14351851	Aspergillus flavus	exact_species	171	0	no
+SRR14351851	best_hit	SRR14351851	Aspergillus fumigatus	exact_species	42	0	no
+SRR14351851	best_hit	SRR14351851	Blastobotrys proliferans	exact_species	4	0	no
+SRR14351851	best_hit	SRR14351851	Candida albicans	exact_species	96	0	no
+SRR14351851	best_hit	SRR14351851	Candida dubliniensis	exact_species	6	0	no
+SRR14351851	best_hit	SRR14351851	Candida glabrata	genus_only	0	0	no
+SRR14351851	best_hit	SRR14351851	Candida haemulonis	genus_only	0	0	no
+SRR14351851	best_hit	SRR14351851	Candida parapsilosis	exact_species	22	0	no
+SRR14351851	best_hit	SRR14351851	Candida tropicalis	genus_only	0	0	no
+SRR14351851	best_hit	SRR14351851	Clavispora lusitaniae	exact_species	17	0	no
+SRR14351851	best_hit	SRR14351851	Cryptococcus gattii	exact_species	1	0	no
+SRR14351851	best_hit	SRR14351851	Cryptococcus neoformans	exact_species	5	1	yes
+SRR14351851	best_hit	SRR14351851	Cutaneotrichosporon dermatis	exact_species	1	1	yes
+SRR14351851	best_hit	SRR14351851	Cyberlindnera jadinii	exact_species	4	12	yes
+SRR14351851	best_hit	SRR14351851	Debaryomyces hansenii	exact_species	4	0	no
+SRR14351851	best_hit	SRR14351851	Diutina catenulata	exact_species	3	0	no
+SRR14351851	best_hit	SRR14351851	Diutina mesorugosa	exact_species	2	0	no
+SRR14351851	best_hit	SRR14351851	Diutina rugosa	exact_species	7	0	no
+SRR14351851	best_hit	SRR14351851	Filobasidium magnum	exact_species	3	0	no
+SRR14351851	best_hit	SRR14351851	Geotrichum candidum	exact_species	54	0	no
+SRR14351851	best_hit	SRR14351851	Geotrichum fermentans	genus_only	0	0	no
+SRR14351851	best_hit	SRR14351851	Kluyveromyces marxianus	exact_species	4	5	yes
+SRR14351851	best_hit	SRR14351851	Kodamaea ohmeri	exact_species	14	1	yes
+SRR14351851	best_hit	SRR14351851	Lomentospora prolificans	unresolved_source_family	0	0	no
+SRR14351851	best_hit	SRR14351851	Meyerozyma caribbica	exact_species	4	0	no
+SRR14351851	best_hit	SRR14351851	Meyerozyma guilliermondii	exact_species	20	19	yes
+SRR14351851	best_hit	SRR14351851	Naganishia albida	exact_species	8	2	yes
+SRR14351851	best_hit	SRR14351851	Pichia kudriavzevii	exact_species	36	1	yes
+SRR14351851	best_hit	SRR14351851	Pichia membranifaciens	exact_species	26	0	no
+SRR14351851	best_hit	SRR14351851	Pichia norvegensis	exact_species	4	0	no
+SRR14351851	best_hit	SRR14351851	Rhodotorula mucilaginosa	exact_species	8	2	yes
+SRR14351851	best_hit	SRR14351851	Scedosporium aurantiacum	exact_species	5	4	yes
+SRR14351851	best_hit	SRR14351851	Scedosporium boydii	exact_species	5	0	no
+SRR14351851	best_hit	SRR14351851	Trichophyton rubrum	exact_species	8	0	no
+SRR14351851	best_hit	SRR14351851	Trichosporon asahii	exact_species	6	0	no
+SRR14351851	best_hit	SRR14351851	Wickerhamomyces anomalus	exact_species	14	3	yes
+SRR14351851	best_hit	SRR14351851	Yarrowia lipolytica	exact_species	10	0	no
+SRR14351851	best_hit	SRR14351851	Zygoascus hellenicus	exact_species	1	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Aspergillus flavus	exact_species	171	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Aspergillus fumigatus	exact_species	42	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Blastobotrys proliferans	exact_species	4	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Candida albicans	exact_species	96	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Candida dubliniensis	exact_species	6	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Candida glabrata	genus_only	0	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Candida haemulonis	genus_only	0	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Candida parapsilosis	exact_species	22	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Candida tropicalis	genus_only	0	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Clavispora lusitaniae	exact_species	17	1	yes
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Cryptococcus gattii	exact_species	1	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Cryptococcus neoformans	exact_species	5	2	yes
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Cutaneotrichosporon dermatis	exact_species	1	1	yes
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Cyberlindnera jadinii	exact_species	4	3	yes
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Debaryomyces hansenii	exact_species	4	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Diutina catenulata	exact_species	3	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Diutina mesorugosa	exact_species	2	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Diutina rugosa	exact_species	7	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Filobasidium magnum	exact_species	3	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Geotrichum candidum	exact_species	54	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Geotrichum fermentans	genus_only	0	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Kluyveromyces marxianus	exact_species	4	7	yes
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Kodamaea ohmeri	exact_species	14	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Lomentospora prolificans	unresolved_source_family	0	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Meyerozyma caribbica	exact_species	4	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Meyerozyma guilliermondii	exact_species	20	25	yes
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Naganishia albida	exact_species	8	2	yes
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Pichia kudriavzevii	exact_species	36	2	yes
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Pichia membranifaciens	exact_species	26	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Pichia norvegensis	exact_species	4	1	yes
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Rhodotorula mucilaginosa	exact_species	8	4	yes
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Scedosporium aurantiacum	exact_species	5	4	yes
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Scedosporium boydii	exact_species	5	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Trichophyton rubrum	exact_species	8	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Trichosporon asahii	exact_species	6	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Wickerhamomyces anomalus	exact_species	14	3	yes
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Yarrowia lipolytica	exact_species	10	0	no
+SRR14351851	vsearch (invalid, N artifact)	SRR14351851	Zygoascus hellenicus	exact_species	1	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Aspergillus flavus	exact_species	171	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Aspergillus fumigatus	exact_species	42	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Blastobotrys proliferans	exact_species	4	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Candida albicans	exact_species	96	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Candida dubliniensis	exact_species	6	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Candida glabrata	genus_only	0	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Candida haemulonis	genus_only	0	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Candida parapsilosis	exact_species	22	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Candida tropicalis	genus_only	0	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Clavispora lusitaniae	exact_species	17	1	yes
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Cryptococcus gattii	exact_species	1	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Cryptococcus neoformans	exact_species	5	2	yes
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Cutaneotrichosporon dermatis	exact_species	1	1	yes
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Cyberlindnera jadinii	exact_species	4	8	yes
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Debaryomyces hansenii	exact_species	4	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Diutina catenulata	exact_species	3	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Diutina mesorugosa	exact_species	2	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Diutina rugosa	exact_species	7	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Filobasidium magnum	exact_species	3	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Geotrichum candidum	exact_species	54	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Geotrichum fermentans	genus_only	0	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Kluyveromyces marxianus	exact_species	4	7	yes
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Kodamaea ohmeri	exact_species	14	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Lomentospora prolificans	unresolved_source_family	0	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Meyerozyma caribbica	exact_species	4	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Meyerozyma guilliermondii	exact_species	20	25	yes
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Naganishia albida	exact_species	8	2	yes
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Pichia kudriavzevii	exact_species	36	2	yes
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Pichia membranifaciens	exact_species	26	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Pichia norvegensis	exact_species	4	1	yes
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Rhodotorula mucilaginosa	exact_species	8	4	yes
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Scedosporium aurantiacum	exact_species	5	6	yes
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Scedosporium boydii	exact_species	5	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Trichophyton rubrum	exact_species	8	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Trichosporon asahii	exact_species	6	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Wickerhamomyces anomalus	exact_species	14	2	yes
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Yarrowia lipolytica	exact_species	10	0	no
+SRR14351851	vsearch (n_mismatch)	SRR14351851	Zygoascus hellenicus	exact_species	1	2	yes
+SRR14351851	minimap2_preset	SRR14351851	Aspergillus flavus	exact_species	171	0	no
+SRR14351851	minimap2_preset	SRR14351851	Aspergillus fumigatus	exact_species	42	0	no
+SRR14351851	minimap2_preset	SRR14351851	Blastobotrys proliferans	exact_species	4	0	no
+SRR14351851	minimap2_preset	SRR14351851	Candida albicans	exact_species	96	0	no
+SRR14351851	minimap2_preset	SRR14351851	Candida dubliniensis	exact_species	6	0	no
+SRR14351851	minimap2_preset	SRR14351851	Candida glabrata	genus_only	0	0	no
+SRR14351851	minimap2_preset	SRR14351851	Candida haemulonis	genus_only	0	0	no
+SRR14351851	minimap2_preset	SRR14351851	Candida parapsilosis	exact_species	22	0	no
+SRR14351851	minimap2_preset	SRR14351851	Candida tropicalis	genus_only	0	0	no
+SRR14351851	minimap2_preset	SRR14351851	Clavispora lusitaniae	exact_species	17	0	no
+SRR14351851	minimap2_preset	SRR14351851	Cryptococcus gattii	exact_species	1	0	no
+SRR14351851	minimap2_preset	SRR14351851	Cryptococcus neoformans	exact_species	5	1	yes
+SRR14351851	minimap2_preset	SRR14351851	Cutaneotrichosporon dermatis	exact_species	1	0	no
+SRR14351851	minimap2_preset	SRR14351851	Cyberlindnera jadinii	exact_species	4	0	no
+SRR14351851	minimap2_preset	SRR14351851	Debaryomyces hansenii	exact_species	4	0	no
+SRR14351851	minimap2_preset	SRR14351851	Diutina catenulata	exact_species	3	0	no
+SRR14351851	minimap2_preset	SRR14351851	Diutina mesorugosa	exact_species	2	0	no
+SRR14351851	minimap2_preset	SRR14351851	Diutina rugosa	exact_species	7	0	no
+SRR14351851	minimap2_preset	SRR14351851	Filobasidium magnum	exact_species	3	0	no
+SRR14351851	minimap2_preset	SRR14351851	Geotrichum candidum	exact_species	54	0	no
+SRR14351851	minimap2_preset	SRR14351851	Geotrichum fermentans	genus_only	0	0	no
+SRR14351851	minimap2_preset	SRR14351851	Kluyveromyces marxianus	exact_species	4	3	yes
+SRR14351851	minimap2_preset	SRR14351851	Kodamaea ohmeri	exact_species	14	0	no
+SRR14351851	minimap2_preset	SRR14351851	Lomentospora prolificans	unresolved_source_family	0	0	no
+SRR14351851	minimap2_preset	SRR14351851	Meyerozyma caribbica	exact_species	4	0	no
+SRR14351851	minimap2_preset	SRR14351851	Meyerozyma guilliermondii	exact_species	20	0	no
+SRR14351851	minimap2_preset	SRR14351851	Naganishia albida	exact_species	8	0	no
+SRR14351851	minimap2_preset	SRR14351851	Pichia kudriavzevii	exact_species	36	0	no
+SRR14351851	minimap2_preset	SRR14351851	Pichia membranifaciens	exact_species	26	0	no
+SRR14351851	minimap2_preset	SRR14351851	Pichia norvegensis	exact_species	4	0	no
+SRR14351851	minimap2_preset	SRR14351851	Rhodotorula mucilaginosa	exact_species	8	0	no
+SRR14351851	minimap2_preset	SRR14351851	Scedosporium aurantiacum	exact_species	5	2	yes
+SRR14351851	minimap2_preset	SRR14351851	Scedosporium boydii	exact_species	5	0	no
+SRR14351851	minimap2_preset	SRR14351851	Trichophyton rubrum	exact_species	8	0	no
+SRR14351851	minimap2_preset	SRR14351851	Trichosporon asahii	exact_species	6	0	no
+SRR14351851	minimap2_preset	SRR14351851	Wickerhamomyces anomalus	exact_species	14	0	no
+SRR14351851	minimap2_preset	SRR14351851	Yarrowia lipolytica	exact_species	10	0	no
+SRR14351851	minimap2_preset	SRR14351851	Zygoascus hellenicus	exact_species	1	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Aspergillus flavus	exact_species	171	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Aspergillus fumigatus	exact_species	42	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Blastobotrys proliferans	exact_species	4	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Candida albicans	exact_species	96	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Candida dubliniensis	exact_species	6	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Candida glabrata	genus_only	0	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Candida haemulonis	genus_only	0	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Candida parapsilosis	exact_species	22	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Candida tropicalis	genus_only	0	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Clavispora lusitaniae	exact_species	17	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Cryptococcus gattii	exact_species	1	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Cryptococcus neoformans	exact_species	5	1	yes
+SRR14351851	minimap2_sensitive	SRR14351851	Cutaneotrichosporon dermatis	exact_species	1	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Cyberlindnera jadinii	exact_species	4	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Debaryomyces hansenii	exact_species	4	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Diutina catenulata	exact_species	3	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Diutina mesorugosa	exact_species	2	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Diutina rugosa	exact_species	7	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Filobasidium magnum	exact_species	3	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Geotrichum candidum	exact_species	54	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Geotrichum fermentans	genus_only	0	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Kluyveromyces marxianus	exact_species	4	3	yes
+SRR14351851	minimap2_sensitive	SRR14351851	Kodamaea ohmeri	exact_species	14	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Lomentospora prolificans	unresolved_source_family	0	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Meyerozyma caribbica	exact_species	4	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Meyerozyma guilliermondii	exact_species	20	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Naganishia albida	exact_species	8	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Pichia kudriavzevii	exact_species	36	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Pichia membranifaciens	exact_species	26	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Pichia norvegensis	exact_species	4	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Rhodotorula mucilaginosa	exact_species	8	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Scedosporium aurantiacum	exact_species	5	2	yes
+SRR14351851	minimap2_sensitive	SRR14351851	Scedosporium boydii	exact_species	5	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Trichophyton rubrum	exact_species	8	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Trichosporon asahii	exact_species	6	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Wickerhamomyces anomalus	exact_species	14	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Yarrowia lipolytica	exact_species	10	0	no
+SRR14351851	minimap2_sensitive	SRR14351851	Zygoascus hellenicus	exact_species	1	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Acrobeloides nanus	exact_species	1	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Atropacarus striculus	exact_species	75	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Chamobates voigtsi	exact_species	3	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Desoria trispinata	exact_species	102	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Deuterosminthurus bicinctus	genus_only	0	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Enchytraeus albidus	exact_species	50	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Enchytraeus bigeminus	exact_species	3	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Enchytraeus bulbosus	exact_species	4	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Enchytraeus crypticus	exact_species	5	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Enchytraeus luxuriosus	exact_species	1	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Eupelops occultus	exact_species	31	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Folsomia fimetaria	exact_species	6	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Gaeolaelaps aculeifer	exact_species	21	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Isotomurus plumosus	exact_species	145	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Liebstadia similis	exact_species	78	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Minunthozetes semirufus	exact_species	4	2	yes
+ERR6001161	barcodemapper_standard	ERR6001161	Oribatella quadricornuta	exact_species	10	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Panagrellus redivivus	exact_species	4	1	yes
+ERR6001161	barcodemapper_standard	ERR6001161	Panagrolaimus detritophagus	exact_species	3	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Pantelozetes paolii	exact_species	13	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Paramacrobiotus richtersi	exact_species	11	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Podura aquatica	exact_species	10	1	yes
+ERR6001161	barcodemapper_standard	ERR6001161	Poikilolaimus oxycerca	genus_only	0	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Proisotoma minuta	exact_species	7	1	yes
+ERR6001161	barcodemapper_standard	ERR6001161	Sinella curviseta	exact_species	3	2	yes
+ERR6001161	barcodemapper_standard	ERR6001161	Sphaeridia pumilis	exact_species	11	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Tectocepheus velatus	exact_species	90	0	no
+ERR6001161	barcodemapper_standard	ERR6001161	Zygoribatula exilis	exact_species	12	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Acrobeloides nanus	exact_species	1	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Atropacarus striculus	exact_species	75	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Chamobates voigtsi	exact_species	3	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Desoria trispinata	exact_species	102	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Deuterosminthurus bicinctus	genus_only	0	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Enchytraeus albidus	exact_species	50	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Enchytraeus bigeminus	exact_species	3	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Enchytraeus bulbosus	exact_species	4	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Enchytraeus crypticus	exact_species	5	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Enchytraeus luxuriosus	exact_species	1	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Eupelops occultus	exact_species	31	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Folsomia fimetaria	exact_species	6	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Gaeolaelaps aculeifer	exact_species	21	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Isotomurus plumosus	exact_species	145	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Liebstadia similis	exact_species	78	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Minunthozetes semirufus	exact_species	4	2	yes
+ERR6001161	barcodemapper_allhits	ERR6001161	Oribatella quadricornuta	exact_species	10	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Panagrellus redivivus	exact_species	4	1	yes
+ERR6001161	barcodemapper_allhits	ERR6001161	Panagrolaimus detritophagus	exact_species	3	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Pantelozetes paolii	exact_species	13	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Paramacrobiotus richtersi	exact_species	11	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Podura aquatica	exact_species	10	1	yes
+ERR6001161	barcodemapper_allhits	ERR6001161	Poikilolaimus oxycerca	genus_only	0	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Proisotoma minuta	exact_species	7	1	yes
+ERR6001161	barcodemapper_allhits	ERR6001161	Sinella curviseta	exact_species	3	2	yes
+ERR6001161	barcodemapper_allhits	ERR6001161	Sphaeridia pumilis	exact_species	11	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Tectocepheus velatus	exact_species	90	0	no
+ERR6001161	barcodemapper_allhits	ERR6001161	Zygoribatula exilis	exact_species	12	0	no
+ERR6001161	best_hit	ERR6001161	Acrobeloides nanus	exact_species	1	0	no
+ERR6001161	best_hit	ERR6001161	Atropacarus striculus	exact_species	75	0	no
+ERR6001161	best_hit	ERR6001161	Chamobates voigtsi	exact_species	3	0	no
+ERR6001161	best_hit	ERR6001161	Desoria trispinata	exact_species	102	0	no
+ERR6001161	best_hit	ERR6001161	Deuterosminthurus bicinctus	genus_only	0	0	no
+ERR6001161	best_hit	ERR6001161	Enchytraeus albidus	exact_species	50	0	no
+ERR6001161	best_hit	ERR6001161	Enchytraeus bigeminus	exact_species	3	0	no
+ERR6001161	best_hit	ERR6001161	Enchytraeus bulbosus	exact_species	4	0	no
+ERR6001161	best_hit	ERR6001161	Enchytraeus crypticus	exact_species	5	0	no
+ERR6001161	best_hit	ERR6001161	Enchytraeus luxuriosus	exact_species	1	0	no
+ERR6001161	best_hit	ERR6001161	Eupelops occultus	exact_species	31	0	no
+ERR6001161	best_hit	ERR6001161	Folsomia fimetaria	exact_species	6	0	no
+ERR6001161	best_hit	ERR6001161	Gaeolaelaps aculeifer	exact_species	21	0	no
+ERR6001161	best_hit	ERR6001161	Isotomurus plumosus	exact_species	145	0	no
+ERR6001161	best_hit	ERR6001161	Liebstadia similis	exact_species	78	0	no
+ERR6001161	best_hit	ERR6001161	Minunthozetes semirufus	exact_species	4	2	yes
+ERR6001161	best_hit	ERR6001161	Oribatella quadricornuta	exact_species	10	0	no
+ERR6001161	best_hit	ERR6001161	Panagrellus redivivus	exact_species	4	1	yes
+ERR6001161	best_hit	ERR6001161	Panagrolaimus detritophagus	exact_species	3	0	no
+ERR6001161	best_hit	ERR6001161	Pantelozetes paolii	exact_species	13	0	no
+ERR6001161	best_hit	ERR6001161	Paramacrobiotus richtersi	exact_species	11	0	no
+ERR6001161	best_hit	ERR6001161	Podura aquatica	exact_species	10	1	yes
+ERR6001161	best_hit	ERR6001161	Poikilolaimus oxycerca	genus_only	0	0	no
+ERR6001161	best_hit	ERR6001161	Proisotoma minuta	exact_species	7	1	yes
+ERR6001161	best_hit	ERR6001161	Sinella curviseta	exact_species	3	2	yes
+ERR6001161	best_hit	ERR6001161	Sphaeridia pumilis	exact_species	11	0	no
+ERR6001161	best_hit	ERR6001161	Tectocepheus velatus	exact_species	90	0	no
+ERR6001161	best_hit	ERR6001161	Zygoribatula exilis	exact_species	12	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Acrobeloides nanus	exact_species	1	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Atropacarus striculus	exact_species	75	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Chamobates voigtsi	exact_species	3	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Desoria trispinata	exact_species	102	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Deuterosminthurus bicinctus	genus_only	0	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Enchytraeus albidus	exact_species	50	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Enchytraeus bigeminus	exact_species	3	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Enchytraeus bulbosus	exact_species	4	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Enchytraeus crypticus	exact_species	5	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Enchytraeus luxuriosus	exact_species	1	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Eupelops occultus	exact_species	31	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Folsomia fimetaria	exact_species	6	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Gaeolaelaps aculeifer	exact_species	21	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Isotomurus plumosus	exact_species	145	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Liebstadia similis	exact_species	78	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Minunthozetes semirufus	exact_species	4	2	yes
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Oribatella quadricornuta	exact_species	10	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Panagrellus redivivus	exact_species	4	1	yes
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Panagrolaimus detritophagus	exact_species	3	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Pantelozetes paolii	exact_species	13	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Paramacrobiotus richtersi	exact_species	11	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Podura aquatica	exact_species	10	1	yes
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Poikilolaimus oxycerca	genus_only	0	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Proisotoma minuta	exact_species	7	1	yes
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Sinella curviseta	exact_species	3	2	yes
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Sphaeridia pumilis	exact_species	11	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Tectocepheus velatus	exact_species	90	0	no
+ERR6001161	vsearch (invalid, N artifact)	ERR6001161	Zygoribatula exilis	exact_species	12	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Acrobeloides nanus	exact_species	1	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Atropacarus striculus	exact_species	75	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Chamobates voigtsi	exact_species	3	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Desoria trispinata	exact_species	102	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Deuterosminthurus bicinctus	genus_only	0	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Enchytraeus albidus	exact_species	50	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Enchytraeus bigeminus	exact_species	3	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Enchytraeus bulbosus	exact_species	4	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Enchytraeus crypticus	exact_species	5	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Enchytraeus luxuriosus	exact_species	1	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Eupelops occultus	exact_species	31	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Folsomia fimetaria	exact_species	6	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Gaeolaelaps aculeifer	exact_species	21	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Isotomurus plumosus	exact_species	145	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Liebstadia similis	exact_species	78	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Minunthozetes semirufus	exact_species	4	2	yes
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Oribatella quadricornuta	exact_species	10	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Panagrellus redivivus	exact_species	4	1	yes
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Panagrolaimus detritophagus	exact_species	3	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Pantelozetes paolii	exact_species	13	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Paramacrobiotus richtersi	exact_species	11	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Podura aquatica	exact_species	10	1	yes
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Poikilolaimus oxycerca	genus_only	0	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Proisotoma minuta	exact_species	7	1	yes
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Sinella curviseta	exact_species	3	2	yes
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Sphaeridia pumilis	exact_species	11	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Tectocepheus velatus	exact_species	90	0	no
+ERR6001161	vsearch (n_mismatch)	ERR6001161	Zygoribatula exilis	exact_species	12	0	no
+ERR6001161	minimap2_preset	ERR6001161	Acrobeloides nanus	exact_species	1	0	no
+ERR6001161	minimap2_preset	ERR6001161	Atropacarus striculus	exact_species	75	0	no
+ERR6001161	minimap2_preset	ERR6001161	Chamobates voigtsi	exact_species	3	0	no
+ERR6001161	minimap2_preset	ERR6001161	Desoria trispinata	exact_species	102	0	no
+ERR6001161	minimap2_preset	ERR6001161	Deuterosminthurus bicinctus	genus_only	0	0	no
+ERR6001161	minimap2_preset	ERR6001161	Enchytraeus albidus	exact_species	50	0	no
+ERR6001161	minimap2_preset	ERR6001161	Enchytraeus bigeminus	exact_species	3	0	no
+ERR6001161	minimap2_preset	ERR6001161	Enchytraeus bulbosus	exact_species	4	0	no
+ERR6001161	minimap2_preset	ERR6001161	Enchytraeus crypticus	exact_species	5	0	no
+ERR6001161	minimap2_preset	ERR6001161	Enchytraeus luxuriosus	exact_species	1	0	no
+ERR6001161	minimap2_preset	ERR6001161	Eupelops occultus	exact_species	31	0	no
+ERR6001161	minimap2_preset	ERR6001161	Folsomia fimetaria	exact_species	6	0	no
+ERR6001161	minimap2_preset	ERR6001161	Gaeolaelaps aculeifer	exact_species	21	0	no
+ERR6001161	minimap2_preset	ERR6001161	Isotomurus plumosus	exact_species	145	0	no
+ERR6001161	minimap2_preset	ERR6001161	Liebstadia similis	exact_species	78	0	no
+ERR6001161	minimap2_preset	ERR6001161	Minunthozetes semirufus	exact_species	4	2	yes
+ERR6001161	minimap2_preset	ERR6001161	Oribatella quadricornuta	exact_species	10	0	no
+ERR6001161	minimap2_preset	ERR6001161	Panagrellus redivivus	exact_species	4	1	yes
+ERR6001161	minimap2_preset	ERR6001161	Panagrolaimus detritophagus	exact_species	3	0	no
+ERR6001161	minimap2_preset	ERR6001161	Pantelozetes paolii	exact_species	13	0	no
+ERR6001161	minimap2_preset	ERR6001161	Paramacrobiotus richtersi	exact_species	11	0	no
+ERR6001161	minimap2_preset	ERR6001161	Podura aquatica	exact_species	10	1	yes
+ERR6001161	minimap2_preset	ERR6001161	Poikilolaimus oxycerca	genus_only	0	0	no
+ERR6001161	minimap2_preset	ERR6001161	Proisotoma minuta	exact_species	7	0	no
+ERR6001161	minimap2_preset	ERR6001161	Sinella curviseta	exact_species	3	2	yes
+ERR6001161	minimap2_preset	ERR6001161	Sphaeridia pumilis	exact_species	11	0	no
+ERR6001161	minimap2_preset	ERR6001161	Tectocepheus velatus	exact_species	90	0	no
+ERR6001161	minimap2_preset	ERR6001161	Zygoribatula exilis	exact_species	12	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Acrobeloides nanus	exact_species	1	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Atropacarus striculus	exact_species	75	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Chamobates voigtsi	exact_species	3	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Desoria trispinata	exact_species	102	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Deuterosminthurus bicinctus	genus_only	0	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Enchytraeus albidus	exact_species	50	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Enchytraeus bigeminus	exact_species	3	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Enchytraeus bulbosus	exact_species	4	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Enchytraeus crypticus	exact_species	5	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Enchytraeus luxuriosus	exact_species	1	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Eupelops occultus	exact_species	31	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Folsomia fimetaria	exact_species	6	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Gaeolaelaps aculeifer	exact_species	21	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Isotomurus plumosus	exact_species	145	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Liebstadia similis	exact_species	78	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Minunthozetes semirufus	exact_species	4	2	yes
+ERR6001161	minimap2_sensitive	ERR6001161	Oribatella quadricornuta	exact_species	10	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Panagrellus redivivus	exact_species	4	1	yes
+ERR6001161	minimap2_sensitive	ERR6001161	Panagrolaimus detritophagus	exact_species	3	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Pantelozetes paolii	exact_species	13	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Paramacrobiotus richtersi	exact_species	11	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Podura aquatica	exact_species	10	1	yes
+ERR6001161	minimap2_sensitive	ERR6001161	Poikilolaimus oxycerca	genus_only	0	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Proisotoma minuta	exact_species	7	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Sinella curviseta	exact_species	3	2	yes
+ERR6001161	minimap2_sensitive	ERR6001161	Sphaeridia pumilis	exact_species	11	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Tectocepheus velatus	exact_species	90	0	no
+ERR6001161	minimap2_sensitive	ERR6001161	Zygoribatula exilis	exact_species	12	0	no
+ERR6001173	barcodemapper_standard	ERR6001173	NO_EXPECTED_TAXA_BLANK_CONTROL	none	0	0	no
+ERR6001173	barcodemapper_allhits	ERR6001173	NO_EXPECTED_TAXA_BLANK_CONTROL	none	0	0	no
+ERR6001173	best_hit	ERR6001173	NO_EXPECTED_TAXA_BLANK_CONTROL	none	0	0	no
+ERR6001173	vsearch (invalid, N artifact)	ERR6001173	NO_EXPECTED_TAXA_BLANK_CONTROL	none	0	0	no
+ERR6001173	vsearch (n_mismatch)	ERR6001173	NO_EXPECTED_TAXA_BLANK_CONTROL	none	0	0	no
+ERR6001173	minimap2_preset	ERR6001173	NO_EXPECTED_TAXA_BLANK_CONTROL	none	0	0	no
+ERR6001173	minimap2_sensitive	ERR6001173	NO_EXPECTED_TAXA_BLANK_CONTROL	none	0	0	no

@@ -253,3 +253,69 @@ leaves later Kraken2 jobs pending with `DependencyNeverSatisfied` by design.
 The Kraken2 preload is best effort: classifier-only timing includes any first
 read of `hash.k2d` that the cache did not retain, so report the first run with
 that caveat.
+
+## 2026-10-18–19 BarcodeMapper 1.2.3 method comparison
+
+Project 03 uses BarcodeMapper **1.2.3** as the primary method at the released
+default `-k 200`; `--all-hits` is a separate pilot comparison. The 1.1.2 runs
+remain historical and are excluded from the 1.2.3 comparison tables. The wheel
+is from the 1.2.3 release (`ab21eae`); the primary benchmark switch is
+`a36b6df`, and the v3 pilot evaluation is `ed3795f`. The wheel
+SHA-256 is
+`c468352b9e852b408100a21ba4837b5664f462cdd470fce6bb78e929ddbe8464`
+([wheel.sha256](wheel.sha256)). Environment job `45938459` completed. Job
+`45938423` installed the comparators into the earlier 1.1.2 environment; its
+reported `FAILED` exit 13 came from `pipefail`/SIGPIPE in the version-check
+line after installation. The 1.2.3 runs used the new environment.
+
+| Job | Stage | Outcome |
+| --- | --- | --- |
+| 45938481–45938486 | First default and all-fungi rebuild, freeze, and audit chains | Cancelled after the controllers stalled without the `sacct` link in `env-1.2.3/bin` |
+| 45939087 | Extra default build submission | Cancelled after a submit-script bug, before the other jobs were submitted |
+| 45939089–45939091 | Default build, freeze, audit | Completed; build 2 h 14 min |
+| 45939092–45939094 | All-fungi build, freeze, audit | Completed; build 1 h 33 min |
+| 45939543–45939544 | Kraken2 default and all-fungi database builds | Completed in 29 min 18 s and 37 min 40 s, respectively |
+| 45939555–45939559 | Fungal standard pilot, verification, best hit, all-hits pilot, verification | Completed |
+| 45939560–45939564 | Animal standard pilot, verification, best hit, all-hits pilot, verification | Completed |
+| 45939565–45939569 | Blank standard pilot, verification, best hit, all-hits pilot, verification | Completed |
+
+The 1.2.3 reference FASTA contents match the 1.1.2 builds: default SHA-256
+`0dfbea32…` (10,460,448 records) and all-fungi `0b3c9dca…` (10,509,734
+records). The Kraken2 databases use the same records and a synthetic taxonomy;
+their `hash.k2d` SHA-256 values are
+`0e8f84f103e6186686eaa91a9d973bf70752ef51a0adab1b585914cb07ad7930`
+(default) and
+`a218afeb290790aaa8aed3d262da9f9b816aea3a382dc1b5f530e671d8e5b286`
+(all-fungi). The full database artifact hashes are in the
+[frozen Kraken2 configuration](kraken2-1.2.3/comparator_config.kraken2.yaml).
+
+| Job | Stage | Outcome |
+| --- | --- | --- |
+| 45941096–45941101 | Minimap2 sensitive search and finish jobs, three pilots | Completed; separate from the primary `-x sr` row |
+| 45941133 | Tiny `--n_mismatch` vsearch check | Completed before the rerun |
+| 45941139–45941144 | Kraken2 confidence 0.0 and 0.1, three pilots each | Completed |
+| 45941153–45941158 | Vsearch `--n_mismatch` search and finish jobs, three pilots | Completed |
+
+The primary vsearch and minimap2 settings were frozen at
+`2026-10-18T22:01:43Z` in
+[comparator_config.yaml](comparators-1.2.3/comparator_config.yaml). The
+[minimap2 sensitive variant](comparators-1.2.3/comparator_config.minimap2-sensitive.yaml),
+[vsearch rerun](comparators-1.2.3/comparator_config.vsearch-nmismatch.yaml),
+and Kraken2 settings were frozen at `2026-10-19T02:56:38Z`,
+`2026-10-19T03:06:53Z`, and `2026-10-19T03:08:18Z`, respectively. The first
+vsearch run is retained but invalid because N runs in the reference attracted
+false hits; it is excluded from the comparison tables. The rerun scores N as a
+mismatch. The initial vsearch and minimap2 preset job IDs are absent from the
+provided job-map snapshot. Vsearch manifests record citation text in
+`tool_version`; the actual version is 2.32.0 in the config and logs. Results
+and exploratory, mixed-node timings are in the
+[v3 pilot summary](../pilot-1.2.3/summary_v3.md); these are not the final
+same-node-class timing replicates.
+
+All comparison conversions used the committed HEAD `convert_calls.py`, SHA-256
+`a3166a5b163e77c5c580384bebc8cf55d0a73135a4d75cbb351c0aea4b1605ba`
+([script and truth hashes](../pilot-1.2.3/script_and_truth_hashes.v3.txt)). The
+working-tree copy has uncommitted edits from another session. Project 03 BLASTn
+subset runs still await approved strata and seeds; final timing runs await a
+CPU count, partition, and pinned node class. Project 02 synthetic per-fragment
+truth remains deferred.

@@ -1,0 +1,77 @@
+(a) SRR14351851: vsearch(n_mismatch) hit pairs 446, BarcodeMapper standard 227, vsearch-only 220
+
+SRR14351851.10385: vsearch call g__Rasamsonia
+  vsearch /2 target=JX272968|ITS id=98.0 covered=99 mism=2 gaps=0 NM_approx=2 ql=300 qlo-qhi=1-300 tl=616 qcov=33.0
+  vsearch /2 target=JF417491|ITS id=98.0 covered=99 mism=2 gaps=0 NM_approx=2 ql=300 qlo-qhi=1-300 tl=621 qcov=33.0
+  Bowtie2 flag=83 ref=KF570166 cigar=29M3I4M5I259M NM=23 covered=292 -> NM 23 > 3% of covered 292
+  Bowtie2 flag=163 ref=KF570166 cigar=111M3I4M5I177M NM=28 covered=292 -> NM 28 > 3% of covered 292
+  Bowtie2 flag=339 ref=EU926229 cigar=31M2I3M1I5M3I255M NM=20 covered=294 -> NM 20 > 3% of covered 294
+  Bowtie2 flag=419 ref=EU926229 cigar=113M2I3M1I5M3I173M NM=29 covered=294 -> NM 29 > 3% of covered 294
+
+SRR14351851.21337: vsearch call f__Cecidomyiidae
+  vsearch /2 target=CRCCL2508-24|ITS id=100.0 covered=81 mism=0 gaps=0 NM_approx=0 ql=300 qlo-qhi=1-300 tl=702 qcov=27.0
+  vsearch /2 target=CRKAS27550-23|ITS id=100.0 covered=81 mism=0 gaps=0 NM_approx=0 ql=300 qlo-qhi=1-300 tl=702 qcov=27.0
+  Bowtie2 flag=83 ref=AB365470 cigar=300M NM=14 covered=300 -> NM 14 > 3% of covered 300
+  Bowtie2 flag=163 ref=AB365470 cigar=16M1I20M1I262M NM=23 covered=298 -> NM 23 > 3% of covered 298
+  Bowtie2 flag=339 ref=AB365463 cigar=141M1I158M NM=18 covered=299 -> NM 18 > 3% of covered 299
+  Bowtie2 flag=419 ref=AB365463 cigar=8M3I25M2I262M NM=35 covered=295 -> NM 35 > 3% of covered 295
+
+SRR14351851.27669: vsearch call 
+  vsearch /1 target=JIAAZ158-16|ITS id=100.0 covered=153 mism=0 gaps=0 NM_approx=0 ql=300 qlo-qhi=1-300 tl=659 qcov=51.0
+  vsearch /1 target=DQ249199|ITS id=100.0 covered=118 mism=0 gaps=0 NM_approx=0 ql=300 qlo-qhi=1-300 tl=484 qcov=39.3
+  Bowtie2: no alignment for either mate in the BAM (read not aligned end-to-end)
+
+SRR14351851.36439: vsearch call o__Saccharomycetales
+  vsearch /1 target=KY105973|ITS id=100.0 covered=214 mism=0 gaps=0 NM_approx=0 ql=300 qlo-qhi=1-300 tl=270 qcov=71.3
+  vsearch /2 target=KY105973|ITS id=100.0 covered=209 mism=0 gaps=0 NM_approx=0 ql=300 qlo-qhi=300-1 tl=270 qcov=69.7
+  Bowtie2: no alignment for either mate in the BAM (read not aligned end-to-end)
+
+SRR14351851.48859: vsearch call f__Cecidomyiidae
+  vsearch /2 target=CRBOE2422-23|ITS id=97.4 covered=117 mism=3 gaps=0 NM_approx=3 ql=300 qlo-qhi=300-1 tl=860 qcov=39.0
+  vsearch /2 target=CRBOE2439-23|ITS id=97.4 covered=117 mism=3 gaps=0 NM_approx=3 ql=300 qlo-qhi=300-1 tl=860 qcov=39.0
+  vsearch /2 target=CRBOE2458-23|ITS id=97.4 covered=117 mism=3 gaps=0 NM_approx=3 ql=300 qlo-qhi=300-1 tl=864 qcov=39.0
+  Bowtie2 flag=99 ref=MW036827 cigar=39M1D261M NM=15 covered=300 -> NM 15 > 3% of covered 300
+  Bowtie2 flag=147 ref=MW036827 cigar=300M NM=11 covered=300 -> NM 11 > 3% of covered 300
+  Bowtie2 flag=355 ref=MH859721 cigar=19M4D7M2D7M1D6M6I20M1I234M NM=31 covered=293 -> NM 31 > 3% of covered 293
+  Bowtie2 flag=403 ref=MH859721 cigar=300M NM=35 covered=300 -> NM 35 > 3% of covered 300
+
+SRR14351851.54639: vsearch call p__Arthropoda
+  vsearch /1 target=CIBFA4082-25|COI-5P id=100.0 covered=127 mism=0 gaps=0 NM_approx=0 ql=300 qlo-qhi=300-1 tl=664 qcov=42.3
+  vsearch /1 target=CIBFA3331-25|COI-5P id=100.0 covered=127 mism=0 gaps=0 NM_approx=0 ql=300 qlo-qhi=300-1 tl=664 qcov=42.3
+  vsearch /1 target=CIKPA3608-25|COI-5P id=100.0 covered=127 mism=0 gaps=0 NM_approx=0 ql=300 qlo-qhi=300-1 tl=664 qcov=42.3
+  Bowtie2: no alignment for either mate in the BAM (read not aligned end-to-end)
+
+SRR14351851.62281: vsearch call s__Zygotorulaspora_dagestanica
+  vsearch /1 target=MW036827|ITS id=98.8 covered=84 mism=0 gaps=1 NM_approx=0 ql=300 qlo-qhi=1-300 tl=3173 qcov=28.0
+  Bowtie2 flag=153 ref=MW036827 cigar=21M1I58M1D11M1D48M1I35M1D8M1D117M NM=30 covered=298 -> NM 30 > 3% of covered 298
+  Bowtie2 flag=409 ref=MK050336 cigar=123M1D16M1I48M2D112M NM=37 covered=299 -> NM 37 > 3% of covered 299
+
+SRR14351851.73628: vsearch call s__Puccinia_emaculata
+  vsearch /2 target=KX190848|ITS id=99.0 covered=97 mism=1 gaps=0 NM_approx=1 ql=300 qlo-qhi=1-300 tl=1605 qcov=32.3
+  Bowtie2 flag=83 ref=KR029765 cigar=63M1I236M NM=29 covered=299 -> NM 29 > 3% of covered 299
+  Bowtie2 flag=163 ref=KR029765 cigar=109M1I190M NM=29 covered=299 -> NM 29 > 3% of covered 299
+  Bowtie2 flag=339 ref=MW676123 cigar=63M1I236M NM=29 covered=299 -> NM 29 > 3% of covered 299
+  Bowtie2 flag=419 ref=MW676123 cigar=109M1I190M NM=29 covered=299 -> NM 29 > 3% of covered 299
+
+SRR14351851.81447: vsearch call s__Zygotorulaspora_dagestanica
+  vsearch /2 target=MW036827|ITS id=98.9 covered=87 mism=0 gaps=1 NM_approx=0 ql=300 qlo-qhi=300-1 tl=3173 qcov=29.0
+  Bowtie2: no alignment for either mate in the BAM (read not aligned end-to-end)
+
+SRR14351851.89287: vsearch call f__Cecidomyiidae
+  vsearch /1 target=PLAAZ1903-18|ITS id=97.9 covered=96 mism=2 gaps=0 NM_approx=2 ql=300 qlo-qhi=1-300 tl=682 qcov=32.0
+  vsearch /2 target=PLAAZ1903-18|ITS id=98.2 covered=113 mism=2 gaps=0 NM_approx=2 ql=300 qlo-qhi=300-1 tl=682 qcov=37.7
+  Bowtie2 flag=99 ref=MH859721 cigar=300M NM=13 covered=300 -> NM 13 > 3% of covered 300
+  Bowtie2 flag=147 ref=MH859721 cigar=300M NM=15 covered=300 -> NM 15 > 3% of covered 300
+  Bowtie2 flag=355 ref=AB385698 cigar=41M2D259M NM=24 covered=300 -> NM 24 > 3% of covered 300
+  Bowtie2 flag=403 ref=AB385698 cigar=24M2D276M NM=25 covered=300 -> NM 25 > 3% of covered 300
+
+bowtie2 mode: end-to-end (no --local), default sensitivity, paired -1/-2; reports unpaired alignments when no concordant pair
+category counts over the 10 pairs (first listed alignment): {'NM': 22, 'no Bowtie2 alignment at all': 4}
+
+(b) Kraken2 k-mer hits (output.txt; pair has >=1 k-mer with a nonzero taxid in the DB):
+  kraken2 SRR14351851: pairs 92383, classified(C) 7151 (0.0774), pairs with >=1 DB k-mer 13818 (0.1496), k-mers in DB 332869 of 45187517 (0.00737)
+  kraken2 ERR6001161: pairs 98155, classified(C) 757 (0.0077), pairs with >=1 DB k-mer 9146 (0.0932), k-mers in DB 37975 of 22729047 (0.00167)
+  kraken2 ERR6001173: pairs 98880, classified(C) 1162 (0.0118), pairs with >=1 DB k-mer 8247 (0.0834), k-mers in DB 30446 of 22871231 (0.00133)
+  kraken2-conf0.1 SRR14351851: pairs 92383, classified(C) 1096 (0.0119), pairs with >=1 DB k-mer 13818 (0.1496), k-mers in DB 332869 of 45187517 (0.00737)
+  kraken2-conf0.1 ERR6001161: pairs 98155, classified(C) 96 (0.0010), pairs with >=1 DB k-mer 9146 (0.0932), k-mers in DB 37975 of 22729047 (0.00167)
+  kraken2-conf0.1 ERR6001173: pairs 98880, classified(C) 26 (0.0003), pairs with >=1 DB k-mer 8247 (0.0834), k-mers in DB 30446 of 22871231 (0.00133)

@@ -1,0 +1,7 @@
+a3166a5b163e77c5c580384bebc8cf55d0a73135a4d75cbb351c0aea4b1605ba  /projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/tasks/1.2.3-comparators/convert_calls.HEAD.py
+b05d23ecd42b420ba8225c08054d3c944d144d28eb1b59e4db71fd089fd006c1  /projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/tasks/1.2.3-comparators/evaluate_calls.py
+656facbb46ad06f47af526b14c4d12f6012a2d14e7483411f9430caf97ea8b19  /projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/projects/01-mock-communities/inputs/expected-taxa.tsv
+ac2487a4d9079d797a76daee824b3088c51d3224599dabc15921b526c48a3d5c  /projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/tasks/1.2.3-comparators/run_evaluation_v3.sh
+77121f23b2bc1e6ee8ba6cb03105a3bc6ddca4f355501539920aadd8198962b2  /projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/tasks/1.2.3-comparators/summarize_pilots_v3.py
+ac2487a4d9079d797a76daee824b3088c51d3224599dabc15921b526c48a3d5c  /projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/tasks/1.2.3-comparators/run_evaluation_v3.sh
+5b0c01a72964d9bfff07e471f08b9eea681a645bc14404200113f0444acbdee2  /projects/alberdilab/scratch/jpl786/projects/barcodemapper-benchmarks/tasks/1.2.3-comparators/summarize_pilots_v3.py

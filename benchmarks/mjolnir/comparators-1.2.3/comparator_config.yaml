@@ -1,0 +1,100 @@
+# Frozen comparator settings: vsearch 2.32.0 and minimap2 2.31 on the three
+# 1.2.3 pilot datasets (primary --standard runs). Frozen on 2026-10-18T22:01:43Z
+# (UTC), BEFORE any comparator job was submitted and before any accuracy was
+# examined. Exploratory timing runs; apply the same settings to every dataset.
+# Do not tune on evaluation results; a change needs a new file, not an edit.
+frozen_utc: "2026-10-18T22:01:43Z"
+tool_versions: {vsearch: "2.32.0", minimap2: "2.31-r1302"}
+
+reference:
+  # Same records, same taxonomy tree as BarcodeMapper. Header format is
+  # ">accession|marker|k__...;p__...;...;s__...", no whitespace, so both tools
+  # report the full header as subject; convert_calls.py maps it to the path
+  # in the header (the reference .tsv holds only the unique rank tables).
+  SRR14351851: all-fungi   # references-1.2.3/all-fungi.fa.gz
+  ERR6001161: default      # references-1.2.3/default.fa.gz
+  ERR6001173: default
+
+reads:
+  # fastp-filtered pairs of the primary 1.2.3 --standard pilots; sha256 must
+  # equal results/pilots-1.2.3/<run>-pilot-standard.SHA256SUMS.
+  path: work/pilots-1.2.3/<run>-pilot-standard/fastp/<run>_{1,2}.fq.gz
+  # Mates are searched separately (R1 file, then R2 file). The FASTQ header
+  # keeps the mate in the comment ("SRR14351851.5 5/1"), which both tools would
+  # drop, so queries are written as FASTA with label ">firstToken/1" or "/2".
+  query_label: "<first whitespace token of FASTQ header>/<mate>"
+
+acceptance_rule:
+  # Taken from BarcodeMapper 1.2.3 (cli.py: --standard = -m 3 -c 80;
+  # workflow/scripts/stream_extract_taxonomy.py). An alignment is accepted iff
+  #   covered >= 80   covered = CIGAR M/=/X bases (an ABSOLUTE count, not a
+  #                   fraction of the read)
+  #   NM * 100 <= 3.0 * covered   NM = mismatches + inserted + deleted bases
+  # No fractional --query_cov equals "80 bases": it would be 80% of a 100 bp
+  # read but 27% of a 300 bp read (fungal reads are up to 300 bp). So both
+  # tools run with a looser pre-filter and EVERY reported hit is then put
+  # through accept_hits.py, which applies the rule above exactly (covered from
+  # M ops, NM from mismatches + interior gap bases; terminal gaps ignored).
+  min_covered_bases: 80
+  max_edit_percent: 3.0
+  applied_to: [vsearch, minimap2]
+
+vsearch:
+  command: >-
+    vsearch --usearch_global QUERY.fa --db REF.fa.gz --userout OUT.tsv
+    --userfields query+target+id+alnlen+mism+opens+gaps+ql+qlo+qhi+tl+caln+qcov
+    --id 0.97 --iddef 2 --mincols 80 --strand both
+    --maxaccepts 0 --maxrejects 1000 --top_hits_only
+    --qmask none --dbmask none --fasta_width 0 --threads 16
+  # --id 0.97 with --iddef 2 (matches / alignment columns excluding terminal
+  #   gaps) is 100 - 3.0%: a SUPERSET of the NM/covered rule, because the
+  #   denominator also contains indel columns. accept_hits.py then applies the
+  #   exact rule.
+  # --mincols 80 is the absolute-bases analogue of covered >= 80. --query_cov
+  #   is deliberately not set (0), see acceptance_rule.
+  # --maxaccepts 0 = no cap on accepted hits, so ALL targets tied for the top
+  #   identity are reported (--top_hits_only keeps ties at the best identity;
+  #   the taxonomy is the LCA of tied hits).
+  # --maxrejects: the brief proposed 0 (fully exhaustive). Against 10.5 M
+  #   reference records with 100-300 bp queries that means aligning every
+  #   target that shares a handful of words (~1e5-1e6 alignments per read),
+  #   which is infeasible. 1000 rejects (default is 32) is therefore used:
+  #   candidates are ranked by shared words, so true top hits come first and
+  #   1000 consecutive non-matching candidates end the search. This is a
+  #   heuristic limit and is stated as a deviation from "exhaustive".
+  # --qmask none --dbmask none: no dust masking, as Bowtie2/minimap2 do none
+  #   (fastp already removed low-complexity reads). Word length 8 (default).
+  # --strand both: reads can be either orientation.
+  threads: 16
+
+minimap2:
+  command: >-
+    minimap2 -x sr -t 16 -N 200 --secondary=yes -p 0.5 -I 32G -c
+    -o OUT.paf REF.fa.gz QUERY.fa
+  # -x sr: short-read preset (-k21 -w11, frag mode, -A2 -B8 -O12,32 -E2,1,
+  #   -f1000,5000, -p0.5, -N20). Preset seeding left unchanged, incl. the
+  #   repetitive-minimizer filter; that can lose seeds in highly conserved
+  #   COI regions (a known sensitivity caveat versus Bowtie2 -k 200).
+  # -N 200: hit cap mirroring BarcodeMapper -k 200 (primary + up to 200
+  #   secondary chains per read).
+  # --secondary=yes -p 0.5: report secondary alignments with score >= 50% of
+  #   the primary (the sr-preset value, kept explicit). Hits below that score
+  #   ratio could hardly pass NM <= 3% with >= 80 covered bases.
+  # -I 32G: keep the ~7-8 Gb reference in a single index part (default 8G
+  #   splits it and applies -N per part).
+  # -c: PAF with CIGAR (cg) and NM tags, so accept_hits.py can apply the rule.
+  # Reference is indexed in memory in each run (index time is inside the
+  #   exploratory timing; no .mmi is kept).
+  threads: 16
+
+hit_to_call:
+  # convert_calls.py vsearch|minimap2: LCA of all accepted (tied top, for
+  # vsearch; all reported, for minimap2) hits of both mates per pair; pairs
+  # without accepted hits are no_hit. Retained-pair list = R1 fastp FASTQ.
+  mates: separate searches, merged per pair by the converter
+
+slurm:
+  partition: cpuqueue
+  cpus_per_task: 16
+  wrapper: time_classifier.sh --label classifier-only --cpus 16 (GNU time -v, taskset)
+  note: exploratory timings only; final timing runs are separate

@@ -161,16 +161,26 @@ come from the taxdump's `nodes.dmp` (`--kingdom-from-taxdump`).
    confirming the harmonised paths load without changes. If it needs changes,
    add tests first.
 
-## BLAST subset (decided)
+## BLAST subset (decided, built 2026-10-19)
 
-Run BLAST nt on all three pilots. Use the same predeclared stratified subset and
-seeds as Project 03 for the two mock pilots, so the nt and BOLD/UNITE results
-compare read for read. For the blank, search every fastp-retained pair if the
-count is small (cap it at the Project 03 subset size otherwise), because
-false-positive rate is the point of that control and sampling would hide rare
-calls. Record the subset files and their hashes.
+Project 02 truth does not exist and the pilots are almost entirely BarcodeMapper
+no-hit (fungal 92,203 of 92,383 pairs; animal 98,134 of 98,155; blank 98,876 of
+98,880), so the equal-strata sampler [make_blast_subset.py](make_blast_subset.py)
+cannot be used. [make_pilot_blast_subset.py](make_pilot_blast_subset.py) builds
+each subset from the 1.1.2 per-fragment taxonomy: **every** pair BarcodeMapper
+classified, plus 5,000 no-hit pairs drawn per seed (seeds 1337, 2027, 4099).
+BLAST nt runs once on the union of the seeds (14,394 / 14,271 / 14,257 pairs for
+fungal / animal / blank), and each seed is evaluated as a subset of the union.
+The blank is capped the same way, not searched in full.
 
-Centrifuge is not part of this project.
+Strata come from BarcodeMapper's own calls, not from truth. The no-hit draw is
+what exposes calls BLAST makes that BarcodeMapper does not. Weight results by
+stratum size when estimating overall rates, and say so in the write-up. The
+lists and `manifest.json` (input and output hashes) are under
+`projects/05-default-databases/inputs/blast-subsets/<RUN>/` on Mjolnir.
+
+Kraken2 runs on all retained pairs, not on the subset. Centrifuge is not part of
+this project.
 
 ## Deliverables and completion check
 

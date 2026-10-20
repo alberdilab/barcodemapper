@@ -85,8 +85,12 @@ def extract_levels(lines, output_pattern, levels, passthrough=None, collect_stat
 
 def _extract(lines, outputs, levels, passthrough, collect_stats, sample):
     records = 0
-    aligned_fragments = set() if collect_stats else None
-    kept_fragments = {name: set() for name in levels} if collect_stats else None
+    aligned_fragments = 0
+    kept_fragments = {name: 0 for name in levels} if collect_stats else None
+    # Bowtie2 emits a fragment's alignments contiguously, so only the last read ID
+    # is needed to count distinct fragments without storing whole-sample ID sets.
+    last_aligned = None
+    last_kept = {name: None for name in levels} if collect_stats else None
     alignments = {name: 0 for name in levels} if collect_stats else None
     for line in lines:
         if passthrough is not None:
@@ -102,7 +106,9 @@ def _extract(lines, outputs, levels, passthrough, collect_stats, sample):
         if cigar == "*":
             continue
         if collect_stats:
-            aligned_fragments.add(f[0])
+            if f[0] != last_aligned:
+                aligned_fragments += 1
+                last_aligned = f[0]
         covered = 0
         for length, op in CIGAR_OP.findall(cigar):
             if op in COVERED:
@@ -129,10 +135,12 @@ def _extract(lines, outputs, levels, passthrough, collect_stats, sample):
             outputs[name].write(row)
             if collect_stats:
                 alignments[name] += 1
-                kept_fragments[name].add(f[0])
+                if f[0] != last_kept[name]:
+                    kept_fragments[name] += 1
+                    last_kept[name] = f[0]
     if collect_stats:
-        return {"sample": sample, "records": records, "aligned_fragments": len(aligned_fragments),
-                "levels": {name: {"alignments": alignments[name], "fragments": len(kept_fragments[name])}
+        return {"sample": sample, "records": records, "aligned_fragments": aligned_fragments,
+                "levels": {name: {"alignments": alignments[name], "fragments": kept_fragments[name]}
                            for name in levels}}
 
 

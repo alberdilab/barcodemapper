@@ -7,11 +7,13 @@ from pathlib import Path
 
 import pytest
 
+from barcodemapper import cli
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "tests" / "regression" / "data"
 GENERATOR = ROOT / "tests" / "regression" / "generate.py"
-CHECK = ROOT / "scripts" / "regression_check.py"
+GOLDEN = ROOT / "tests" / "regression" / "expected_taxonomy.tsv"
 
 
 def _fixture_bytes(directory: Path) -> dict[str, bytes]:
@@ -30,13 +32,17 @@ def test_regression_fixture_is_deterministic(tmp_path):
 
 
 @pytest.mark.integration
-def test_regression_taxonomy_matches_golden():
+def test_regression_taxonomy_matches_golden(tmp_path):
     tools = ("snakemake", "fastp", "bowtie2", "bowtie2-build", "samtools")
     missing = [tool for tool in tools if shutil.which(tool) is None]
     if missing:
         pytest.skip("workflow executables unavailable: " + ", ".join(missing))
-    result = subprocess.run(
-        [sys.executable, str(CHECK)],
-        capture_output=True, text=True,
-    )
-    assert result.returncode == 0, result.stdout + result.stderr
+    output = tmp_path / "taxonomy.tsv"
+    cli.main([
+        "-i", str(DATA / "reads"), "-d", str(DATA / "references.fa"),
+        "-o", str(output), "-t", str(tmp_path / "work"), "--standard",
+    ])
+    actual = output.read_text().splitlines()
+    expected = GOLDEN.read_text().splitlines()
+    assert actual[0] == expected[0]
+    assert sorted(actual[1:]) == sorted(expected[1:])

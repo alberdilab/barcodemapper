@@ -42,7 +42,7 @@ def _run(executable: str, directory: Path, update_golden: bool, slurm: bool = Fa
     output = directory / "taxonomy.tsv"
     command = [
         executable, "-i", str(DATA / "reads"), "-d", str(DATA / "references.fa"),
-        "-o", str(output), "-t", str(directory / "work"),
+        "-o", str(output), "-t", str(directory / "work"), "--standard",
     ] + (["-s"] if slurm else [])
     try:
         result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)

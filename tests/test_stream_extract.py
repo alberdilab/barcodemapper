@@ -31,6 +31,7 @@ def sam_input(tmp_path):
         ("r0", 256, "110M", "NM:i:0"),
         ("r2", 0, "120M", "NM:i:4"),
     ]
+    rows.sort(key=lambda row: row[0])  # Bowtie2 emits each fragment's alignments together.
     sam = tmp_path / "reads.sam"
     sam.write_text("@HD\tVN:1.6\n@SQ\tSN:ref|ITS|k__Fungi\tLN:1000\n" + "".join(
         "\t".join([name, str(flag), "*" if flag & 4 else "ref|ITS|k__Fungi",
@@ -54,7 +55,7 @@ def test_legacy_output_and_stats(tmp_path):
                 "--stats-json", stats, "--sample", "sample.one")
     assert output.read_text() == "".join(
         f"{name}\tref\tITS\tk__Fungi\t{nm}\t{cov}\n"
-        for name, nm, cov in [("r0", 0, 120), ("r1", 0, 110), ("r2", 2, 100), ("r0", 0, 110)]
+        for name, nm, cov in [("r0", 0, 120), ("r0", 0, 110), ("r1", 0, 110), ("r2", 2, 100)]
     )
     assert json.loads(stats.read_text()) == {
         "sample": "sample.one", "records": 11, "aligned_fragments": 7,

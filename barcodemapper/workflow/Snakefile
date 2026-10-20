@@ -26,9 +26,45 @@ TMP_DIR = config.get("tmp_dir", None)
 BUILD_ONLY = config.get("build_only", None)
 REPORT_FILE = config.get("report_file", None)
 MAX_EDIT_PERCENT = config.get("max_edit_percent", 3.0)
-MIN_COVERAGE = config.get("min_coverage", None)
+MIN_COVERAGE = config.get("min_coverage", 80)
+LEVELS = config.get("levels")
+if LEVELS is None:
+    LEVELS = {"custom": {"max_edit_percent": MAX_EDIT_PERCENT, "min_coverage": MIN_COVERAGE}}
+LEVEL_NAMES = list(LEVELS)
+OUTPUT_FILES = config.get("output_files")
+if OUTPUT_FILES is None:
+    OUTPUT_FILES = {"custom": OUTPUT_FILE}
 MAX_HITS = config.get("max_hits", None)
 KEEP_BAM = config.get("keep_bam", True)
+
+wildcard_constraints:
+    level="|".join(re.escape(name) for name in LEVEL_NAMES) or "(?!)",
+    sample=r"[^/]+"
+
+
+def extract_path(level, sample):
+    return f"{TMP_DIR}/extract/{level}/{sample}.tsv"
+
+
+def extract_temporary_files(sample):
+    return [f"{extract_path(level, sample)}{suffix}"
+            for level in LEVEL_NAMES for suffix in (".unsorted", ".sorted.tmp")]
+
+
+def sort_commands(sample):
+    return "\n".join(
+        f"LC_ALL=C sort -s -t $'\\t' -k1,1 -o {shlex.quote(extract_path(level, sample) + '.sorted.tmp')} "
+        f"{shlex.quote(extract_path(level, sample) + '.unsorted')}"
+        for level in LEVEL_NAMES
+    )
+
+
+def commit_extract_commands(sample):
+    return "\n".join(
+        f"mv -f -- {shlex.quote(extract_path(level, sample) + '.sorted.tmp')} "
+        f"{shlex.quote(extract_path(level, sample))}"
+        for level in LEVEL_NAMES
+    )
 # Without a hit cap (bowtie2 -a) mapping needs far more memory and time, so
 # scale the mapping request: 1M-pair benchmarks peaked at 43-55 GB (about
 # 3.6x the input) against 22-24 GB when capped, and took up to 20 min per GB of input.
@@ -49,6 +85,7 @@ ADAPTER_ARGS = (
 ################################################################################
 ### Input data
 
+samples = []
 if BUILD_ONLY == "no":
 
     with open(f"{TMP_DIR}/data/sample_to_reads1.json", "r") as f:
@@ -85,9 +122,10 @@ if BUILD_ONLY == "yes":
 if BUILD_ONLY == "no":
     rule all:
         input:
-            OUTPUT_FILE,
+            list(OUTPUT_FILES.values()),
             REPORT_FILE,
-            BARCODEMAPPER_DB_HEADERS
+            BARCODEMAPPER_DB_HEADERS,
+            expand(f"{TMP_DIR}/bowtie/{{sample}}.bam", sample=samples) if KEEP_BAM else []
 
 ################################################################################
 ### Prepare database
@@ -226,15 +264,26 @@ rule bowtie2_mapping:
         r1 = f"{TMP_DIR}/fastp/{{sample}}_1.fq.gz",
         r2 = f"{TMP_DIR}/fastp/{{sample}}_2.fq.gz",
     output:
-        tsv = f"{TMP_DIR}/extract/{{sample}}.tsv",
+        tsvs = expand(f"{TMP_DIR}/extract/{{level}}/{{sample}}.tsv", level=LEVEL_NAMES, sample="{sample}"),
+        stats = f"{TMP_DIR}/extract/{{sample}}.stats.json",
         bam = f"{TMP_DIR}/bowtie/{{sample}}.bam" if KEEP_BAM else []
+    log:
+        f"{TMP_DIR}/logs/bowtie2/{{sample}}.log"
     params:
         database = BARCODEMAPPER_BASE,
-        bam_arg = lambda wildcards, output: f"--bam-out {shlex.quote(output.bam)} --threads 4" if KEEP_BAM else "",
+        bam_args = lambda wildcards: ["--bam-out", f"{TMP_DIR}/bowtie/{wildcards.sample}.bam.tmp", "--threads", "4"] if KEEP_BAM else [],
         hits_arg = "-a" if MAX_HITS is None else f"-k {MAX_HITS}",
         package_dir=PACKAGE_DIR,
-        max_edit_percent=MAX_EDIT_PERCENT,
-        min_coverage=MIN_COVERAGE
+        level_args = [argument for name, settings in LEVELS.items()
+                      for argument in ("--level", f"{name}:{settings['max_edit_percent']}:{settings['min_coverage']}")],
+        output_pattern=lambda wildcards: f"{TMP_DIR}/extract/{{level}}/{wildcards.sample}.tsv.unsorted",
+        cleanup=lambda wildcards: extract_temporary_files(wildcards.sample) +
+                [f"{TMP_DIR}/extract/{wildcards.sample}.stats.json.tmp"] +
+                ([f"{TMP_DIR}/bowtie/{wildcards.sample}.bam.tmp"] if KEEP_BAM else []),
+        sort_commands=lambda wildcards: sort_commands(wildcards.sample),
+        commit_commands=lambda wildcards: commit_extract_commands(wildcards.sample),
+        bam_commit=lambda wildcards: f"mv -f -- {shlex.quote(f'{TMP_DIR}/bowtie/{wildcards.sample}.bam.tmp')} "
+                                     f"{shlex.quote(f'{TMP_DIR}/bowtie/{wildcards.sample}.bam')}" if KEEP_BAM else ""
     threads:
         20
     resources:
@@ -249,8 +298,11 @@ rule bowtie2_mapping:
         "Mapping {wildcards.sample} to BarcodeMapper database with Bowtie2"
     shell:
         """
-        set -o pipefail
-        trap 'rm -f {output.tsv:q}.unsorted' EXIT
+        set -euo pipefail
+        mkdir -p "$(dirname {log:q})"
+        exec 2> {log:q}
+        cleanup() {{ rm -f -- {params.cleanup:q}; }}
+        trap cleanup EXIT
         bowtie2 \
             --time \
             --no-unal \
@@ -260,8 +312,15 @@ rule bowtie2_mapping:
             -2 {input.r2:q} \
             {params.hits_arg} \
             --seed 1337 \
-        | python {params.package_dir:q}/workflow/scripts/stream_extract_taxonomy.py --output {output.tsv:q}.unsorted --max-edit-percent {params.max_edit_percent} --min-covered {params.min_coverage} {params.bam_arg}
-        LC_ALL=C sort -s -t $'\\t' -k1,1 -o {output.tsv:q} {output.tsv:q}.unsorted
+        | python {params.package_dir:q}/workflow/scripts/stream_extract_taxonomy.py \
+            {params.level_args:q} \
+            --output-pattern {params.output_pattern:q} \
+            --stats-json {output.stats:q}.tmp \
+            --sample {wildcards.sample:q} {params.bam_args:q}
+        {params.sort_commands}
+        {params.commit_commands}
+        mv -f -- {output.stats:q}.tmp {output.stats:q}
+        {params.bam_commit}
         """
 
 ################################################################################
@@ -269,9 +328,11 @@ rule bowtie2_mapping:
 
 rule assign_taxonomy:
     input:
-        f"{TMP_DIR}/extract/{{sample}}.tsv"
+        f"{TMP_DIR}/extract/{{level}}/{{sample}}.tsv"
     output:
-        f"{TMP_DIR}/taxonomy/{{sample}}.tsv"
+        f"{TMP_DIR}/taxonomy/{{level}}/{{sample}}.tsv"
+    log:
+        f"{TMP_DIR}/logs/taxonomy/{{level}}/{{sample}}.log"
     params:
         package_dir=PACKAGE_DIR
     threads:
@@ -280,7 +341,7 @@ rule assign_taxonomy:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 10) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 2) * 2 ** (attempt - 1))
     message:
-        "Assigning taxonomy to {wildcards.sample}"
+        "Assigning taxonomy to {wildcards.sample} at {wildcards.level} stringency"
     script:
         "{params.package_dir}/workflow/scripts/assign_taxonomy.py"
 
@@ -289,9 +350,11 @@ rule assign_taxonomy:
 
 rule aggregate_taxonomy:
     input:
-        f"{TMP_DIR}/taxonomy/{{sample}}.tsv"
+        f"{TMP_DIR}/taxonomy/{{level}}/{{sample}}.tsv"
     output:
-        f"{TMP_DIR}/aggregate/{{sample}}.tsv"
+        f"{TMP_DIR}/aggregate/{{level}}/{{sample}}.tsv"
+    log:
+        f"{TMP_DIR}/logs/aggregate/{{level}}/{{sample}}.log"
     params:
         package_dir=PACKAGE_DIR
     threads:
@@ -311,9 +374,11 @@ if BUILD_ONLY == "no":
 
     rule merge_taxonomy:
         input:
-            expand(f"{TMP_DIR}/aggregate/{{sample}}.tsv",sample=samples)
+            lambda wildcards: expand(f"{TMP_DIR}/aggregate/{wildcards.level}/{{sample}}.tsv", sample=samples)
         output:
-            OUTPUT_FILE
+            f"{TMP_DIR}/merged/{{level}}.tsv"
+        log:
+            f"{TMP_DIR}/logs/merge/{{level}}.log"
         params:
             package_dir=PACKAGE_DIR,
             samples=samples
@@ -327,19 +392,60 @@ if BUILD_ONLY == "no":
         script:
             "{params.package_dir}/workflow/scripts/merge_taxonomy.py"
 
+    rule publish_results:
+        input:
+            expand(f"{TMP_DIR}/merged/{{level}}.tsv", level=LEVEL_NAMES)
+        output:
+            list(OUTPUT_FILES.values())
+        log:
+            f"{TMP_DIR}/logs/publish_results.log"
+        params:
+            temporary=[f"{path}.tmp" for path in OUTPUT_FILES.values()],
+            copy_commands="\n".join(
+                f"mkdir -p -- {shlex.quote(os.path.dirname(OUTPUT_FILES[level]))}\n"
+                f"cp -f -- {shlex.quote(f'{TMP_DIR}/merged/{level}.tsv')} {shlex.quote(OUTPUT_FILES[level] + '.tmp')}\n"
+                f"mv -f -- {shlex.quote(OUTPUT_FILES[level] + '.tmp')} {shlex.quote(OUTPUT_FILES[level])}"
+                for level in LEVEL_NAMES
+            )
+        threads:
+            1
+        resources:
+            mem_mb=1024,
+            runtime=10
+        message:
+            "Publishing merged taxonomy tables"
+        shell:
+            """
+            set -euo pipefail
+            mkdir -p "$(dirname {log:q})"
+            exec 2> {log:q}
+            cleanup() {{ rm -f -- {params.temporary:q}; }}
+            trap cleanup EXIT
+            {params.copy_commands}
+            """
+
 ################################################################################
 ### Generate HTML report
 
 rule html_report:
     input:
-        OUTPUT_FILE
+        merged=list(OUTPUT_FILES.values()),
+        stats=expand(f"{TMP_DIR}/extract/{{sample}}.stats.json", sample=samples) if BUILD_ONLY == "no" else []
     output:
         REPORT_FILE
+    log:
+        f"{TMP_DIR}/logs/html_report.log"
     threads:
         1
     params:
         package_dir=PACKAGE_DIR,
-        version=VERSION
+        version=VERSION,
+        report_args=[argument for level in LEVEL_NAMES
+                     for argument in ("--input", f"{level}={OUTPUT_FILES[level]}")] +
+                    [argument for level, settings in LEVELS.items()
+                     for argument in ("--limits", f"{level}={settings['max_edit_percent']}:{settings['min_coverage']}")] +
+                    [argument for sample in samples
+                     for argument in ("--stats", f"{TMP_DIR}/extract/{sample}.stats.json")]
     resources:
         mem_mb=lambda wildcards, input, attempt: max(8*1024, int(input.size_mb * 3) * 2 ** (attempt - 1)),
         runtime=lambda wildcards, input, attempt: max(10, int(input.size_mb / 1024 * 5) * 2 ** (attempt - 1))
@@ -347,5 +453,11 @@ rule html_report:
         "Generating plots"
     shell:
         """
-        python {params.package_dir:q}/workflow/scripts/html_report.py --input {input:q} --output {output:q} --version {params.version:q}
+        set -euo pipefail
+        mkdir -p "$(dirname {log:q})"
+        exec 2> {log:q}
+        cleanup() {{ rm -f -- {output:q}.tmp; }}
+        trap cleanup EXIT
+        python {params.package_dir:q}/workflow/scripts/html_report.py {params.report_args:q} --output {output:q}.tmp --version {params.version:q}
+        mv -f -- {output:q}.tmp {output:q}
         """

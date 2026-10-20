@@ -18,7 +18,7 @@ if sample_frames:
     merged_df = counts.pivot(index="Taxonomy", columns="_sample", values="Count")
 else:
     merged_df = pd.DataFrame(index=pd.Index([], name="Taxonomy"))
-merged_df = merged_df.reindex(columns=sample_names).infer_objects(copy=False).fillna(0).astype(int)
+merged_df = merged_df.reindex(columns=sample_names).infer_objects().fillna(0).astype(int)
 
 # Reset index and rename columns
 merged_df.index.name = "Taxonomy"

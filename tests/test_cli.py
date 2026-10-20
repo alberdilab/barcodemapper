@@ -916,3 +916,9 @@ def test_update_message_without_local_database_and_same_day_hint(monkeypatch, tm
     assert "No local database found" in out and "Newer sources" not in out
     assert "-n/--name" in cli._new_target_hint(tmp_path / "bmdb_20261018" / "bmdb_20261018.fa.gz")
     assert cli._new_target_hint(tmp_path / "x.fa.gz") == "choose a new -d path"
+
+
+def test_help_renders_level_options():
+    text = cli._parser().format_help()
+    assert "--stringency" in text
+    assert "--ultrastrict" in text and "% edits" in text

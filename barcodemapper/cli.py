@@ -575,7 +575,7 @@ def _parser() -> argparse.ArgumentParser:
                              + ", ".join(PRESETS))
     for name, (percent, bases) in PRESETS.items():
         parser.add_argument(f"--{name}", action="store_true",
-                            help=f"Add {name} level ({percent:g}% edits, {bases} aligned bases)")
+                            help=f"Add {name} level ({percent:g}%% edits, {bases} aligned bases)")
     return parser
 
 

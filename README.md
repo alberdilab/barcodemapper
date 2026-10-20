@@ -20,6 +20,7 @@ Full documentation is at **<https://barcodemapper.readthedocs.io>**:
 - [Reference database](https://barcodemapper.readthedocs.io/en/latest/database.html)
 - [Running an analysis](https://barcodemapper.readthedocs.io/en/latest/analysis.html)
 - [Outputs](https://barcodemapper.readthedocs.io/en/latest/outputs.html)
+- [The HTML report](https://barcodemapper.readthedocs.io/en/latest/report.html)
 - [Validation and limitations](https://barcodemapper.readthedocs.io/en/latest/limitations.html)
 
 ## Quick start

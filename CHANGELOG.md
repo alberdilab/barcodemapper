@@ -13,6 +13,7 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ### Changed
 
+- The report uses one phylum colour map across the composition bars, detection grid and sunburst, shows the sample selector only beside the Taxonomy section, embeds the BarcodeMapper logo and uses the full page width. Only sunburst taxa whose whole lineage is present are drawn.
 - A default run now writes four level-named taxonomy TSVs instead of one; a run with one selected level still writes to `-o`. Each run keeps one HTML report and one manifest.
 - `-m`/`-c` now define a `custom` level, which can be combined with presets. Preset flags are additive.
 - Extraction, taxonomy and aggregation intermediates now live in per-level directories in the working directory.

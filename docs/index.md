@@ -28,6 +28,7 @@ installation
 database
 analysis
 outputs
+report
 limitations
 ```
 

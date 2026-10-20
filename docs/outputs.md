@@ -25,15 +25,7 @@ Counts are propagated to every resolved ancestor. A fragment assigned to species
 
 ## HTML report
 
-With several levels, the report opens on an Overview tab. Its table compares retained fragments, the share of aligned fragments retained, classified share, and distinct taxa at each rank. Charts compare classified fragments by sample, the share resolved to each rank, and kingdom composition by level. Each level has a detailed tab with composition bars, a taxonomy detection grid, and a sample sunburst. With one level, the report opens directly on its detailed view.
-
-The detection grid shows cumulative counts for every taxon and sample. Expand the cladogram to inspect deeper ranks, search for a taxon, and switch between bubbles and a heatmap or between fragments, share of sample, and presence. Use Up/Down arrows to move through taxonomy rows and Left/Right to collapse or expand a branch; Enter or Space also toggles a branch. Search shows matching branches without changing the saved expansion state. An expand or collapse action clears the search. Drag the taxonomy column edge to resize it, or focus the resize handle and use Left/Right; its width lasts for the browser session. Sort sample columns by name, total fragments, or abundance of the focused taxon. Click a sample header to select it in the navigator and sunburst below.
-
-The grid can export either visible rows or all taxa. Download CSV buttons also export the Overview tables and the folded composition table; the per-sample export follows the active search filter. CSV files include a UTF-8 signature for spreadsheet software. Text cells beginning with `=`, `+`, `-`, `@`, a double quote, tab, carriage return, or line feed are prefixed with an apostrophe to keep them as text in spreadsheets; numeric cells retain their numeric values.
-
-The detailed view's relative bars use assigned fragments at the phylum level plus unresolved and unclassified fragments as the denominator, and are labelled as a fraction of marker-matching fragments. Counts at a given rank are not necessarily subsets across stringency levels: changing which alignments are accepted can change the lowest common ancestor.
-
-![Example report](../images/report.png)
+The report compares the levels on an Overview tab and gives each level a composition view, a taxonomy detection grid and a per-sample sunburst, with CSV export for every table. See [](report.md) for a tour of its sections and controls.
 
 ## Manifest
 

@@ -8,6 +8,8 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 - Run ultrastrict (0% edits, 120 aligned bases), strict (2%, 100), standard (3%, 80) and permissive (5%, 60) from one Bowtie2 mapping pass by default. Use `--stringency` to select levels; preset flags add levels, and `-m`/`-c` add a custom level.
 - The HTML report has an Overview comparing retained fragments, classified share, rank resolution, taxa per rank, kingdom composition and samples, followed by a detailed tab for each level.
+- Level tabs now include a collapsible taxonomy cladogram and sample detection grid with bubble and heatmap views, plus CSV downloads for every report table and visible or all taxonomy rows.
+- The grid supports arrow-key tree navigation, a resizable taxonomy column, sorting samples by the focused taxon, and selecting a sunburst sample from a column header. CSV exports guard text that begins with `=`, `+`, `-`, `@`, a quote, tab, carriage return or line feed.
 
 ### Changed
 

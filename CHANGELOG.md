@@ -4,6 +4,8 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-10-20
+
 ### Added
 
 - Run ultrastrict (0% edits, 120 aligned bases), strict (2%, 100), standard (3%, 80) and permissive (5%, 60) from one Bowtie2 mapping pass by default. Use `--stringency` to select levels; preset flags add levels, and `-m`/`-c` add a custom level.

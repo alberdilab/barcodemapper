@@ -4,6 +4,7 @@
 
 [![Documentation](https://readthedocs.org/projects/barcodemapper/badge/?version=latest)](https://barcodemapper.readthedocs.io/en/latest/)
 [![Package checks](https://github.com/alberdilab/barcodemapper/actions/workflows/package.yml/badge.svg)](https://github.com/alberdilab/barcodemapper/actions/workflows/package.yml)
+[![Dependency check](https://github.com/alberdilab/barcodemapper/actions/workflows/dependency-check.yml/badge.svg)](https://github.com/alberdilab/barcodemapper/actions/workflows/dependency-check.yml)
 [![Release](https://img.shields.io/github/v/release/alberdilab/barcodemapper)](https://github.com/alberdilab/barcodemapper/releases)
 [![License: MIT](https://img.shields.io/github/license/alberdilab/barcodemapper)](LICENSE)
 ![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)

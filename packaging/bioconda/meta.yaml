@@ -1,5 +1,5 @@
 {% set name = "barcodemapper" %}
-{% set version = "1.2.3" %}
+{% set version = "1.2.4" %}
 
 package:
   name: {{ name|lower }}
@@ -8,7 +8,7 @@ package:
 source:
   # GitHub tag archive: exists as soon as tag v{{ version }} is pushed (barcodemapper is not on PyPI).
   url: https://github.com/alberdilab/barcodemapper/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: 97e2178c960c2d70d864f8c3e70a8445f856aaa748cd166c6a7d1409c48d55b0
+  sha256: f74ebb9e0dc48a734a1b569467ca8cc532a44e3975ca9c6e6bc23a54fda7c708
 
 build:
   number: 0

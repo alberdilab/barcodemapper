@@ -1,9 +1,11 @@
 import argparse
+import base64
 import colorsys
 import json
 from datetime import UTC, datetime
 from functools import cache
 from html import escape
+from pathlib import Path
 
 import pandas as pd
 from plotly.offline import get_plotlyjs
@@ -19,6 +21,21 @@ except ModuleNotFoundError:
 
 
 RANK_NAMES = ("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+LOGO_PATH = Path(__file__).resolve().parents[1] / "assets" / "logo.png"
+
+
+def _logo_uri():
+    try:
+        return "data:image/png;base64," + base64.b64encode(LOGO_PATH.read_bytes()).decode("ascii")
+    except OSError:
+        return ""
+
+
+def _version_label(version):
+    version = str(version)
+    return version if version in ("", "unknown") else "v" + version
+
+
 LEVEL_PALETTES = {
     "light": ("#1d568f", "#407cbd", "#70a5d6", "#a9cbea"),
     "dark": ("#a9cefa", "#80b4ed", "#5396dc", "#2b72b7"),
@@ -307,9 +324,12 @@ body { margin:0; background:var(--page); color:var(--text); font:14px/1.5 -apple
 button,input,select { font:inherit; }
 button { cursor:pointer; }
 button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-.topbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:15px max(24px,calc((100vw - 1600px)/2)); background:var(--surface); border-bottom:1px solid var(--border); }
-.brand { display:flex; align-items:baseline; gap:11px; }
-.brand a { color:var(--text); text-decoration:none; font-size:18px; font-weight:700; letter-spacing:-.04em; }
+.topbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:15px calc(max(0px,(100vw - 1600px)/2) + 24px); background:var(--surface); border-bottom:1px solid var(--border); }
+.brand { display:flex; align-items:flex-end; gap:11px; }
+.brand a { color:var(--text); text-decoration:none; font-size:18px; font-weight:700; letter-spacing:-.04em; display:inline-flex; align-items:center; }
+.brand img { height:44px; width:auto; display:block; }
+:root[data-theme="dark"] .brand img { background:#fff; border-radius:5px; padding:3px 6px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .brand img { background:#fff; border-radius:5px; padding:3px 6px; } }
 .brand a:hover { color:var(--accent); }
 .brand span,.run-meta { color:var(--muted); font-size:12px; }
 .run-meta { display:flex; align-items:center; flex-wrap:wrap; gap:14px; font-variant-numeric:tabular-nums; }
@@ -359,7 +379,8 @@ input[type="search"] { width:220px; }
 .table-sort:hover { color:var(--accent); }
 #sample-table-count,.navigator-count { color:var(--muted); font-size:11px; }
 .note { margin:18px 0; border-left:2px solid var(--border); padding:6px 0 6px 13px; color:var(--muted); font-size:12px; max-width:950px; }
-#detail-panel { display:grid; grid-template-columns:230px minmax(0,1fr); gap:18px; align-items:start; }
+#detail-panel { display:block; }
+.sample-section { display:grid; grid-template-columns:230px minmax(0,1fr); gap:18px; align-items:start; }
 .navigator { position:sticky; top:12px; padding:15px; }
 .navigator-head { display:flex; align-items:center; justify-content:space-between; }
 .navigator-head h2 { margin:0; }
@@ -427,7 +448,7 @@ details { margin-top:12px; }
 summary { color:var(--accent); cursor:pointer; font-size:12px; }
 .empty { color:var(--muted); padding:55px 16px; text-align:center; }
 [hidden] { display:none !important; }
-@media (max-width:850px) { .overview-grid { grid-template-columns:1fr; } #detail-panel { grid-template-columns:1fr; } .navigator { position:static; } #sample-buttons { display:flex; max-height:140px; overflow:auto; } .sample-button { min-width:130px; } .shell { padding:0 14px 30px; } }
+@media (max-width:850px) { .overview-grid { grid-template-columns:1fr; } .sample-section { grid-template-columns:1fr; } .navigator { position:static; } #sample-buttons { display:flex; max-height:140px; overflow:auto; } .sample-button { min-width:130px; } .shell { padding:0 14px 30px; } }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; animation:none !important; } }
 @media print { body { background:white; } .topbar,#level-tabs,.navigator,.toolbar,.taxon-toolbar,details,.segment,.note { display:none !important; } .shell { max-width:none; padding:0; } #detail-panel { display:block; } .card { box-shadow:none; break-inside:avoid; } .plot-scroll { overflow:visible; } }
 '''
@@ -471,15 +492,16 @@ def _write_html(level_data, overview, output_file, version, limits=None):
     first = names[0]
     first_sample = level_data[first]["samples"][0] if level_data[first]["samples"] else ""
     with open(output_file, "w", encoding="utf-8") as handle:
+        logo = f'<img src="{_logo_uri()}" alt="BarcodeMapper">' if LOGO_PATH.exists() else 'BarcodeMapper'
         handle.write(f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>BarcodeMapper · Report</title><script>{get_plotlyjs()}</script><style>{STYLE}</style></head><body>
-<header class="topbar"><div class="brand"><a href="https://github.com/alberdilab/barcodemapper" target="_blank" rel="noopener noreferrer">BarcodeMapper</a><span>v{escape(version)}</span></div><div class="run-meta"><span>{sample_count:,} samples · {len(names)} {'level' if len(names)==1 else 'levels'}</span><time>{now}</time><button type="button" id="theme-toggle" class="icon-button" aria-label="Switch color theme">◐</button></div></header>
+<header class="topbar"><div class="brand"><a href="https://github.com/alberdilab/barcodemapper" target="_blank" rel="noopener noreferrer" aria-label="BarcodeMapper">{logo}</a><span>{escape(_version_label(version))}</span></div><div class="run-meta"><span>{sample_count:,} samples · {len(names)} {'level' if len(names)==1 else 'levels'}</span><time>{now}</time><button type="button" id="theme-toggle" class="icon-button" aria-label="Switch color theme">◐</button></div></header>
 <div class="shell">{tabs}{overview_panel}
 <section id="detail-panel" role="tabpanel"{' aria-labelledby="tab-level-0"' if multiple else ''}{' hidden' if multiple else ''}>
-<aside class="navigator card" aria-label="Sample navigator"><div class="navigator-head"><h2>Samples</h2><div class="nav-buttons"><button type="button" id="sample-prev" class="small-button" aria-label="Previous sample">↑</button><button type="button" id="sample-next" class="small-button" aria-label="Next sample">↓</button></div></div><label class="subtle" for="sample-search">Search samples</label><input type="search" id="sample-search" placeholder="Filter samples"><span id="navigator-count" class="navigator-count"></span><div id="sample-buttons"></div></aside>
 <div class="detail-main"><div class="page-head"><div class="eyebrow">Stringency level</div><h1 id="level-title">{escape(first)}</h1><p id="level-subtitle" class="subtle"></p></div>
 <article class="card"><div class="card-head"><div><div class="eyebrow">01 / Composition</div><h2>Composition across samples</h2></div><div class="toolbar"><label class="subtle" for="composition-sort">Sort</label><select id="composition-sort"><option value="name">Name</option><option value="total">Total fragments</option><option value="kingdom">Largest kingdom share</option></select><div class="segment" aria-label="Composition measure"><button type="button" id="tab-absolute" aria-pressed="true">Absolute</button><button type="button" id="tab-relative" aria-pressed="false" title="Fraction of marker-matching fragments">Share</button></div></div></div><div id="composition-legend" class="composition-legend" role="group" aria-label="Toggle composition categories"></div><div class="plot-scroll"><div id="barplot"></div></div><details id="composition-table-view"><summary>Table view of composition data</summary><button type="button" id="download-composition-csv" class="small-button" title="Download the folded composition categories shown in this table">Download CSV</button><div class="table-wrap"><table id="composition-table"></table></div></details></article>
 <article class="card"><div class="card-head"><div><div class="eyebrow">02 / Detection</div><h2>Taxonomy cladogram and detection grid</h2></div><span class="subtle">Cumulative fragments at each rank</span></div><div class="taxon-toolbar"><label class="subtle" for="taxon-search">Find taxon</label><input type="search" id="taxon-search" placeholder="Search taxonomy"><button type="button" id="taxon-expand" class="small-button">Expand all</button><button type="button" id="taxon-collapse" class="small-button">Collapse all</button><label class="subtle" for="taxon-depth">Depth</label><select id="taxon-depth"><option value="0">Kingdom</option><option value="1" selected>Phylum</option><option value="2">Class</option><option value="3">Order</option><option value="4">Family</option><option value="5">Genus</option><option value="6">Species</option></select><label class="subtle" for="taxon-sort">Samples</label><select id="taxon-sort"><option value="name">Name</option><option value="total">Total fragments</option><option value="taxon">Focused taxon</option></select><div class="segment" aria-label="Detection display"><button type="button" id="taxon-bubbles" aria-pressed="true">Bubbles</button><button type="button" id="taxon-heatmap" aria-pressed="false">Heatmap</button></div><div class="segment" aria-label="Detection value"><button type="button" id="taxon-fragments" aria-pressed="true">Fragments</button><button type="button" id="taxon-share" aria-pressed="false">Share of sample</button><button type="button" id="taxon-presence" aria-pressed="false">Presence</button></div><button type="button" id="download-taxon-visible-csv" class="small-button" title="Download currently visible taxonomy rows">Download visible CSV</button><button type="button" id="download-taxon-all-csv" class="small-button" title="Download every taxon at this level">Download all taxa CSV</button></div><div id="taxon-grid" class="taxon-grid" aria-label="Taxonomy detection grid"><div id="taxon-grid-inner" class="taxon-grid-inner"><div id="taxon-grid-head" class="taxon-grid-head"></div><div id="taxon-grid-body" role="tree" aria-label="Taxonomy tree"></div></div></div><div id="taxon-legend" class="taxon-legend"></div><div id="taxon-selection-note" class="taxon-selection-note" aria-live="polite" hidden><span id="taxon-selection-text"></span><button type="button" id="taxon-jump-sunburst">View sunburst</button></div></article>
-<article class="card" id="sunburst-card"><div class="card-head"><div><div class="eyebrow">03 / Taxonomy</div><h2 id="sample-title">{escape('Taxonomy of ' + first_sample) if first_sample else 'Taxonomy'}</h2><p class="subtle">Click a segment to zoom into its taxonomy.</p></div><div class="sample-metrics"><span><strong id="sample-total"></strong><br>Fragments</span><span><strong id="sample-classified"></strong><br>Classified</span></div></div><div id="sunburst"></div></article></div></section></div>''')
+<div class="sample-section"><aside class="navigator card" aria-label="Sample navigator"><div class="navigator-head"><h2>Samples</h2><div class="nav-buttons"><button type="button" id="sample-prev" class="small-button" aria-label="Previous sample">↑</button><button type="button" id="sample-next" class="small-button" aria-label="Next sample">↓</button></div></div><label class="subtle" for="sample-search">Search samples</label><input type="search" id="sample-search" placeholder="Filter samples"><span id="navigator-count" class="navigator-count"></span><div id="sample-buttons"></div></aside>
+<article class="card" id="sunburst-card"><div class="card-head"><div><div class="eyebrow">03 / Taxonomy</div><h2 id="sample-title">{escape('Taxonomy of ' + first_sample) if first_sample else 'Taxonomy'}</h2><p class="subtle">Click a segment to zoom into its taxonomy.</p></div><div class="sample-metrics"><span><strong id="sample-total"></strong><br>Fragments</span><span><strong id="sample-classified"></strong><br>Classified</span></div></div><div id="sunburst"></div></article></div></div></section></div>''')
         for index, data in enumerate(level_data.values()):
             handle.write(f'<script type="application/json" id="data-level-{index}">{safe_json(data)}</script>\n')
         if multiple:
@@ -632,12 +654,23 @@ REPORT_SCRIPT = r'''<script>
         const lightness = total <= 1 ? (start + end)/2 : start + (end-start)*index/(total-1);
         return `hsl(${hues[kingdom]} 67% ${lightness.toFixed(1)}%)`;
     }
-    function depthColor(kingdom, depth) {
-        const base = kingdomColor(kingdom);
-        if (!depth || !kingdom.startsWith('k__')) return base;
-        const blend = Math.min(depth*.085,.52);
-        return '#' + [1,3,5].map(i => Math.round(parseInt(base.slice(i,i+2),16)*(1-blend) + 255*blend)
-            .toString(16).padStart(2,'0')).join('');
+    function compositionColors(data) {
+        const sizes = {}, seen = {}, map = new Map();
+        data.composition.forEach(item => { sizes[item.kingdom] = (sizes[item.kingdom] || 0) + 1; });
+        data.composition.forEach(item => {
+            const index = seen[item.kingdom] || 0; seen[item.kingdom] = index+1;
+            map.set(item.kingdom + '\u0000' + item.name, item.name === 'Unclassified' ? colors().neutral : taxonShade(item.kingdom,index,sizes[item.kingdom]));
+        });
+        return map;
+    }
+    function taxonGridColor(data, palette, index) {
+        const taxa = data.taxa;
+        let node = index;
+        if (taxa.labels[index] === 'Unclassified') return colors().neutral;
+        while (taxa.parents[node] >= 0 && taxa.depths[node] > 1) node = taxa.parents[node];
+        const root = taxa.parents[node] >= 0 ? taxa.parents[node] : node;
+        if (taxa.parents[node] < 0) return kingdomColor(taxa.labels[node]);
+        return palette.get(taxa.labels[root] + '\u0000' + taxa.labels[node]) || kingdomColor(taxa.labels[root]);
     }
     function layout(extra={}) {
         const c = colors();
@@ -814,13 +847,10 @@ REPORT_SCRIPT = r'''<script>
             return;
         }
         const hidden = hiddenComposition[currentLevel] ||= new Set();
-        const groupSizes = {};
-        data.composition.forEach(item => { groupSizes[item.kingdom] = (groupSizes[item.kingdom] || 0) + 1; });
-        const groupIndex = {};
+        const palette = compositionColors(data);
         const traceColors = [];
         const traces = data.composition.map(item => {
-            const index = groupIndex[item.kingdom] || 0; groupIndex[item.kingdom] = index+1;
-            const color = item.name === 'Unclassified' ? c.neutral : taxonShade(item.kingdom,index,groupSizes[item.kingdom]);
+            const color = palette.get(item.kingdom + '\u0000' + item.name);
             traceColors.push(color);
             const key = item.kingdom + '\u0000' + item.name;
             return {type:'bar',name:item.name.replace(/^[pk]__/,''),x:samples.map((_,position) => position),
@@ -1016,10 +1046,11 @@ REPORT_SCRIPT = r'''<script>
         if (first) body.append(spacer(first*30));
         const fragment=document.createDocumentFragment(), mode=document.getElementById('taxon-heatmap').getAttribute('aria-pressed')==='true' ? 'heatmap':'bubbles';
         const valueMode=['fragments','share','presence'].find(key=>document.getElementById('taxon-'+key).getAttribute('aria-pressed')==='true');
-        const maxTotal=Math.max(1,...data.totals), dark=effectiveTheme()==='dark';
+        const maxTotal=Math.max(1,...data.totals), dark=effectiveTheme()==='dark', palette=compositionColors(data);
         for (let position=first;position<last;position++) {
             const index=visible[position], label=data.taxa.labels[index], depth=data.taxa.depths[index];
             const row=document.createElement('div'); row.className='taxon-row'; row.style.gridTemplateColumns=`var(--tree-width) repeat(${order.length},22px)`;
+            const taxonColor=taxonGridColor(data,palette,index);
             const left=document.createElement('div'); left.className='taxon-tree-cell';
             const node=document.createElement('button'); node.type='button'; node.className='taxon-node'; node.role='treeitem';
             node.dataset.taxon=String(index); node.style.setProperty('--depth',String(depth));
@@ -1031,7 +1062,7 @@ REPORT_SCRIPT = r'''<script>
             if (tree.children[index].length) node.setAttribute('aria-expanded',String(tree.effectiveExpanded.has(index)));
             const toggle=document.createElement('span'); toggle.className='taxon-toggle'; toggle.setAttribute('aria-hidden','true');
             toggle.textContent=tree.children[index].length ? tree.effectiveExpanded.has(index) ? '−' : '+' : '·';
-            const rank=document.createElement('span'); rank.className='taxon-rank'; rank.textContent=(ranks[depth] || 'T')[0];
+            const rank=document.createElement('span'); rank.className='taxon-rank'; rank.textContent=(ranks[depth] || 'T')[0]; rank.style.color=taxonColor; rank.style.fontWeight='700';
             const name=document.createElement('span'); name.className='taxon-node-label';
             const plain=label.replace(/^[kpcofgs]__/, '');
             name.textContent=depth>=4 && plain.length>34 ? plain.slice(0,13)+'…'+plain.slice(-18) : plain;
@@ -1055,7 +1086,8 @@ REPORT_SCRIPT = r'''<script>
                 if (amount>0) {
                     const strength=valueMode==='presence' ? 1 : valueMode==='share' ? Math.sqrt(share) : Math.log1p(amount)/Math.log1p(maxTotal);
                     const mark=document.createElement('span'); mark.className=mode==='heatmap' ? 'taxon-heat':'taxon-bubble';
-                    if (mode==='heatmap') mark.style.background=`hsl(211 75% ${dark ? 72-38*Math.max(.12,strength) : 85-53*Math.max(.12,strength)}%)`;
+                    mark.style.background=taxonColor;
+                    if (mode==='heatmap') mark.style.opacity=String(.15+.85*Math.max(.12,strength));
                     else { const radius=2.5+6.5*Math.sqrt(strength); mark.style.width=2*radius+'px'; mark.style.height=2*radius+'px'; }
                     cell.append(mark);
                 }
@@ -1150,12 +1182,13 @@ REPORT_SCRIPT = r'''<script>
         const el = document.getElementById('sunburst');
         const taxa=data.taxa;
         if (active < 0 || !data.totals[active]) { showEmpty(el,'No data for this sample.'); return; }
-        const indices=taxa.labels.map((_,index)=>index).filter(index=>taxonCount(taxa.values[index],active)>0);
-        const rootOf=index=>{ while (taxa.parents[index]>=0) index=taxa.parents[index]; return index; };
+        const present=index=>{ for (let node=index; node>=0; node=taxa.parents[node]) if (!(taxonCount(taxa.values[node],active)>0)) return false; return true; };
+        const indices=taxa.labels.map((_,index)=>index).filter(present);
+        const palette=compositionColors(data);
         const trace = {type:'sunburst',ids:indices.map(String),labels:indices.map(i=>taxa.labels[i].replace(/^[kpcofgs]__/,'')),
             parents:indices.map(i=>taxa.parents[i] < 0 ? '' : String(taxa.parents[i])),
             values:indices.map(i=>taxonCount(taxa.values[i],active)),branchvalues:'total',maxdepth:5,
-            marker:{colors:indices.map(i=>taxa.labels[i] === 'Unclassified' ? colors().neutral : depthColor(taxa.labels[rootOf(i)],taxa.depths[i])),line:{color:colors().surface,width:1.5}},
+            marker:{colors:indices.map(i=>taxonGridColor(data,palette,i)),line:{color:colors().surface,width:1.5}},
             insidetextorientation:'radial',hovertemplate:'%{label}<br>%{value:,} fragments<extra></extra>'};
         drawPlot(el,[trace],layout({height:480,margin:{l:0,r:0,t:0,b:0},showlegend:false,uniformtext:{minsize:10,mode:'hide'}}));
     }

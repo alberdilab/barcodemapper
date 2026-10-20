@@ -44,6 +44,7 @@ barcodemapper = [
     "workflow/Snakefile",
     "workflow/config.yaml",
     "workflow/scripts/*.py",
+    "workflow/assets/logo.png",
     "profile/local/config.yaml",
     "profile/slurm/config.yaml",
 ]

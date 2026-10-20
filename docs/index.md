@@ -1,6 +1,6 @@
 # BarcodeMapper
 
-BarcodeMapper maps paired shotgun reads to taxonomically annotated COI and ITS reference sequences. It filters reads with fastp, aligns them with Bowtie2, and assigns each read ID to the lowest taxonomy shared by its accepted alignments. It produces a cumulative taxonomy count table, a self-contained HTML report, and a JSON run manifest.
+BarcodeMapper maps paired shotgun reads to taxonomically annotated COI and ITS reference sequences. It filters reads with fastp, aligns them with Bowtie2, and assigns each read ID to the lowest taxonomy shared by its accepted alignments. By default, one mapping pass produces four cumulative taxonomy count tables (ultrastrict, strict, standard and permissive), one self-contained HTML report, and one JSON run manifest.
 
 :::{important}
 Read counts describe marker-matching fragments. They are **not** estimates of organism abundance: marker copy number, reference coverage, read length, and mapping ambiguity affect the counts. See [](limitations.md).
@@ -17,6 +17,8 @@ barcodemapper --build --db-dir references   # creates references/bmdb_<YYYYMMDD>
 # 2. Analyse a directory of paired reads
 barcodemapper -i reads --db-dir references -o results/taxonomy.tsv
 ```
+
+The default run writes `results/taxonomy.ultrastrict.tsv`, `results/taxonomy.strict.tsv`, `results/taxonomy.standard.tsv`, `results/taxonomy.permissive.tsv`, `results/taxonomy.html` and `results/taxonomy.manifest.json`.
 
 ```{toctree}
 :maxdepth: 2

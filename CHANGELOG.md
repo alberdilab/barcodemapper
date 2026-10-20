@@ -4,6 +4,19 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+### Added
+
+- Run ultrastrict (0% edits, 120 aligned bases), strict (2%, 100), standard (3%, 80) and permissive (5%, 60) from one Bowtie2 mapping pass by default. Use `--stringency` to select levels; preset flags add levels, and `-m`/`-c` add a custom level.
+- The HTML report has an Overview comparing retained fragments, classified share, rank resolution, taxa per rank, kingdom composition and samples, followed by a detailed tab for each level.
+
+### Changed
+
+- A default run now writes four level-named taxonomy TSVs instead of one; a run with one selected level still writes to `-o`. Each run keeps one HTML report and one manifest.
+- `-m`/`-c` now define a `custom` level, which can be combined with presets. Preset flags are additive.
+- Extraction, taxonomy and aggregation intermediates now live in per-level directories in the working directory.
+- The manifest field `samples.<sample>.assigned_read_ids` is now a per-level object `{level: count}` instead of a single count.
+- Merged TSV rows are now sorted by `Taxonomy`, with `Unclassified` first.
+
 ## [1.2.3] - 2026-10-18
 
 ### Added

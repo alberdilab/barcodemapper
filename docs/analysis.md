@@ -29,18 +29,25 @@ Inspect fastp's per-sample HTML and JSON files in the work directory for filteri
 
 ## Mapping stringency
 
-`-c` / `--min-coverage` is the minimum aligned bases per alignment; `-m` / `--max-mismatches` is the maximum Bowtie2 `NM` edit distance as a percentage of those aligned bases. `NM` includes substitutions and indels. The default is 80 bases and 3%. Presets replace both values:
+Each level filters alignments independently after one Bowtie2 mapping pass. `-c` / `--min-coverage` sets the minimum aligned bases per alignment; `-m` / `--max-mismatches` sets the maximum Bowtie2 `NM` edit distance as a percentage of those aligned bases. `NM` includes substitutions and indels. By default, all four presets run in this order:
 
 | Preset | Minimum aligned bases | Maximum edits |
 | --- | ---: | ---: |
 | `--ultrastrict` | 120 | 0% |
 | `--strict` | 100 | 2% |
-| `--standard` (default) | 80 | 3% |
+| `--standard` | 80 | 3% |
 | `--permissive` | 60 | 5% |
 
+Use `--stringency` with a comma-separated list to select presets, or `--stringency all` for all four. Preset flags add levels to that selection. With no `--stringency` or preset flags, `-m` and/or `-c` define one `custom` level instead of the four defaults; with presets, they add `custom` as an extra level. An omitted custom threshold defaults to 3% or 80 aligned bases, respectively. Multiple levels are reported in preset order, followed by `custom`.
+
 ```sh
-barcodemapper -i reads --db-dir references -o results.tsv --strict
+barcodemapper -i reads --db-dir references -o results/taxonomy.tsv --stringency strict,standard
+barcodemapper -i reads --db-dir references -o results/taxonomy.tsv --strict --permissive
+barcodemapper -i reads --db-dir references -o results/taxonomy.tsv -m 1 -c 110
+barcodemapper -i reads --db-dir references -o results/taxonomy.tsv --strict -m 1 -c 110
 ```
+
+The first command writes `results/taxonomy.strict.tsv` and `results/taxonomy.standard.tsv`; the second writes `results/taxonomy.strict.tsv` and `results/taxonomy.permissive.tsv`. The third writes one custom table to `results/taxonomy.tsv`; the fourth writes `results/taxonomy.strict.tsv` and `results/taxonomy.custom.tsv`. A single preset level, such as `--strict` alone, also writes directly to `-o`. Ultrastrict requires at least 120 aligned bases, while the default minimum read length after fastp is 100; some retained reads therefore cannot pass ultrastrict. Changing which alignments are accepted can change the lowest common ancestor, so taxonomy counts at each rank are not simple subsets across levels.
 
 ## Alignment cap (`-k`) and `--all-hits`
 
@@ -62,13 +69,13 @@ Use `--slurm` on a cluster with the Snakemake Slurm executor plugin installed. A
 
 ## Option reference
 
-Run `barcodemapper --help` for the authoritative list.
+Common analysis options are listed below.
 
 | Option | Purpose |
 | --- | --- |
 | `-i`, `--input` | Directory of paired `.fq.gz` / `.fastq.gz` files |
 | `-1`, `--read1` / `-2`, `--read2` | Comma-separated R1 / R2 files |
-| `-o`, `--output` | Output taxonomy TSV |
+| `-o`, `--output` | Taxonomy TSV path for one level; base path for level-named TSVs when several levels run |
 | `-d`, `--database` | Combined BarcodeMapper FASTA (default: newest `bmdb_*` in `--db-dir` or the current directory) |
 | `--db-dir`, `--db-name` | Where to find databases, and which one (folder name or date) |
 | `-b`, `--bold` / `-u`, `--unite` | Source FASTAs for `--build` |
@@ -78,6 +85,6 @@ Run `barcodemapper --help` for the authoritative list.
 | `--build`, `-n`, `--keep` | Build and index a database only; name it; prune older ones |
 | `--list`, `--verify`, `--update`, `--check` | Inspect, check or refresh databases (see [](database.md)) |
 | `--unlock` | Unlock a working directory |
-| `-m`, `-c`, presets | Mapping stringency |
+| `--stringency`, preset flags, `-m`, `-c` | Select presets or add a custom stringency level |
 | `-k`, `--all-hits`, `--no-bam` | Alignment cap, uncapped mapping, BAM retention |
 | `--version` | Print the version |

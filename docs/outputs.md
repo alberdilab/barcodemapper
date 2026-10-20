@@ -1,14 +1,19 @@
 # Outputs
 
-For `-o results/taxonomy.tsv`, BarcodeMapper writes:
+For `-o results/taxonomy.tsv`, the default run writes:
 
 | File | Contents |
 | --- | --- |
-| `results/taxonomy.tsv` | Taxonomy paths and one count column per sample, including zero-hit samples. |
-| `results/taxonomy.html` | Offline, self-contained bar and sunburst plots. |
-| `results/taxonomy.manifest.json` | Version, parameters, tool versions, database name, checksum and source releases, inputs, and fastp/assignment counts. |
+| `results/taxonomy.ultrastrict.tsv` | Cumulative taxonomy counts at 0% edits and 120 aligned bases. |
+| `results/taxonomy.strict.tsv` | Cumulative taxonomy counts at 2% edits and 100 aligned bases. |
+| `results/taxonomy.standard.tsv` | Cumulative taxonomy counts at 3% edits and 80 aligned bases. |
+| `results/taxonomy.permissive.tsv` | Cumulative taxonomy counts at 5% edits and 60 aligned bases. |
+| `results/taxonomy.html` | Offline, self-contained report comparing levels and showing bar and sunburst plots for each. |
+| `results/taxonomy.manifest.json` | Version, parameters, level settings and output paths, tool versions, database name, checksum and source releases, inputs, and fastp/assignment counts. |
 
-The working directory additionally holds fastp reports and, unless `--no-bam` is used, one BAM per sample in `bowtie/`.
+When only one level is selected, its TSV is written exactly to `-o` (here, `results/taxonomy.tsv`). With several levels, each TSV uses `<stem>.<level><suffix>`; the HTML report and manifest still use the `-o` stem. Each TSV has a `Taxonomy` column and one integer count column per sample, including zero-hit samples. Rows are sorted by `Taxonomy`, with `Unclassified` first.
+
+The working directory additionally holds fastp reports, per-sample TSVs under `extract/<level>/`, `taxonomy/<level>/` and `aggregate/<level>/`, and extraction stats in `extract/<sample>.stats.json`. Unless `--no-bam` is used, it also holds one BAM per sample in `bowtie/`.
 
 ## Reading the count table
 
@@ -20,10 +25,12 @@ Counts are propagated to every resolved ancestor. A fragment assigned to species
 
 ## HTML report
 
-The report's relative bars use assigned fragments at the phylum level plus unresolved and unclassified fragments as the denominator, and are labelled as a fraction of marker-matching fragments.
+With several levels, the report opens on an Overview tab. Its table compares retained fragments, the share of aligned fragments retained, classified share, and distinct taxa at each rank. Charts compare classified fragments by sample, the share resolved to each rank, and kingdom composition by level. Each level has a detailed tab with the sample bar and sunburst plots. With one level, the report opens directly on its detailed view.
+
+The detailed view's relative bars use assigned fragments at the phylum level plus unresolved and unclassified fragments as the denominator, and are labelled as a fraction of marker-matching fragments. Counts at a given rank are not necessarily subsets across stringency levels: changing which alignments are accepted can change the lowest common ancestor.
 
 ![Example report](../images/report.png)
 
 ## Manifest
 
-The JSON manifest records everything needed to reproduce a run: BarcodeMapper version, parameters, tool versions, the database name, build date, source releases and checksum, the input files, and fastp and assignment counts. Keep it with the count table.
+The JSON manifest records everything needed to reproduce a run: BarcodeMapper version, parameters and ordered levels with their TSV paths, tool versions, the database name, build date, source releases and checksum, the input files, and fastp and per-level assignment counts. `samples.<sample>.assigned_read_ids` is a per-level object `{level: count}`. Keep it with the count tables.

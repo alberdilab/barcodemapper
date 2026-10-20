@@ -266,7 +266,7 @@ def test_multilevel_stages_match_legacy_standard_and_render_report(tmp_path):
     assert 'id="tab-overview"' in html
     assert 'id="overview-panel"' in html
     assert [match.group(1) for match in re.finditer(
-        r'id="tab-level-\d+"[^>]*>([^<]+)</button>', html)] == levels
+        r'id="tab-level-\d+"[^>]*><strong>([^<]+)</strong>', html)] == levels
 
 
 def _require_tools(*names: str) -> None:

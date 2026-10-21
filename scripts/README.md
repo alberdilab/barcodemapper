@@ -9,8 +9,8 @@ the BOLD (CC BY-SA 4.0) and UNITE (CC BY 4.0) sources in `ATTRIBUTION.txt`.
 Review source licences and release IDs before publishing. Automatic source
 provenance is required.
 
-Set `ZENODO_TOKEN` in the environment. For a first upload, use a sandbox token
-and inspect the plan and the resulting draft:
+When calling `publish_zenodo.py` directly, set `ZENODO_TOKEN` in its environment.
+For a first upload, use a sandbox token and inspect the plan and the resulting draft:
 
 ```sh
 python scripts/publish_zenodo.py --database /path/bmdb_20261021 --sandbox --dry-run
@@ -29,9 +29,14 @@ Bowtie2 index files.
 `scripts/build_and_publish.sh` builds the current BOLD+UNITE database in scratch
 and uploads it as a Zenodo draft. Use a pinned BarcodeMapper Conda environment
 with Snakemake and Bowtie2; `--env` accepts its name or absolute prefix under
-`/projects/alberdilab/data/environments/conda/`. Submit with
-`sbatch --export=NONE` and load `ZENODO_TOKEN` from `~/.tokens` inside the job;
-the script reads that file when the token is absent. Never put the token on a
+`/projects/alberdilab/data/environments/conda/`. Set `ZENODO_SANDBOX` for
+`--sandbox` and `ZENODO_PRODUCTION` otherwise in Codeome Settings > Secrets,
+enabled for HPC and this project. Mjolnir jobs use `sbatch --export=NONE` and
+load secrets inside the job with `source ~/.codeome/secrets/<project>.env`;
+this project's file is `~/.codeome/secrets/barcodemapper-91de8232.env`.
+The wrapper reads only the selected variable from the environment or that file,
+falling back to `~/.tokens`. Set `BM_SECRETS_FILE` to try a different secrets
+file first. It does not accept a bare `ZENODO_TOKEN`. Never put a token on a
 command line. Check that compute nodes can reach BOLD, UNITE, and Zenodo.
 
 ```sh

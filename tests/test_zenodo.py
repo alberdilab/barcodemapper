@@ -3,6 +3,7 @@
 import hashlib
 import io
 import json
+import os
 
 import pytest
 
@@ -84,6 +85,15 @@ def test_version_pin_uses_versions_endpoint_and_legacy_file_keys(monkeypatch):
     assert found.files[0].size == len(CONTENT)
     assert found.files[0].url.endswith("/api/files/122/database.tar.gz")
     assert calls == ["https://zenodo.org/api/records/1/versions?size=100", "https://zenodo.org/api/records/122"]
+
+
+def test_current_zenodo_links_use_self_html_and_license_object(monkeypatch):
+    data = record_data(5)
+    data["links"] = {"self_html": f"{zenodo.ZENODO_URL}/records/5"}
+    data["metadata"]["license"] = {"id": "cc-by-sa-4.0"}
+    monkeypatch.setattr(zenodo, "_open", lambda url, **kwargs: Response(json.dumps(data).encode()))
+    record = zenodo.resolve_record(5)
+    assert record.url == f"{zenodo.ZENODO_URL}/records/5" and record.license == "cc-by-sa-4.0"
 
 
 def test_unknown_version_is_clear_and_does_not_fetch_a_record(monkeypatch):
@@ -236,3 +246,15 @@ def test_record_rejects_file_above_cap(monkeypatch, name, size):
     monkeypatch.setattr(zenodo, "_open", lambda *args, **kwargs: Response(json.dumps(data).encode()))
     with pytest.raises(ValueError, match="file size"):
         zenodo.resolve_record(1)
+
+
+def test_downloaded_file_follows_umask_not_private_temp_mode(monkeypatch, tmp_path):
+    monkeypatch.setattr(zenodo, "_open", lambda url, **kwargs: Response(CONTENT))
+    record = zenodo.ZenodoFile("database.tar.gz", len(CONTENT), hashlib.md5(CONTENT).hexdigest(),
+                               f"{zenodo.ZENODO_URL}/api/files/1/database.tar.gz", "zenodo.org")
+    old = os.umask(0o022)
+    try:
+        path = zenodo.download_file(record, tmp_path)
+    finally:
+        os.umask(old)
+    assert path.stat().st_mode & 0o777 == 0o644

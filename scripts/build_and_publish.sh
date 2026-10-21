@@ -10,6 +10,8 @@
 #SBATCH --error=bm-build-publish-%j.err
 
 set -euo pipefail
+# Token values must stay out of shell traces, including when invoked with bash -x.
+set +x
 
 usage() {
     cat <<'EOF'
@@ -33,8 +35,11 @@ Options:
   --label NAME       Pass NAME to barcodemapper -n (builds only)
   -h, --help         Show this help
 
-Load ZENODO_TOKEN from ~/.tokens inside the job or set it in the environment;
-never pass it as an argument. Set BM_CONDA_SH if Conda init is elsewhere.
+Set ZENODO_SANDBOX for --sandbox or ZENODO_PRODUCTION otherwise in
+Codeome Settings > Secrets (enabled for HPC and this project). The script
+reads the selected value from the environment, BM_SECRETS_FILE,
+~/.codeome/secrets/barcodemapper-91de8232.env, or ~/.tokens, in that order.
+Never pass a token as an argument. Set BM_CONDA_SH if Conda init is elsewhere.
 EOF
 }
 
@@ -91,26 +96,40 @@ if [[ -n $reuse ]]; then
 fi
 
 scratch=${BM_SCRATCH_ROOT:-/projects/alberdilab/scratch/jpl786}
+# Resolve the root too: on Mjolnir /projects is a symlink to /maps/projects.
+scratch=$(python3 -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).expanduser().resolve())' "$scratch")
 if (( ! dry_run )); then
     [[ $db_dir == "$scratch" || $db_dir == "$scratch/"* ]] ||
         fail "--db-dir must be under $scratch"
     if [[ -n $reuse ]]; then
         [[ $reuse == "$scratch/"* ]] || fail "--reuse must be under $scratch"
     fi
-    if [[ -z ${ZENODO_TOKEN:-} && -f $HOME/.tokens ]]; then
-        # Read only the ZENODO_TOKEN line; sourcing the file would execute it
-        # and export every other token in it into the multi-day build.
-        token_line=$(grep -E '^(export[[:space:]]+)?ZENODO_TOKEN=' "$HOME/.tokens" | tail -n 1 || true)
-        token_value=${token_line#*=}
-        token_value=${token_value%\"}
-        token_value=${token_value#\"}
-        token_value=${token_value%\'}
-        token_value=${token_value#\'}
-        [[ -z $token_value ]] || ZENODO_TOKEN=$token_value
-        unset token_line token_value
+    if (( sandbox )); then
+        token_name=ZENODO_SANDBOX
+    else
+        token_name=ZENODO_PRODUCTION
     fi
-    [[ -n ${ZENODO_TOKEN:-} ]] || fail "ZENODO_TOKEN is required in the job environment or ~/.tokens"
-    export ZENODO_TOKEN
+    unset token_value
+    token_value=${!token_name:-}
+    if [[ -z $token_value ]]; then
+        # Read only the selected line; sourcing a file would export its other tokens.
+        token_files=()
+        [[ -z ${BM_SECRETS_FILE:-} ]] || token_files+=("$BM_SECRETS_FILE")
+        token_files+=("$HOME/.codeome/secrets/barcodemapper-91de8232.env" "$HOME/.tokens")
+        for token_file in "${token_files[@]}"; do
+            [[ -f $token_file ]] || continue
+            token_line=$(grep -E "^(export[[:space:]]+)?${token_name}=" "$token_file" | tail -n 1 || true)
+            token_value=${token_line#*=}
+            token_value=${token_value%\"}
+            token_value=${token_value#\"}
+            token_value=${token_value%\'}
+            token_value=${token_value#\'}
+            [[ -z $token_value ]] || break
+        done
+        unset token_files token_file token_line
+    fi
+    [[ -n $token_value ]] || fail "$token_name is required; set it in Codeome Settings > Secrets (enabled for HPC and this project)"
+    unset ZENODO_SANDBOX ZENODO_PRODUCTION ZENODO_TOKEN
 fi
 
 if [[ -n ${BM_REPO:-} ]]; then
@@ -178,7 +197,7 @@ else
     else
         # The CLI's default Snakemake work directory is relative to cwd.
         # Keep all large intermediate files under the same scratch directory.
-        build_output=$(cd "$db_dir" && env -u ZENODO_TOKEN "${build_cmd[@]}")
+        build_output=$(cd "$db_dir" && env -u ZENODO_SANDBOX -u ZENODO_PRODUCTION -u ZENODO_TOKEN "${build_cmd[@]}")
         printf '%s\n' "$build_output"
         built_database=
         while IFS= read -r line; do
@@ -205,7 +224,11 @@ publish_cmd=("$python_cmd" "$publisher" --database "$database")
 (( ! dry_run )) || publish_cmd+=(--dry-run)
 printf 'Publish step:\n'
 print_command "${publish_cmd[@]}"
-"${publish_cmd[@]}"
+if (( dry_run )); then
+    env -u ZENODO_SANDBOX -u ZENODO_PRODUCTION -u ZENODO_TOKEN "${publish_cmd[@]}"
+else
+    env -u ZENODO_SANDBOX -u ZENODO_PRODUCTION -u ZENODO_TOKEN ZENODO_TOKEN="$token_value" "${publish_cmd[@]}"
+fi
 
 if (( dry_run )); then
     printf '\nReview the planned files and source licences.\n'

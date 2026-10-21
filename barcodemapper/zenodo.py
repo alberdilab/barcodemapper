@@ -119,7 +119,7 @@ def _parse_record(data: dict, host: str) -> ZenodoRecord:
         license_id = license_id["id"]
     return ZenodoRecord(
         int(data["id"]), data["doi"], str(data["metadata"]["version"]),
-        data["links"]["html"], license_id, files,
+        data["links"].get("html") or data["links"]["self_html"], license_id, files,
     )
 
 
@@ -191,6 +191,9 @@ def download_file(file: ZenodoFile, directory, expected_sha256=None, progress=No
             raise ValueError(f"Zenodo MD5 checksum mismatch for {name}")
         if expected_sha256 is not None and sha256.hexdigest() != expected_sha256.lower():
             raise ValueError(f"Zenodo SHA-256 checksum mismatch for {name}")
+        umask = os.umask(0)
+        os.umask(umask)
+        temporary.chmod(0o666 & ~umask)
         temporary.replace(destination)
         return destination
     finally:

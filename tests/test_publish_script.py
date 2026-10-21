@@ -259,7 +259,8 @@ def test_publisher_rejects_unscrubbed_portable_manifest(publisher, database, mon
 def test_slurm_dry_run_uses_submit_dir_without_writable_db_dir(database, tmp_path):
     environment = dict(os.environ, SLURM_JOB_ID="123", SLURM_SUBMIT_DIR=str(SCRIPT.parents[1]))
     environment.pop("BM_REPO", None)
-    environment.pop("ZENODO_TOKEN", None)
+    for name in ("ZENODO_TOKEN", "ZENODO_SANDBOX", "ZENODO_PRODUCTION"):
+        environment.pop(name, None)
     result = subprocess.run(["bash", str(BUILD_SCRIPT), "--db-dir", str(tmp_path / "absent"),
                              "--reuse", str(database), "--dry-run"], env=environment,
                             capture_output=True, text=True)
@@ -277,8 +278,11 @@ def test_slurm_reports_missing_publisher_early(database, tmp_path):
     assert "publisher not found" in result.stderr
 
 
-@pytest.mark.parametrize("token_in_file", [False, True])
-def test_live_build_hides_token_and_uses_reported_folder(database, tmp_path, token_in_file):
+@pytest.mark.parametrize("sandbox", [False, True])
+@pytest.mark.parametrize("token_source", ["environment", "override", "codeome", "tokens"])
+@pytest.mark.parametrize("trace", [False, True])
+def test_live_build_hides_token_and_uses_reported_folder(
+        tmp_path, sandbox, token_source, trace):
     scratch = tmp_path / "scratch"
     db_dir = scratch / "dbs"
     built = db_dir / "bmdb_20261020"
@@ -292,33 +296,84 @@ def test_live_build_hides_token_and_uses_reported_folder(database, tmp_path, tok
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
     (fake_bin / "barcodemapper").write_text(
-        "#!/usr/bin/env bash\n[[ -z ${ZENODO_TOKEN:-} ]] || exit 9\n"
+        "#!/usr/bin/env bash\n"
+        "[[ -z ${ZENODO_TOKEN+x} && -z ${ZENODO_SANDBOX+x} && "
+        "-z ${ZENODO_PRODUCTION+x} && -z ${OTHER_FAKE_TOKEN+x} ]] || exit 9\n"
         "printf 'Built latest database: %s\\n' \"$TEST_BUILT\"\n")
     (fake_bin / "python").write_text(
         "#!/usr/bin/env bash\n[[ -n ${ZENODO_TOKEN:-} ]] || exit 9\n"
+        "[[ -z ${ZENODO_SANDBOX+x} && -z ${ZENODO_PRODUCTION+x} && "
+        "-z ${OTHER_FAKE_TOKEN+x} ]] || exit 9\n"
+        "printf '%s' \"$ZENODO_TOKEN\" > \"$TEST_TOKEN_MARKER\"\n"
         "printf '%s\\n' \"$*\" > \"$TEST_MARKER\"\n")
     for name in ("snakemake", "bowtie2", "bowtie2-build"):
         (fake_bin / name).write_text("#!/usr/bin/env bash\nexit 0\n")
     for path in fake_bin.iterdir():
         path.chmod(0o755)
     conda_sh = tmp_path / "conda.sh"
-    conda_sh.write_text(': "$UNSET_DURING_CONDA_LOAD"\nconda() { : "$UNSET_DURING_CONDA_ACTIVATE"; }\n')
+    conda_sh.write_text(
+        '[[ -z ${ZENODO_TOKEN+x} && -z ${ZENODO_SANDBOX+x} && '
+        '-z ${ZENODO_PRODUCTION+x} ]] || exit 9\n'
+        'conda() { : "$UNSET_DURING_CONDA_ACTIVATE"; }\n')
     marker = tmp_path / "publisher-args"
+    token_marker = tmp_path / "publisher-token"
+    selected = "ZENODO_SANDBOX" if sandbox else "ZENODO_PRODUCTION"
+    opposite = "ZENODO_PRODUCTION" if sandbox else "ZENODO_SANDBOX"
+    job_home = tmp_path / "job-home"
+    job_home.mkdir()
+    token_file = job_home / ".tokens"
+    default_file = job_home / ".codeome/secrets/barcodemapper-91de8232.env"
+    override_file = tmp_path / "override.env"
+    values = {source: f"secret-{source}-{selected}" for source in
+              ("environment", "override", "codeome", "tokens")}
+    def file_contents(source):
+        return (f"export {selected}='{values[source]}'\n"
+                f"{opposite}=secret-opposite-{source}\n"
+                f"OTHER_FAKE_TOKEN=secret-other-{source}\n")
+    token_file.write_text(file_contents("tokens"))
+    if token_source != "tokens":
+        default_file.parent.mkdir(parents=True)
+        default_file.write_text(file_contents("codeome"))
+    if token_source == "override":
+        override_file.write_text(file_contents("override"))
     environment = dict(os.environ, PATH=f"{fake_bin}:{os.environ['PATH']}", BM_REPO=str(SCRIPT.parents[1]),
                        BM_SCRATCH_ROOT=str(scratch), BM_CONDA_SH=str(conda_sh),
-                       ZENODO_TOKEN="test-token", TEST_BUILT=str(built), TEST_MARKER=str(marker))
-    if token_in_file:
-        job_home = tmp_path / "job-home"
-        job_home.mkdir()
-        (job_home / ".tokens").write_text("ZENODO_TOKEN=test-token\n")
-        environment["HOME"] = str(job_home)
-        environment.pop("ZENODO_TOKEN")
-    result = subprocess.run(["bash", str(BUILD_SCRIPT), "--db-dir", str(db_dir), "--env", "fake"],
+                       TEST_BUILT=str(built), TEST_MARKER=str(marker),
+                       TEST_TOKEN_MARKER=str(token_marker), HOME=str(job_home))
+    for name in ("ZENODO_TOKEN", "ZENODO_SANDBOX", "ZENODO_PRODUCTION", "BM_SECRETS_FILE",
+                 "OTHER_FAKE_TOKEN"):
+        environment.pop(name, None)
+    environment[opposite] = "secret-opposite-environment"
+    environment["ZENODO_TOKEN"] = "secret-bare-token"
+    if token_source == "environment":
+        environment[selected] = values["environment"]
+    elif token_source == "override":
+        environment["BM_SECRETS_FILE"] = str(override_file)
+    result = subprocess.run(["bash", *(["-x"] if trace else []), str(BUILD_SCRIPT),
+                             "--db-dir", str(db_dir), "--env", "fake",
+                             *(["--sandbox"] if sandbox else [])],
                             env=environment, capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
     assert f"Database: {built}" in result.stdout
     assert f"--database {built}" in marker.read_text()
-    assert "test-token" not in result.stdout + result.stderr
+    assert token_marker.read_text() == values[token_source]
+    assert "secret-" not in result.stdout + result.stderr
+
+
+@pytest.mark.parametrize("sandbox, selected", [(False, "ZENODO_PRODUCTION"),
+                                              (True, "ZENODO_SANDBOX")])
+def test_live_build_rejects_bare_token(tmp_path, sandbox, selected):
+    environment = dict(os.environ, BM_SCRATCH_ROOT=str(tmp_path), BM_REPO=str(SCRIPT.parents[1]),
+                       HOME=str(tmp_path), ZENODO_TOKEN="secret-bare-token")
+    for name in ("ZENODO_SANDBOX", "ZENODO_PRODUCTION", "BM_SECRETS_FILE"):
+        environment.pop(name, None)
+    result = subprocess.run(["bash", str(BUILD_SCRIPT), "--db-dir", str(tmp_path / "dbs"),
+                             "--env", "fake", *(["--sandbox"] if sandbox else [])],
+                            env=environment, capture_output=True, text=True)
+    assert result.returncode == 2
+    assert selected in result.stderr
+    assert "Codeome Settings > Secrets" in result.stderr
+    assert "secret-bare-token" not in result.stdout + result.stderr
 
 
 def test_live_build_requires_explicit_environment(tmp_path):

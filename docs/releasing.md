@@ -19,7 +19,23 @@
    ```
 
 5. Inspect the source archive for `LICENSE` and `CITATION.cff`, and the wheel for `LICENSE`, workflow files, profiles, and scripts. Install the wheel in a clean environment and check `barcodemapper --version` and `--help`.
-6. After review, create the matching Git tag `vX.Y.Z`, publish a GitHub release from that tag, and upload the built wheel and source distribution. Do not bundle BOLD/UNITE derived data without confirming redistribution rights.
+6. After review, create the matching Git tag `vX.Y.Z`, publish a GitHub release from that tag, and upload the built wheel and source distribution. Do not attach BOLD/UNITE derived data to the GitHub release; databases are published on Zenodo (see below).
 7. To publish on Bioconda, update `packaging/bioconda/meta.yaml` to the release version and SHA-256 of the uploaded source distribution, then submit it as `recipes/barcodemapper/meta.yaml` in [bioconda-recipes](https://github.com/bioconda/bioconda-recipes). Verify the channel package after the recipe is merged before advertising `conda install -c bioconda barcodemapper`. The recipe includes Snakemake, fastp, Bowtie2, and samtools as runtime dependencies.
 
 `scripts/check_release.py` rejects a proposed tag if its version, citation version, or dated changelog section is inconsistent.
+
+## Publishing a database release to Zenodo
+
+Database releases are independent of software releases. See `scripts/README.md` for the full options.
+
+1. On Mjolnir, build and upload a draft to the Zenodo sandbox first, using `ZENODO_TOKEN` from `~/.tokens` (never on a command line):
+
+   ```sh
+   sbatch --export=NONE scripts/build_and_publish.sh --db-dir /projects/alberdilab/scratch/jpl786/barcodemapper-dbs \
+     --env /projects/alberdilab/data/environments/conda/barcodemapper --sandbox
+   ```
+
+2. Inspect the draft in Zenodo's UI: files, checksums, licence (CC BY-SA 4.0), and the attribution to BOLD and UNITE.
+3. Repeat without `--sandbox` and publish with `--publish`, or publish the production draft in the UI. Zenodo drafts block new versions until they are published or deleted, so clean up unused drafts.
+4. Set `DEFAULT_RECORD` in `barcodemapper/zenodo.py` to the printed concept record id, so that `--fetch` finds the latest version by default.
+5. Add the record to the README and `CITATION.cff` as appropriate, then follow the release procedure above.

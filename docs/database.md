@@ -8,7 +8,44 @@ accession|marker|k__Kingdom;p__Phylum;...
 
 where `marker` is `COI-5P` or `ITS`. The FASTA and Bowtie2 index are separate from the Python package. Database builds write a gzip-compressed FASTA (`.fa.gz` or `.fasta.gz`); analysis also accepts existing uncompressed FASTAs.
 
-An existing March 2025 snapshot was previously distributed as [barcodemapper_db_202503.tar.gz](https://sid.erda.dk/share_redirect/FGathhqKb5/barcodemapper_db_202503.tar.gz). Its source inputs were BOLD Public (14 March 2025) and UNITE All Eukaryotes (19 February 2025). Confirm its availability and the underlying providers' terms before using or redistributing it. The software's MIT license does not grant rights to third-party reference sequences.
+An earlier March 2025 snapshot (BOLD Public, 14 March 2025; UNITE All Eukaryotes, 19 February 2025) was shared as [barcodemapper_db_202503.tar.gz](https://sid.erda.dk/share_redirect/FGathhqKb5/barcodemapper_db_202503.tar.gz). Its redistribution terms were not confirmed at the time and its availability is not guaranteed; prefer the prebuilt database below or build your own.
+
+## Prebuilt database from Zenodo
+
+Fetch the prebuilt combined BOLD+UNITE database, or build your own from the providers' current releases:
+
+```sh
+barcodemapper --fetch                       # ./bmdb_<date>/
+barcodemapper --fetch --db-dir /projects/refs --index
+barcodemapper --build                       # build your own instead
+```
+
+`--fetch` downloads the database from Zenodo and installs it as `bmdb_<date>/` in `--db-dir` (default: the current directory). It then behaves like any other database folder: `--list`, `--verify`, `--check` and mapping work on it. `--update` rebuilds a new database from the live BOLD and UNITE sources, not from Zenodo.
+
+| Option | Effect |
+| --- | --- |
+| `--fetch-version VERSION` | Zenodo database version to fetch (default: latest). |
+| `--zenodo-record ID` | Zenodo record ID. Default: the `BARCODEMAPPER_ZENODO_RECORD` environment variable, otherwise the record configured in the package. That default is set once the first record is published; until then pass `--zenodo-record` or set the variable. |
+| `--index` | Also download the prebuilt Bowtie2 index. |
+| `--force` | Replace an existing database folder. |
+| `--db-dir DIR` | Where to install `bmdb_<date>/`. |
+
+`--fetch` cannot be combined with `--build`, `--update`, `-d`, `-n`, `-b`, `-u` or `--check`.
+
+Without `--index`, the Bowtie2 index is built the first time the database is used. That needs `bowtie2-build`, time and RAM; `--index` avoids it at the cost of a larger download. The BOLD FASTA download is about 2 GB compressed and the database is several GB, so check the free space in `--db-dir` first. No sizes or timings have been measured for the prebuilt database.
+
+Downloaded files are checked against the md5 sums Zenodo records and the `SHA256SUMS` file in the release. This protects against corruption; authenticity rests on TLS and Zenodo. Nothing from the download is executed, and tar extraction of the index is restricted.
+
+## Licence and attribution
+
+The BOLD DNA Barcode Reference Library data package (`BOLD_Public.*` snapshots) is licensed [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The UNITE general FASTA release (currently UNITE 10.0, 19.02.2025, DOI 10.15156/BIO/3301232) is licensed CC BY 4.0. The combined derived database (FASTA, index and overview TSV) is therefore distributed under CC BY-SA 4.0. The UNITE-derived part is also available from UNITE under CC BY 4.0. The BarcodeMapper code remains under the MIT licence.
+
+If you use the database, credit both sources and indicate that the data was modified (filtered, relabelled and combined):
+
+- BOLD: cite the package snapshot id and your access date. The DOI 10.5883/DP-Latest is an alias that is updated weekly, so it does not identify a snapshot by itself.
+- UNITE: cite the release DOI.
+
+The database folder's manifest records the source release identifiers. This is not legal advice; check the providers' current terms before reuse.
 
 ## Database folders
 

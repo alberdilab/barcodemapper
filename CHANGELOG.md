@@ -4,6 +4,15 @@ Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ## [Unreleased]
 
+### Added
+
+- `barcodemapper --fetch` downloads the prebuilt combined BOLD+UNITE database from Zenodo and installs it as `bmdb_<date>` in `--db-dir`. Options: `--fetch-version`, `--zenodo-record` (or `BARCODEMAPPER_ZENODO_RECORD`), `--index` to also download the Bowtie2 index, and `--force`. Downloads are checked against md5 and SHA256SUMS. The default Zenodo record is set once the first record is published. `--build` is unchanged.
+- Maintainer scripts `scripts/publish_zenodo.py` and `scripts/build_and_publish.sh` to publish a database release to Zenodo.
+
+### Changed
+
+- Licensing: the distributed combined database is licensed CC BY-SA 4.0 (BOLD is CC BY-SA 4.0, UNITE CC BY 4.0), with attribution required; the code remains MIT. This replaces the earlier note that redistribution terms were unconfirmed.
+
 ## [1.2.4] - 2026-10-20
 
 ### Added

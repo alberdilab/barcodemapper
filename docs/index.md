@@ -41,4 +41,4 @@ dependency-checks
 changelog
 ```
 
-BarcodeMapper source code is available under the [MIT license](https://github.com/alberdilab/barcodemapper/blob/main/LICENSE). Reference databases retain their providers' terms. Source: <https://github.com/alberdilab/barcodemapper>.
+BarcodeMapper source code is available under the [MIT license](https://github.com/alberdilab/barcodemapper/blob/main/LICENSE). The prebuilt reference database is distributed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) with attribution to BOLD and UNITE; see the Licence and attribution section of the database page. Source: <https://github.com/alberdilab/barcodemapper>.

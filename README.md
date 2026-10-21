@@ -34,14 +34,17 @@ conda activate barcodemapper
 python -m pip install --no-deps \
   https://github.com/alberdilab/barcodemapper/releases/download/v1.2.3/barcodemapper-1.2.3-py3-none-any.whl
 
-# Build the reference database (once)
+# Download the prebuilt BOLD+UNITE database (once)
+barcodemapper --fetch --db-dir references   # creates references/bmdb_<date>/
+
+# ...or build your own from the current BOLD and UNITE releases
 barcodemapper --build --db-dir references   # creates references/bmdb_<YYYYMMDD>/
 
 # Analyse a directory of paired reads (sample_1.fq.gz / sample_2.fq.gz)
 barcodemapper -i reads --db-dir references -o results/taxonomy.tsv
 ```
 
-Without `-d`/`--db-dir`, the newest `bmdb_*` folder in the current directory is used. `--list`, `--verify` and `--update` manage databases; see the documentation.
+Without `-d`/`--db-dir`, the newest `bmdb_*` folder in the current directory is used. `--fetch` needs a Zenodo record, which is set once the first record is published (until then use `--zenodo-record`). `--list`, `--verify` and `--update` manage databases; see the documentation.
 
 This writes `results/taxonomy.ultrastrict.tsv`, `results/taxonomy.strict.tsv`, `results/taxonomy.standard.tsv`, `results/taxonomy.permissive.tsv`, `results/taxonomy.html` and `results/taxonomy.manifest.json`. The report opens with an Overview comparing levels; see [Running an analysis](https://barcodemapper.readthedocs.io/en/latest/analysis.html) to select levels or set custom thresholds.
 
@@ -49,4 +52,4 @@ This writes `results/taxonomy.ultrastrict.tsv`, `results/taxonomy.strict.tsv`, `
 
 Cite the software release ([CITATION.cff](CITATION.cff)) and the reference providers (BOLD and UNITE). Changes are listed in [CHANGELOG.md](CHANGELOG.md).
 
-BarcodeMapper source code is available under the [MIT license](LICENSE). Reference databases retain their providers' terms.
+BarcodeMapper source code is available under the [MIT license](LICENSE). The prebuilt database is a derivative of BOLD (CC BY-SA 4.0) and UNITE (CC BY 4.0) data and is distributed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); credit BOLD (package snapshot id and access date) and UNITE (release DOI) and indicate that the data was modified. The UNITE-derived part is also available from UNITE under CC BY 4.0. This is not legal advice. Databases you build yourself with `--build` remain subject to the providers' terms.

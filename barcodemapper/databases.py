@@ -139,11 +139,16 @@ def verify(fasta: Path) -> list[tuple[str, bool, str]]:
     except (ValueError, OSError, EOFError) as exc:
         results.append(("FASTA", False, str(exc)))
     status = index_status(fasta)
-    results.append(("Bowtie2 index", status != "missing", status))
+    manifest = read_manifest(fasta)
     stem = database_stem(fasta)
+    partial_index = any(Path(f"{stem}.{part}.{extension}").exists()
+                        for extension in ("bt2l", "bt2") for part in INDEX_PARTS)
+    optional_index = (manifest is not None and manifest.get("origin") == "zenodo"
+                      and manifest.get("index_included") is False and not partial_index)
+    results.append(("Bowtie2 index", status != "missing" or optional_index,
+                    "built on first use" if status == "missing" and optional_index else status))
     headers = Path(f"{stem}.tsv")
     results.append(("headers overview", headers.is_file() and headers.stat().st_size > 0, str(headers.name)))
-    manifest = read_manifest(fasta)
     if manifest is None:
         results.append(("manifest", False, "missing or unreadable"))
     else:

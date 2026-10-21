@@ -2,8 +2,10 @@
 
 import argparse
 import hashlib
+import http.client
 import json
 import math
+import os
 import re
 import shlex
 import shutil
@@ -11,6 +13,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -18,6 +21,8 @@ from pathlib import Path
 import yaml
 
 from barcodemapper.__version__ import __version__
+from barcodemapper import zenodo
+from barcodemapper.publish_meta import portable_manifest, validate_source_manifest
 from barcodemapper.reference_sources import Release, discover_latest, download_sources
 from barcodemapper.databases import (
     BMDB_DIR, describe, find_databases, is_outdated, provenance, prune, select_database, verify,
@@ -519,6 +524,144 @@ def _build_latest(args, parser: argparse.ArgumentParser, db_path: Path,
     print(f"Run manifest: {_database_artifact(db_path, '.manifest.json')}")
 
 
+def _validate_fetched_manifest(manifest: dict, fasta: Path) -> None:
+    try:
+        validate_source_manifest(manifest, _sha256(fasta))
+    except ValueError as exc:
+        raise ValueError(f"Zenodo {exc}") from exc
+
+
+def _fetch_database(args, parser: argparse.ArgumentParser) -> None:
+    root = Path(args.db_dir or ".").expanduser().resolve()
+    if BMDB_DIR.fullmatch(root.name):
+        parser.error("--db-dir must contain bmdb_<YYYYMMDD> folders, not be one")
+    record_id = args.zenodo_record or os.environ.get("BARCODEMAPPER_ZENODO_RECORD") or zenodo.DEFAULT_RECORD
+    try:
+        record = zenodo.resolve_record(record_id, version=args.fetch_version)
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, http.client.HTTPException) as exc:
+        parser.error(f"could not resolve Zenodo record: {exc}")
+    stem = f"bmdb_{record.version}"
+    if not BMDB_DIR.fullmatch(stem):
+        parser.error(f"invalid Zenodo database version: {record.version!r}")
+    if record.license != "cc-by-sa-4.0":
+        parser.error(f"unexpected Zenodo database licence: {record.license!r}")
+    destination = root / stem
+    if destination.exists() and not args.force:
+        parser.error(f"database folder already exists: {destination}; use --force to replace it")
+    required = [f"{stem}.fa.gz", f"{stem}.tsv", f"{stem}.manifest.json", "ATTRIBUTION.txt"]
+    index_name = f"{stem}.index.tar"
+    if args.index:
+        required.append(index_name)
+    files = {file.name: file for file in record.files}
+    if len(files) != len(record.files):
+        parser.error("Zenodo record has duplicate file names")
+    missing = [name for name in ["SHA256SUMS", *required] if name not in files]
+    if missing:
+        parser.error("Zenodo record is missing required files: " + ", ".join(missing))
+    total_size = sum(files[name].size for name in ["SHA256SUMS", *required])
+    existing = root
+    while not existing.exists():
+        existing = existing.parent
+    if shutil.disk_usage(existing).free < total_size:
+        parser.error(f"insufficient free disk space for Zenodo download ({total_size} bytes required)")
+    created_root = not root.exists()
+    root.mkdir(parents=True, exist_ok=True)
+    try:
+        _fetch_staged(args, root, stem, destination, record, files, required, index_name)
+    except (OSError, ValueError, KeyError, TypeError, AttributeError,
+            http.client.HTTPException, tarfile.TarError) as exc:
+        if created_root and root.is_dir() and not any(root.iterdir()):
+            root.rmdir()
+        parser.error(f"could not fetch Zenodo database: {exc}")
+    print(f"Fetched database: {destination}")
+    print(f"DOI: {record.doi}")
+    print(f"Licence: CC BY-SA 4.0; see {destination / 'ATTRIBUTION.txt'}")
+    if not args.index:
+        print("Bowtie2 index will be built on first use (requires bowtie2-build, time and RAM); use --fetch --index to download it.")
+
+
+def _fetch_staged(args, root, stem, destination, record, files, required, index_name):
+    with tempfile.TemporaryDirectory(prefix=f".{stem}.fetch-", dir=root) as stage_name:
+        stage = Path(stage_name)
+        payload = stage / stem
+        payload.mkdir()
+        sums_path = zenodo.download_file(files["SHA256SUMS"], stage)
+        checksums = {}
+        for line in sums_path.read_text(encoding="utf-8").splitlines():
+            match = re.fullmatch(r"([0-9a-fA-F]{64})  (\S+)", line)
+            if match is None or match[2] in checksums:
+                raise ValueError("invalid SHA256SUMS file")
+            checksums[match[2]] = match[1]
+        if any(name not in checksums for name in required):
+            raise ValueError("SHA256SUMS is missing a required file")
+        for name in required:
+            size = files[name].size
+            interval = max(1, min(100 * 1024 ** 2, size // 20))
+            next_report = interval
+
+            def progress(current, total):
+                nonlocal next_report
+                if total >= 100 * 1024 ** 2 and (current >= next_report or current == total):
+                    print(f"Downloading {name}: {current * 100 // total}% ({current}/{total} bytes)", file=sys.stderr)
+                    next_report = current + interval
+
+            zenodo.download_file(files[name], stage, expected_sha256=checksums[name], progress=progress)
+        fasta = stage / required[0]
+        manifest = json.loads((stage / required[2]).read_text(encoding="utf-8"))
+        _validate_fetched_manifest(manifest, fasta)
+        for name in (required[0], required[1], "ATTRIBUTION.txt"):
+            (stage / name).replace(payload / name)
+        final_manifest = portable_manifest(manifest, record_doi=record.doi, record_url=record.url)
+        final_manifest["database"]["path"] = required[0]
+        final_manifest["index_included"] = args.index
+        final_manifest["fetched_utc"] = datetime.now(timezone.utc).isoformat()
+        (payload / required[2]).write_text(json.dumps(final_manifest, indent=2) + "\n", encoding="utf-8")
+        if args.index:
+            expected = {f"{stem}.{part}.bt2l" for part in INDEX_PARTS}
+            with tarfile.open(stage / index_name, "r:") as archive:
+                members = archive.getmembers()
+                if len(members) != len(expected) or {member.name for member in members} != expected or not all(
+                    member.isfile() and member.name == Path(member.name).name for member in members
+                ):
+                    raise ValueError("Zenodo index archive has unsafe or unexpected members")
+                if any(member.size < 0 or member.size > zenodo.DATABASE_CAP for member in members) or sum(
+                    member.size for member in members
+                ) > files[index_name].size:
+                    raise ValueError("Zenodo index archive exceeds declared size")
+                for member in members:
+                    with archive.extractfile(member) as source, (payload / member.name).open("wb") as target:
+                        shutil.copyfileobj(source, target)
+                    index_file = payload / member.name
+                    if index_file.stat().st_size == 0:
+                        raise ValueError(f"Zenodo index archive has an empty member: {member.name}")
+        mtime = max((payload / required[0]).stat().st_mtime_ns, time.time_ns())
+        for path in [payload / required[1], *([payload / member.name for member in members] if args.index else [])]:
+            os.utime(path, ns=(mtime, mtime))
+        if destination.exists() and not args.force:
+            raise FileExistsError(f"database folder already exists: {destination}; use --force to replace it")
+        if destination.exists():
+            backup = Path(tempfile.mkdtemp(prefix=f".{stem}.previous-", dir=root))
+            previous = backup / stem
+            promoted = False
+            try:
+                destination.replace(previous)
+                try:
+                    payload.replace(destination)
+                    promoted = True
+                except OSError as exc:
+                    try:
+                        previous.replace(destination)
+                    except OSError as rollback_exc:
+                        raise OSError(f"promotion failed; previous database preserved at {previous}; "
+                                      f"rollback failed: {rollback_exc}") from exc
+                    raise
+            finally:
+                if promoted or (not previous.exists() and not previous.is_symlink()):
+                    shutil.rmtree(backup)
+        else:
+            payload.replace(destination)
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Map shotgun reads to COI and ITS reference sequences.")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
@@ -553,6 +696,13 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-s", "--slurm", action="store_true", help="Submit workflow jobs through Slurm")
     parser.add_argument("--unlock", action="store_true", help="Unlock an existing working directory")
     parser.add_argument("--build", action="store_true", help="Build and index a database only")
+    parser.add_argument("--fetch", action="store_true", help="Download a prebuilt BOLD+UNITE database from Zenodo")
+    parser.add_argument("--fetch-version", default="latest", metavar="VERSION",
+                        help="Zenodo database version to fetch (default: latest)")
+    parser.add_argument("--zenodo-record", metavar="ID",
+                        help="Zenodo record ID (default: BARCODEMAPPER_ZENODO_RECORD or configured record)")
+    parser.add_argument("--index", action="store_true", help="With --fetch: also download the prebuilt Bowtie2 index")
+    parser.add_argument("--force", action="store_true", help="With --fetch: replace an existing database folder")
     parser.add_argument("-m", "--max_mismatches", "--max-mismatches", type=float,
                         help="Custom maximum NM edit distance as a percent of aligned bases (default: 3)")
     parser.add_argument("-c", "--min_coverage", "--min-coverage", type=int,
@@ -617,9 +767,19 @@ def main(argv: list[str] | None = None) -> None:
         parser.print_help()
         parser.exit(2)
 
-    actions = [flag for flag in ("build", "unlock", "list", "verify", "update") if getattr(args, flag)]
+    actions = [flag for flag in ("build", "fetch", "unlock", "list", "verify", "update") if getattr(args, flag)]
     if len(actions) > 1:
         parser.error("--" + ", --".join(actions) + " cannot be combined")
+    if (args.index or args.force or args.fetch_version != "latest" or args.zenodo_record) and not args.fetch:
+        parser.error("--index, --force, --fetch-version and --zenodo-record only apply to --fetch")
+    if args.fetch:
+        if args.bold or args.unite or args.database or args.name or args.check:
+            parser.error("--fetch cannot be combined with -b/-u, -d, -n or --check")
+        if (args.input or args.read1 or args.read2 or args.output or args.db_name or args.keep is not None
+                or args.tmpdir or args.slurm or args.max_mismatches is not None or args.min_coverage is not None):
+            parser.error("--fetch accepts only Zenodo options and --db-dir")
+        _fetch_database(args, parser)
+        return
     if args.check and not args.update:
         parser.error("--check only applies to --update")
     if args.keep is not None and (args.keep < 1 or args.database or not (args.build or args.update)):

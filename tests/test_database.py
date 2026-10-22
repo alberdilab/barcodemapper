@@ -20,6 +20,16 @@ def test_identical_sequence_with_conflicting_taxa_is_preserved(tmp_path):
     assert {record.id for record in records} == {"A|COI-5P|x|Animalia,Chordata,Mammalia,Primates,Hominidae,Homo,sapiens", "B|COI-5P|x|Animalia,Chordata,Mammalia,Primates,Hominidae,Pan,troglodytes"}
 
 
+def test_bold_records_without_sequence_are_skipped(tmp_path):
+    source = tmp_path / "bold.fa"
+    source.write_text(
+        ">A|COI-5P|x|Animalia,Arthropoda,Insecta,Hemiptera,None,None,None,None,None\n"
+        ">B|COI-5P|x|Animalia,Chordata,Mammalia,Primates,Hominidae,Homo,sapiens\nACGTACGT\n"
+    )
+    records = dereplicate_bold(source)
+    assert [record.id.split("|")[0] for record in records] == ["B"]
+
+
 @pytest.mark.parametrize("header", [
     "ref|ITS",
     "ref|unknown|k__Fungi",

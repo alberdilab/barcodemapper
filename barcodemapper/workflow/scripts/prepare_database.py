@@ -24,6 +24,9 @@ def dereplicate_bold(input_fasta):
         parts = header.split('|')
         if len(parts) < 4 or not parts[0] or not parts[1] or not parts[3]:
             raise ValueError(f"Malformed BOLD reference header: {header!r}")
+        if not seq:
+            # Current BOLD releases list specimens whose sequence is withheld.
+            continue
         taxonomy = parts[3]
 
         seq_map.setdefault((seq, taxonomy), record)

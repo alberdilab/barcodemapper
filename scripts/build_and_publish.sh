@@ -26,6 +26,7 @@ Options:
   --env NAME_OR_PATH Conda environment (required for live runs unless BM_ENV is set);
                      shared environments: /projects/alberdilab/data/environments/conda/
   --record ID        Published Zenodo concept record ID for a new version
+  --draft ID         Resume upload into an existing unpublished Zenodo draft
   --sandbox          Use the Zenodo sandbox
   --include-index    Upload the Bowtie2 index as well
   --publish          Publish immediately (default: leave a draft)
@@ -48,6 +49,7 @@ fail() { printf 'Error: %s\n' "$*" >&2; exit 2; }
 db_dir=
 conda_env=${BM_ENV:-}
 record=
+draft=
 reuse=
 label=
 sandbox=0
@@ -57,7 +59,7 @@ dry_run=0
 
 while (( $# )); do
     case $1 in
-        --db-dir|--env|--record|--reuse|--label)
+        --db-dir|--env|--record|--draft|--reuse|--label)
             option=$1
             (( $# >= 2 )) || fail "$option requires a value"
             [[ -n $2 && $2 != --* ]] || fail "$option requires a value"
@@ -65,6 +67,7 @@ while (( $# )); do
                 --db-dir) db_dir=$2 ;;
                 --env) conda_env=$2 ;;
                 --record) record=$2 ;;
+                --draft) draft=$2 ;;
                 --reuse) reuse=$2 ;;
                 --label) label=$2 ;;
             esac
@@ -83,6 +86,8 @@ if (( ! dry_run )); then
     [[ -n $conda_env ]] || fail "--env is required unless BM_ENV is set"
 fi
 [[ -z $record || $record =~ ^[0-9]+$ ]] || fail "--record must contain digits only"
+[[ -z $draft || $draft =~ ^[0-9]+$ ]] || fail "--draft must contain digits only"
+[[ -z $record || -z $draft ]] || fail "--draft cannot be used with --record"
 [[ -z $label || $label =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || fail "invalid --label"
 [[ -z $reuse || -z $label ]] || fail "--label cannot be used with --reuse"
 command -v python3 >/dev/null 2>&1 || fail "python3 is required"
@@ -218,6 +223,7 @@ fi
 printf 'Database: %s\n' "$database"
 publish_cmd=("$python_cmd" "$publisher" --database "$database")
 [[ -z $record ]] || publish_cmd+=(--record "$record")
+[[ -z $draft ]] || publish_cmd+=(--draft "$draft")
 (( ! sandbox )) || publish_cmd+=(--sandbox)
 (( ! include_index )) || publish_cmd+=(--include-index)
 (( ! publish )) || publish_cmd+=(--publish)
@@ -237,6 +243,6 @@ elif (( publish )); then
     printf '\nReview the published Zenodo record and source licences.\n'
 else
     printf '\nReview the Zenodo draft and its source licences.\n'
-    printf 'After review, publish that draft in the Zenodo UI, or rerun with --reuse %q --publish to create and publish another draft.\n' "$database"
+    printf 'After review, publish that draft in the Zenodo UI, or rerun with --reuse %q --draft ID to resume its upload.\n' "$database"
 fi
 printf 'After publication, put the printed concept record ID in barcodemapper/zenodo.py DEFAULT_RECORD.\n'

@@ -150,6 +150,7 @@ def test_unsafe_file_names_are_rejected(monkeypatch, name):
 
 
 def test_missing_record_id_has_clear_error_without_network(monkeypatch):
+    monkeypatch.setattr(zenodo, "DEFAULT_RECORD", None)
     monkeypatch.setattr(zenodo, "_open", lambda *args, **kwargs: pytest.fail("Unexpected network access"))
     with pytest.raises(ValueError, match="record ID is required"):
         zenodo.resolve_record()
@@ -239,13 +240,21 @@ def test_download_enforces_declared_size(monkeypatch, tmp_path, size):
 
 @pytest.mark.parametrize("name,size", [("SHA256SUMS", zenodo.METADATA_CAP + 1),
                                           ("ATTRIBUTION.txt", zenodo.METADATA_CAP + 1),
-                                          ("database.fa.gz", zenodo.DATABASE_CAP + 1)])
+                                          ("database.fa.gz", zenodo.DATABASE_CAP + 1),
+                                          ("database.1.bt2l", zenodo.DATABASE_CAP + 1)])
 def test_record_rejects_file_above_cap(monkeypatch, name, size):
     data = record_data()
     data["files"][0].update(key=name, size=size)
     monkeypatch.setattr(zenodo, "_open", lambda *args, **kwargs: Response(json.dumps(data).encode()))
     with pytest.raises(ValueError, match="file size"):
         zenodo.resolve_record(1)
+
+
+def test_record_accepts_index_file_above_metadata_cap(monkeypatch):
+    data = record_data()
+    data["files"][0].update(key="database.1.bt2l", size=zenodo.METADATA_CAP + 1)
+    monkeypatch.setattr(zenodo, "_open", lambda *args, **kwargs: Response(json.dumps(data).encode()))
+    assert zenodo.resolve_record(1).files[0].size == zenodo.METADATA_CAP + 1
 
 
 def test_downloaded_file_follows_umask_not_private_temp_mode(monkeypatch, tmp_path):

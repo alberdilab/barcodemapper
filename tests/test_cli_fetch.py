@@ -5,7 +5,7 @@ import hashlib
 import http.client
 import io
 import json
-import tarfile
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -20,26 +20,7 @@ STEM = f"bmdb_{VERSION}"
 DOI = "10.5281/zenodo.123"
 
 
-def _archive(extra=None, stem=STEM):
-    output = io.BytesIO()
-    with tarfile.open(fileobj=output, mode="w") as archive:
-        for part in cli.INDEX_PARTS:
-            name = f"{stem}.{part}.bt2l"
-            if extra is not None and extra[0] == name:
-                continue
-            data = b"index"
-            member = tarfile.TarInfo(name)
-            member.size = len(data)
-            archive.addfile(member, io.BytesIO(data))
-        if extra is not None:
-            member = tarfile.TarInfo(extra[0])
-            member.type = extra[1]
-            member.size = 0
-            archive.addfile(member)
-    return output.getvalue()
-
-
-def _record(monkeypatch, *, index=True, bad_sha=None, archive=None, edit=None, version=VERSION):
+def _record(monkeypatch, *, index=True, bad_sha=None, bad_size=None, edit=None, version=VERSION):
     stem = f"bmdb_{version}"
     fasta = gzip.compress(b">B1|COI-5P|k__Animalia\nACGT\n>U1|ITS|k__Fungi\nTGCA\n")
     manifest = {
@@ -58,7 +39,7 @@ def _record(monkeypatch, *, index=True, bad_sha=None, archive=None, edit=None, v
         "ATTRIBUTION.txt": b"CC BY-SA 4.0\n",
     }
     if index:
-        payloads[f"{stem}.index.tar"] = archive if archive is not None else _archive(stem=stem)
+        payloads.update({f"{stem}.{part}.bt2l": b"index" for part in cli.INDEX_PARTS})
     sums = {name: hashlib.sha256(data).hexdigest() for name, data in payloads.items()}
     if bad_sha is not None:
         sums[bad_sha] = "0" * 64
@@ -85,6 +66,8 @@ def _record(monkeypatch, *, index=True, bad_sha=None, archive=None, edit=None, v
                 data = payloads[item["key"]]
                 item["size"] = len(data)
                 item["checksum"] = f"md5:{hashlib.md5(data).hexdigest()}"
+    if bad_size is not None:
+        next(item for item in metadata["files"] if item["key"] == bad_size)["size"] += 1
     calls = []
 
     def open_zenodo(url, **kwargs):
@@ -120,7 +103,7 @@ def test_fetch_lists_verifies_and_keeps_portable_provenance(monkeypatch, tmp_pat
     assert "/private/" not in manifest_text
     assert manifest["database"]["sha256"] == cli._sha256(fasta)
     assert calls[1].endswith("/SHA256SUMS")
-    assert all(not call.endswith(".index.tar") for call in calls)
+    assert all(not call.endswith(".bt2l") for call in calls)
     out = capsys.readouterr().out
     assert DOI in out and "CC BY-SA 4.0" in out and "ATTRIBUTION.txt" in out
     assert "built on first use" in out and "bowtie2-build" in out
@@ -158,7 +141,8 @@ def test_fetched_database_supports_update_and_check(monkeypatch, tmp_path, capsy
         cli.main(["--update", "--check", "--db-dir", str(tmp_path)])
     assert error.value.code == 10 and not built
     cli.main(["--update", "--db-dir", str(tmp_path)])
-    assert built == [tmp_path / STEM / f"{STEM}.fa.gz"]
+    today = "bmdb_" + datetime.now().strftime("%Y%m%d")
+    assert built == [tmp_path / today / f"{today}.fa.gz"]
 
 
 def test_checksum_failure_leaves_no_install_or_stage(monkeypatch, tmp_path, capsys):
@@ -236,14 +220,12 @@ def test_fetch_index_is_current_and_required_by_verify(monkeypatch, tmp_path, ca
     assert error.value.code == 1
 
 
-@pytest.mark.parametrize("extra", [("../escape", tarfile.REGTYPE),
-                                     (f"{STEM}.extra.bt2l", tarfile.REGTYPE),
-                                     (f"{STEM}.1.bt2l", tarfile.SYMTYPE)])
-def test_fetch_rejects_unsafe_index_archive(monkeypatch, tmp_path, capsys, extra):
-    _record(monkeypatch, archive=_archive(extra))
+def test_fetch_rejects_missing_index_file(monkeypatch, tmp_path, capsys):
+    _record(monkeypatch, edit=lambda payloads, metadata: metadata["files"].remove(next(
+        item for item in metadata["files"] if item["key"] == f"{STEM}.rev.2.bt2l")))
     with pytest.raises(SystemExit) as error:
         _fetch(tmp_path, "--index")
-    assert error.value.code == 2 and "unsafe or unexpected members" in capsys.readouterr().err
+    assert error.value.code == 2 and f"missing required files: {STEM}.rev.2.bt2l" in capsys.readouterr().err
     assert list(tmp_path.iterdir()) == []
 
 
@@ -379,27 +361,32 @@ def test_fetch_checks_free_space_before_download(monkeypatch, tmp_path, capsys):
     assert list(tmp_path.iterdir()) == []
 
 
-@pytest.mark.parametrize("oversized", [True, False])
-def test_fetch_rejects_index_member_size_or_total(monkeypatch, tmp_path, capsys, oversized):
-    _record(monkeypatch)
-
-    class FakeArchive:
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *args):
-            return False
-
-        def getmembers(self):
-            members = [tarfile.TarInfo(f"{STEM}.{part}.bt2l") for part in cli.INDEX_PARTS]
-            for member in members:
-                member.size = zenodo.DATABASE_CAP + 1 if oversized else 2000
-            return members
-
-    monkeypatch.setattr(cli.tarfile, "open", lambda *args, **kwargs: FakeArchive())
+def test_fetch_rejects_index_size_mismatch_and_cleans_stage(monkeypatch, tmp_path, capsys):
+    _record(monkeypatch, bad_size=f"{STEM}.1.bt2l")
     with pytest.raises(SystemExit):
         _fetch(tmp_path, "--index")
-    assert "index archive exceeds declared size" in capsys.readouterr().err
+    assert "size mismatch" in capsys.readouterr().err
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_fetch_rejects_index_checksum_mismatch_and_cleans_stage(monkeypatch, tmp_path, capsys):
+    _record(monkeypatch, bad_sha=f"{STEM}.1.bt2l")
+    with pytest.raises(SystemExit):
+        _fetch(tmp_path, "--index")
+    assert "SHA-256 checksum mismatch" in capsys.readouterr().err
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_fetch_index_free_space_includes_each_file(monkeypatch, tmp_path, capsys):
+    _record(monkeypatch)
+    record = zenodo.resolve_record(1)
+    required = {"SHA256SUMS", f"{STEM}.fa.gz", f"{STEM}.tsv", f"{STEM}.manifest.json",
+                "ATTRIBUTION.txt", *(f"{STEM}.{part}.bt2l" for part in cli.INDEX_PARTS)}
+    total = sum(file.size for file in record.files if file.name in required)
+    monkeypatch.setattr(cli.shutil, "disk_usage", lambda path: type("Usage", (), {"free": total - 1})())
+    with pytest.raises(SystemExit):
+        _fetch(tmp_path, "--index")
+    assert "insufficient free disk space" in capsys.readouterr().err
 
 
 def test_fetch_reports_coarse_progress(monkeypatch, tmp_path, capsys):

@@ -549,9 +549,9 @@ def _fetch_database(args, parser: argparse.ArgumentParser) -> None:
     if destination.exists() and not args.force:
         parser.error(f"database folder already exists: {destination}; use --force to replace it")
     required = [f"{stem}.fa.gz", f"{stem}.tsv", f"{stem}.manifest.json", "ATTRIBUTION.txt"]
-    index_name = f"{stem}.index.tar"
+    index_names = [f"{stem}.{part}.bt2l" for part in INDEX_PARTS]
     if args.index:
-        required.append(index_name)
+        required.extend(index_names)
     files = {file.name: file for file in record.files}
     if len(files) != len(record.files):
         parser.error("Zenodo record has duplicate file names")
@@ -567,9 +567,9 @@ def _fetch_database(args, parser: argparse.ArgumentParser) -> None:
     created_root = not root.exists()
     root.mkdir(parents=True, exist_ok=True)
     try:
-        _fetch_staged(args, root, stem, destination, record, files, required, index_name)
+        _fetch_staged(args, root, stem, destination, record, files, required, index_names)
     except (OSError, ValueError, KeyError, TypeError, AttributeError,
-            http.client.HTTPException, tarfile.TarError) as exc:
+            http.client.HTTPException) as exc:
         if created_root and root.is_dir() and not any(root.iterdir()):
             root.rmdir()
         parser.error(f"could not fetch Zenodo database: {exc}")
@@ -580,7 +580,7 @@ def _fetch_database(args, parser: argparse.ArgumentParser) -> None:
         print("Bowtie2 index will be built on first use (requires bowtie2-build, time and RAM); use --fetch --index to download it.")
 
 
-def _fetch_staged(args, root, stem, destination, record, files, required, index_name):
+def _fetch_staged(args, root, stem, destination, record, files, required, index_names):
     with tempfile.TemporaryDirectory(prefix=f".{stem}.fetch-", dir=root) as stage_name:
         stage = Path(stage_name)
         payload = stage / stem
@@ -609,33 +609,15 @@ def _fetch_staged(args, root, stem, destination, record, files, required, index_
         fasta = stage / required[0]
         manifest = json.loads((stage / required[2]).read_text(encoding="utf-8"))
         _validate_fetched_manifest(manifest, fasta)
-        for name in (required[0], required[1], "ATTRIBUTION.txt"):
+        for name in (required[0], required[1], "ATTRIBUTION.txt", *(index_names if args.index else [])):
             (stage / name).replace(payload / name)
         final_manifest = portable_manifest(manifest, record_doi=record.doi, record_url=record.url)
         final_manifest["database"]["path"] = required[0]
         final_manifest["index_included"] = args.index
         final_manifest["fetched_utc"] = datetime.now(timezone.utc).isoformat()
         (payload / required[2]).write_text(json.dumps(final_manifest, indent=2) + "\n", encoding="utf-8")
-        if args.index:
-            expected = {f"{stem}.{part}.bt2l" for part in INDEX_PARTS}
-            with tarfile.open(stage / index_name, "r:") as archive:
-                members = archive.getmembers()
-                if len(members) != len(expected) or {member.name for member in members} != expected or not all(
-                    member.isfile() and member.name == Path(member.name).name for member in members
-                ):
-                    raise ValueError("Zenodo index archive has unsafe or unexpected members")
-                if any(member.size < 0 or member.size > zenodo.DATABASE_CAP for member in members) or sum(
-                    member.size for member in members
-                ) > files[index_name].size:
-                    raise ValueError("Zenodo index archive exceeds declared size")
-                for member in members:
-                    with archive.extractfile(member) as source, (payload / member.name).open("wb") as target:
-                        shutil.copyfileobj(source, target)
-                    index_file = payload / member.name
-                    if index_file.stat().st_size == 0:
-                        raise ValueError(f"Zenodo index archive has an empty member: {member.name}")
         mtime = max((payload / required[0]).stat().st_mtime_ns, time.time_ns())
-        for path in [payload / required[1], *([payload / member.name for member in members] if args.index else [])]:
+        for path in [payload / required[1], *([payload / name for name in index_names] if args.index else [])]:
             os.utime(path, ns=(mtime, mtime))
         if destination.exists() and not args.force:
             raise FileExistsError(f"database folder already exists: {destination}; use --force to replace it")

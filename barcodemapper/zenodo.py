@@ -124,7 +124,7 @@ def _parse_record(data: dict, host: str) -> ZenodoRecord:
 
 
 def _size_cap(name: str) -> int:
-    return DATABASE_CAP if name.endswith((".fa.gz", ".index.tar", ".tsv")) else METADATA_CAP
+    return DATABASE_CAP if name.endswith((".fa.gz", ".bt2l", ".tsv")) else METADATA_CAP
 
 
 def resolve_record(record=None, version="latest", base=None) -> ZenodoRecord:

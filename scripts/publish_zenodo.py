@@ -8,8 +8,8 @@ import os
 import re
 import shutil
 import sys
-import tarfile
 import tempfile
+import time
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
@@ -110,15 +110,11 @@ def _stage(folder: Path, stage: Path, manifest: dict, include_index: bool) -> li
     attribution_file.write_text(attribution, encoding="utf-8")
     files.append(attribution_file)
     if include_index:
-        archive_path = stage / f"{stem}.index.tar"
-        with tarfile.open(archive_path, "w") as archive:
-            for part in INDEX_PARTS:
-                name = f"{stem}.{part}.bt2l"
-                path = folder / name
-                if not path.is_file() or path.stat().st_size == 0:
-                    raise ValueError(f"missing or empty Bowtie2 index file: {path}")
-                archive.add(path, arcname=name, recursive=False)
-        files.append(archive_path)
+        for part in INDEX_PARTS:
+            path = folder / f"{stem}.{part}.bt2l"
+            if not path.is_file() or path.stat().st_size == 0:
+                raise ValueError(f"missing or empty Bowtie2 index file: {path}")
+            files.append(path)
     sums = stage / "SHA256SUMS"
     sums.write_text("".join(f"{_digest(path, 'sha256')}  {path.name}\n" for path in files),
                     encoding="utf-8")
@@ -165,7 +161,8 @@ def _request(method: str, url: str, token: str, host: str, *, payload=None,
     except HTTPError as exc:
         raise RuntimeError(f"Zenodo API returned HTTP {exc.code}") from None
     except (OSError, URLError) as exc:
-        raise RuntimeError(f"Zenodo API request failed ({type(exc).__name__})") from None
+        reason = getattr(exc, "reason", None) or exc
+        raise RuntimeError(f"Zenodo API request failed ({type(exc).__name__}: {reason})") from None
     return json.loads(body) if body else None
 
 
@@ -180,7 +177,18 @@ def _record_id(value) -> str:
     return str(value)
 
 
-def _upload(files: list[Path], metadata: dict, record: str | None, publish: bool,
+def _file_id(item: dict) -> str:
+    file_id = str(item["id"])
+    if not re.fullmatch(r"[A-Za-z0-9-]+", file_id):
+        raise ValueError("Zenodo returned an invalid file ID")
+    return file_id
+
+
+def _draft_file_name(item: dict) -> str:
+    return item.get("filename", item.get("key"))
+
+
+def _upload(files: list[Path], metadata: dict, record: str | None, draft_id: str | None, publish: bool,
             token: str, host: str) -> None:
     base = f"https://{host}"
     if record:
@@ -189,6 +197,10 @@ def _upload(files: list[Path], metadata: dict, record: str | None, publish: bool
         old = _request("POST", f"{base}/api/deposit/depositions/{latest_id}/actions/newversion", token, host)
         draft_url = _safe_url(old["links"]["latest_draft"], host)
         draft = _request("GET", draft_url, token, host)
+    elif draft_id:
+        draft = _request("GET", f"{base}/api/deposit/depositions/{draft_id}", token, host)
+        if draft.get("state") != "unsubmitted":
+            raise ValueError(f"Zenodo deposition {draft_id} is not an unpublished draft")
     else:
         draft = _request("POST", f"{base}/api/deposit/depositions", token, host, payload={})
     draft_id = _record_id(draft["id"])
@@ -196,16 +208,37 @@ def _upload(files: list[Path], metadata: dict, record: str | None, publish: bool
     print(f"Draft: {base}/deposit/{draft_id}")
     if record:
         for old_file in draft.get("files", []):
-            file_id = old_file["id"]
-            if not re.fullmatch(r"[A-Za-z0-9-]+", str(file_id)):
-                raise ValueError("Zenodo returned an invalid file ID")
-            _request("DELETE", f"{draft_base}/files/{file_id}", token, host)
+            _request("DELETE", f"{draft_base}/files/{_file_id(old_file)}", token, host)
     bucket = _safe_url(draft["links"]["bucket"], host).rstrip("/")
+    existing = {_draft_file_name(item): item for item in draft.get("files", [])} if draft_id else {}
+    for name in sorted(existing.keys() - {path.name for path in files}):
+        print(f"Existing draft file outside this upload plan: {name}")
     for path in files:
-        uploaded = _request("PUT", f"{bucket}/{path.name}", token, host, file_path=path)
-        checksum = uploaded.get("checksum") if isinstance(uploaded, dict) else None
-        if checksum != f"md5:{_digest(path, 'md5')}":
-            raise ValueError(f"Zenodo MD5 checksum mismatch for {path.name}")
+        md5 = _digest(path, "md5")
+        old_file = existing.get(path.name)
+        if old_file is not None:
+            old_md5 = str(old_file.get("checksum", "")).removeprefix("md5:")
+            if old_md5.lower() == md5:
+                print(f"Skipping {path.name}: matching MD5 in draft")
+                continue
+            _request("DELETE", f"{draft_base}/files/{_file_id(old_file)}", token, host)
+        for attempt in range(1, 4):
+            print(f"Uploading {path.name}: {path.stat().st_size} bytes (attempt {attempt}/3)")
+            try:
+                uploaded = _request("PUT", f"{bucket}/{path.name}", token, host, file_path=path)
+            except (RuntimeError, OSError) as exc:
+                if attempt == 3:
+                    raise RuntimeError(f"upload of {path.name} failed after 3 attempts: {exc}") from exc
+                current = _request("GET", draft_base, token, host)
+                for item in current.get("files", []):
+                    if _draft_file_name(item) == path.name:
+                        _request("DELETE", f"{draft_base}/files/{_file_id(item)}", token, host)
+                time.sleep(0.2 * attempt)
+                continue
+            checksum = uploaded.get("checksum") if isinstance(uploaded, dict) else None
+            if checksum != f"md5:{md5}":
+                raise ValueError(f"Zenodo MD5 checksum mismatch for {path.name}")
+            break
     _request("PUT", draft_base, token, host, payload={"metadata": metadata})
     if publish:
         published = _request("POST", f"{draft_base}/actions/publish", token, host)
@@ -217,7 +250,9 @@ def _upload(files: list[Path], metadata: dict, record: str | None, publish: bool
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--database", required=True, type=Path)
-    parser.add_argument("--record", help="Latest published deposition ID for a new version")
+    target = parser.add_mutually_exclusive_group()
+    target.add_argument("--record", help="Latest published deposition ID for a new version")
+    target.add_argument("--draft", help="Existing unpublished deposition ID to resume")
     parser.add_argument("--include-index", action="store_true")
     parser.add_argument("--sandbox", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
@@ -229,6 +264,8 @@ def main(argv=None) -> None:
     try:
         if args.record:
             _record_id(args.record)
+        if args.draft:
+            _record_id(args.draft)
         folder = args.database.expanduser().resolve()
         manifest = _preflight(folder)
         metadata = _metadata(manifest, folder.name.removeprefix("bmdb_"), _creators(args.creator))
@@ -237,7 +274,8 @@ def main(argv=None) -> None:
         stage_parent = args.staging.expanduser().resolve() if args.staging else folder.parent
         if not stage_parent.is_dir():
             raise ValueError(f"staging parent directory does not exist: {stage_parent}")
-        with tempfile.TemporaryDirectory(prefix=f".{folder.name}.publish-", dir=stage_parent) as stage_name:
+        stage_name = tempfile.mkdtemp(prefix=f".{folder.name}.publish-", dir=stage_parent)
+        try:
             files = _stage(folder, Path(stage_name), manifest, args.include_index)
             print("Planned files:")
             for path in files:
@@ -248,8 +286,11 @@ def main(argv=None) -> None:
             print(metadata_text.replace(token, "[REDACTED]") if token else metadata_text)
             if not args.dry_run:
                 host = "sandbox.zenodo.org" if args.sandbox else "zenodo.org"
-                _upload(files, metadata, args.record, args.publish, token, host)
-    except (OSError, ValueError, KeyError, TypeError, RuntimeError, tarfile.TarError) as exc:
+                _upload(files, metadata, args.record, args.draft, args.publish, token, host)
+        finally:
+            # Never let a cleanup failure (e.g. NFS) hide the real error.
+            shutil.rmtree(stage_name, ignore_errors=True)
+    except (OSError, ValueError, KeyError, TypeError, RuntimeError) as exc:
         # Even a mocked HTTP helper may include credentials in its exception text.
         message = str(exc).replace(token, "[REDACTED]") if token else str(exc)
         parser.error(f"{message}; any created Zenodo draft was left in place")

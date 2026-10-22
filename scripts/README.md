@@ -22,7 +22,10 @@ and publishes a new draft in one run. Pass `--record CONCEPT_ID` to create a new
 version of an existing deposition. The published output prints the concept
 record ID to put into `barcodemapper/zenodo.py` as `DEFAULT_RECORD` so `--fetch`
 can find the latest version by default. Use `--include-index` to upload the six
-Bowtie2 index files.
+Bowtie2 `.bt2l` index files directly from the database folder. If an upload fails,
+rerun the same command with `--draft ID` (the ID printed in the draft URL) to
+resume it. Matching files are skipped and changed files are replaced. Stale
+drafts can be deleted in the Zenodo UI. `--draft` and `--record` are exclusive.
 
 ## Build and publish on Mjolnir
 
@@ -52,3 +55,5 @@ index, and upload staging. `--reuse /path/to/bmdb_<date>` skips the build.
 and does not need a token. Review the draft before publishing it in Zenodo's UI;
 `--publish` instead creates and immediately publishes a new draft. Afterward,
 record the printed concept ID in `barcodemapper/zenodo.py` as `DEFAULT_RECORD`.
+The wrapper also accepts `--draft ID` to resume a failed upload with `--reuse`;
+use the same `--include-index` choice as the original upload.

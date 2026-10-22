@@ -4,11 +4,9 @@ import gzip
 import getpass
 import hashlib
 import importlib.util
-import io
 import json
 import os
 import subprocess
-import tarfile
 from pathlib import Path
 from urllib.request import Request
 
@@ -206,25 +204,120 @@ def test_manual_sources_are_rejected(publisher, database, monkeypatch, capsys):
     assert "automatic source provenance" in capsys.readouterr().err
 
 
-def test_checksums_and_index_archive_match_fetch_contract(publisher, database, monkeypatch):
+def test_checksums_and_separate_index_files_match_fetch_contract(publisher, database, monkeypatch):
     monkeypatch.setenv("ZENODO_TOKEN", TOKEN)
-    _, uploaded = _fake_api(publisher, monkeypatch)
+    calls, uploaded = _fake_api(publisher, monkeypatch)
     _run(publisher, database, "--include-index")
     expected = {f"{STEM}.fa.gz", f"{STEM}.tsv", f"{STEM}.manifest.json",
-                "ATTRIBUTION.txt", f"{STEM}.index.tar", "SHA256SUMS"}
+                "ATTRIBUTION.txt", "SHA256SUMS"}
+    expected.update(f"{STEM}.{part}.bt2l" for part in publisher.INDEX_PARTS)
     assert set(uploaded) == expected
     sums = uploaded["SHA256SUMS"].decode().splitlines()
     assert set(sums) == {f"{hashlib.sha256(data).hexdigest()}  {name}"
                          for name, data in uploaded.items() if name != "SHA256SUMS"}
-    with tarfile.open(fileobj=io.BytesIO(uploaded[f"{STEM}.index.tar"]), mode="r:") as archive:
-        assert [member.name for member in archive] == [f"{STEM}.{part}.bt2l"
-                                                      for part in ("1", "2", "3", "4", "rev.1", "rev.2")]
-        assert all(member.isfile() for member in archive.getmembers())
+    assert all(name != f"{STEM}.index.tar" for name in uploaded)
+    assert {name for method, name, *_ in calls if method == "PUT" and name.endswith(".bt2l")} == {
+        f"https://zenodo.org/api/files/bucket/{STEM}.{part}.bt2l" for part in publisher.INDEX_PARTS}
     portable = json.loads(uploaded[f"{STEM}.manifest.json"])
     assert portable["database"]["path"] == f"{STEM}.fa.gz"
     assert portable["origin"] == "zenodo"
     assert "BOLD: CC BY-SA 4.0" in uploaded["ATTRIBUTION.txt"].decode()
     assert "UNITE: CC BY 4.0" in uploaded["ATTRIBUTION.txt"].decode()
+
+
+def test_index_files_are_uploaded_from_database_folder(publisher, database, tmp_path):
+    stage = tmp_path / "stage"
+    stage.mkdir()
+    files = publisher._stage(database, stage, publisher._preflight(database), True)
+    assert {path.name for path in files if path.parent == database} == {
+        f"{STEM}.{part}.bt2l" for part in publisher.INDEX_PARTS}
+    assert not any(path.suffix == ".bt2l" for path in stage.iterdir())
+
+
+@pytest.mark.parametrize("failures", [1, 3])
+def test_upload_retries_and_reports_final_failure(publisher, database, monkeypatch, capsys, failures):
+    monkeypatch.setenv("ZENODO_TOKEN", TOKEN)
+    monkeypatch.setattr(publisher.time, "sleep", lambda delay: None)
+    calls = []
+    first_name = f"{STEM}.fa.gz"
+
+    def request(method, url, token, host, *, payload=None, file_path=None):
+        calls.append((method, url))
+        if method == "POST":
+            return {"id": 123, "links": {"bucket": "https://zenodo.org/api/files/bucket"}}
+        if method == "GET":
+            return {"files": [{"filename": first_name, "id": "partial-id"}]}
+        if file_path is not None:
+            if file_path.name == first_name and sum(method == "PUT" and url.endswith(first_name)
+                                                     for method, url in calls) <= failures:
+                raise RuntimeError("Broken pipe")
+            return {"checksum": "md5:" + hashlib.md5(file_path.read_bytes()).hexdigest()}
+        return {}
+
+    monkeypatch.setattr(publisher, "_request", request)
+    if failures == 3:
+        with pytest.raises(SystemExit):
+            _run(publisher, database)
+        assert "failed after 3 attempts: Broken pipe" in capsys.readouterr().err
+    else:
+        _run(publisher, database)
+    assert sum(method == "PUT" and url.endswith(first_name) for method, url in calls) == min(failures + 1, 3)
+    assert sum(method == "DELETE" for method, _ in calls) == min(failures, 2)
+
+
+def test_draft_skips_matching_replaces_mismatching_and_reports_extra(publisher, database, monkeypatch, capsys):
+    monkeypatch.setenv("ZENODO_TOKEN", TOKEN)
+    matched = f"{STEM}.fa.gz"
+    changed = f"{STEM}.tsv"
+    calls = []
+    draft = {"id": 44, "state": "unsubmitted", "links": {"bucket": "https://zenodo.org/api/files/bucket"},
+             "files": [
+                 {"id": "same-id", "filename": matched,
+                  "checksum": "md5:" + hashlib.md5((database / matched).read_bytes()).hexdigest()},
+                 {"id": "old-id", "filename": changed, "checksum": "md5:" + "0" * 32},
+                 {"id": "extra-id", "filename": "extra.txt", "checksum": "md5:" + "0" * 32},
+             ]}
+
+    def request(method, url, token, host, *, payload=None, file_path=None):
+        calls.append((method, url))
+        if method == "GET":
+            return draft
+        if file_path is not None:
+            return {"checksum": "md5:" + hashlib.md5(file_path.read_bytes()).hexdigest()}
+        return {}
+
+    monkeypatch.setattr(publisher, "_request", request)
+    _run(publisher, database, "--draft", "44")
+    assert calls[0] == ("GET", "https://zenodo.org/api/deposit/depositions/44")
+    assert ("DELETE", "https://zenodo.org/api/deposit/depositions/44/files/old-id") in calls
+    assert not any(method == "DELETE" and url.endswith(("same-id", "extra-id")) for method, url in calls)
+    assert not any(method == "PUT" and url.endswith(matched) for method, url in calls)
+    assert any(method == "PUT" and url.endswith(changed) for method, url in calls)
+    assert calls[-1] == ("PUT", "https://zenodo.org/api/deposit/depositions/44")
+    assert "extra.txt" in capsys.readouterr().out
+
+
+def test_draft_rejects_published_and_record_combination(publisher, database, monkeypatch, capsys):
+    monkeypatch.setenv("ZENODO_TOKEN", TOKEN)
+    calls = []
+
+    def request(method, url, token, host, **kwargs):
+        calls.append((method, url))
+        return {"id": 44, "state": "done"}
+
+    monkeypatch.setattr(publisher, "_request", request)
+    with pytest.raises(SystemExit):
+        _run(publisher, database, "--draft", "44")
+    assert "not an unpublished draft" in capsys.readouterr().err
+    assert calls == [("GET", "https://zenodo.org/api/deposit/depositions/44")]
+    with pytest.raises(SystemExit):
+        _run(publisher, database, "--draft", "44", "--record", "12")
+    assert "not allowed with argument" in capsys.readouterr().err
+    assert len(calls) == 1
+    with pytest.raises(SystemExit):
+        _run(publisher, database, "--draft", "invalid")
+    assert "invalid deposition ID" in capsys.readouterr().err
+    assert len(calls) == 1
 
 
 def test_bold_alias_requires_release(publisher, database, capsys):
@@ -262,10 +355,11 @@ def test_slurm_dry_run_uses_submit_dir_without_writable_db_dir(database, tmp_pat
     for name in ("ZENODO_TOKEN", "ZENODO_SANDBOX", "ZENODO_PRODUCTION"):
         environment.pop(name, None)
     result = subprocess.run(["bash", str(BUILD_SCRIPT), "--db-dir", str(tmp_path / "absent"),
-                             "--reuse", str(database), "--dry-run"], env=environment,
+                             "--reuse", str(database), "--draft", "44", "--dry-run"], env=environment,
                             capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
     assert "Planned files:" in result.stdout
+    assert "--draft 44" in result.stdout
 
 
 def test_slurm_reports_missing_publisher_early(database, tmp_path):
@@ -383,3 +477,36 @@ def test_live_build_requires_explicit_environment(tmp_path):
                             env=environment, capture_output=True, text=True)
     assert result.returncode == 2
     assert "--env is required" in result.stderr
+
+
+def test_request_failure_reports_reason_without_token(publisher, monkeypatch):
+    from urllib.error import URLError
+
+    class Opener:
+        def open(self, request, timeout=None):
+            raise URLError("connection reset by peer")
+
+    monkeypatch.setattr(publisher, "build_opener", lambda *handlers: Opener())
+    with pytest.raises(RuntimeError) as error:
+        publisher._request("GET", "https://zenodo.org/api/x", TOKEN, "zenodo.org")
+    assert "connection reset by peer" in str(error.value) and TOKEN not in str(error.value)
+
+
+def test_staging_cleanup_failure_does_not_hide_upload_error(publisher, database, monkeypatch, capsys):
+    monkeypatch.setenv("ZENODO_TOKEN", TOKEN)
+
+    def fail(*args, **kwargs):
+        raise RuntimeError("upload exploded")
+
+    monkeypatch.setattr(publisher, "_upload", fail)
+    real_rmtree = publisher.shutil.rmtree
+
+    def noisy_rmtree(path, ignore_errors=False, **kwargs):
+        real_rmtree(path, ignore_errors=True)
+        if not ignore_errors:
+            raise OSError(39, "Directory not empty")
+
+    monkeypatch.setattr(publisher.shutil, "rmtree", noisy_rmtree)
+    with pytest.raises(SystemExit):
+        _run(publisher, database)
+    assert "upload exploded" in capsys.readouterr().err

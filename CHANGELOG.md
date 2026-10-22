@@ -2,12 +2,16 @@
 
 Versions follow [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`). The package version is declared in `pyproject.toml`, mirrored in `CITATION.cff`, and checked against this file before a release tag is created.
 
-## [Unreleased]
+## [1.3.0] - 2026-10-22
 
 ### Added
 
-- `barcodemapper --fetch` downloads the prebuilt combined BOLD+UNITE database from Zenodo and installs it as `bmdb_<date>` in `--db-dir`. Options: `--fetch-version`, `--zenodo-record` (or `BARCODEMAPPER_ZENODO_RECORD`), `--index` to also download the Bowtie2 index, and `--force`. Downloads are checked against md5 and SHA256SUMS. The default Zenodo record is set once the first record is published. `--build` is unchanged.
-- Maintainer scripts `scripts/publish_zenodo.py` and `scripts/build_and_publish.sh` to publish a database release to Zenodo.
+- `barcodemapper --fetch` downloads the prebuilt combined BOLD+UNITE database from Zenodo and installs it as `bmdb_<date>` in `--db-dir`. Options: `--fetch-version`, `--zenodo-record` (or `BARCODEMAPPER_ZENODO_RECORD`), `--index` to also download the Bowtie2 index, and `--force`. Downloads are checked against md5 and SHA256SUMS. The default record is the concept record [10.5281/zenodo.23567216](https://doi.org/10.5281/zenodo.23567216); the first version (20261022) is [10.5281/zenodo.23567217](https://doi.org/10.5281/zenodo.23567217). `--build` is unchanged.
+- Maintainer scripts `scripts/publish_zenodo.py` and `scripts/build_and_publish.sh` to publish a database release to Zenodo, with six separate Bowtie2 index files and resumable draft uploads using `--draft`.
+
+### Fixed
+
+- `--build` no longer fails on current BOLD releases: BOLD records without a sequence are skipped instead of producing a database the validator rejects.
 
 ### Changed
 

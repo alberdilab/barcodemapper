@@ -25,8 +25,8 @@ barcodemapper --build                       # build your own instead
 | Option | Effect |
 | --- | --- |
 | `--fetch-version VERSION` | Zenodo database version to fetch (default: latest). |
-| `--zenodo-record ID` | Zenodo record ID. Default: the `BARCODEMAPPER_ZENODO_RECORD` environment variable, otherwise the record configured in the package. That default is set once the first record is published; until then pass `--zenodo-record` or set the variable. |
-| `--index` | Also download the prebuilt Bowtie2 index. |
+| `--zenodo-record ID` | Zenodo record ID. Default: the `BARCODEMAPPER_ZENODO_RECORD` environment variable, otherwise the record configured in the package. The package default is the concept record `23567216` (DOI 10.5281/zenodo.23567216). |
+| `--index` | Also download the six prebuilt Bowtie2 `.bt2l` index files. |
 | `--force` | Replace an existing database folder. |
 | `--db-dir DIR` | Where to install `bmdb_<date>/`. |
 
@@ -34,7 +34,7 @@ barcodemapper --build                       # build your own instead
 
 Without `--index`, the Bowtie2 index is built the first time the database is used. That needs `bowtie2-build`, time and RAM; `--index` avoids it at the cost of a larger download. The BOLD FASTA download is about 2 GB compressed and the database is several GB, so check the free space in `--db-dir` first. No sizes or timings have been measured for the prebuilt database.
 
-Downloaded files are checked against the md5 sums Zenodo records and the `SHA256SUMS` file in the release. This protects against corruption; authenticity rests on TLS and Zenodo. Nothing from the download is executed, and tar extraction of the index is restricted.
+Downloaded files, including each requested index file, are checked against the md5 sums Zenodo records and the `SHA256SUMS` file in the release. This protects against corruption; authenticity rests on TLS and Zenodo. Nothing from the download is executed.
 
 ## Licence and attribution
 

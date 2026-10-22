@@ -16,7 +16,7 @@ from barcodemapper.__version__ import __version__
 
 
 ZENODO_URL = "https://zenodo.org"
-DEFAULT_RECORD = None
+DEFAULT_RECORD = "23567216"
 USER_AGENT = f"BarcodeMapper/{__version__} (https://github.com/alberdilab/barcodemapper)"
 METADATA_CAP = 1024 * 1024
 DATABASE_CAP = 64 * 1024 ** 3

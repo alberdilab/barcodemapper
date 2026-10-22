@@ -44,7 +44,7 @@ barcodemapper --build --db-dir references   # creates references/bmdb_<YYYYMMDD>
 barcodemapper -i reads --db-dir references -o results/taxonomy.tsv
 ```
 
-Without `-d`/`--db-dir`, the newest `bmdb_*` folder in the current directory is used. `--fetch` needs a Zenodo record, which is set once the first record is published (until then use `--zenodo-record`). `--list`, `--verify` and `--update` manage databases; see the documentation.
+Without `-d`/`--db-dir`, the newest `bmdb_*` folder in the current directory is used. `--fetch` installs the latest database from [Zenodo](https://doi.org/10.5281/zenodo.23567216); add `--index` to download the prebuilt Bowtie2 index too. `--list`, `--verify` and `--update` manage databases; see the documentation.
 
 This writes `results/taxonomy.ultrastrict.tsv`, `results/taxonomy.strict.tsv`, `results/taxonomy.standard.tsv`, `results/taxonomy.permissive.tsv`, `results/taxonomy.html` and `results/taxonomy.manifest.json`. The report opens with an Overview comparing levels; see [Running an analysis](https://barcodemapper.readthedocs.io/en/latest/analysis.html) to select levels or set custom thresholds.
 
